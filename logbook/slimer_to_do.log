@@ -1,0 +1,15 @@
+Things to do:
+1) python manipulation of TIFF files 
+2) find typical noise in the photometrics CCD we're using
+3) start, or find, some noise/dark spectra 
+4) figure out how to deal with dead pixels 
+5) new battery for computer
+6) maybe a git server for wit
+7) Get the computer (PN 1281495) taken off the OCE network.
+8) How to do RapidCal?
+9) write startup procedure. This is important as the Nikon DAQ f
+   forgets about filter turrent and lamp settings.
+   Mary seemed to notice changes in noise depending on filter setting, which makes no sense.
+10) look into dynamic range issues: Mary didn't seem to be using this properly
+11) make sure use of TIFF format doesn't kill dynamic range.
+12) Git repo for analysis?

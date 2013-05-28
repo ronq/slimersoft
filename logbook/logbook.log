@@ -1,0 +1,21 @@
+May 28th 2013 ---------------------
+Begin work on SLIMER. 
+
+Image manipulation using python:
+See
+http://pythonvision.org/software
+
+http://www.itk.org/
+
+http://www.cellprofiler.org/
+
+http://opencv.willowgarage.com/documentation/python/cookbook.html
+
+http://scipy-lectures.github.io/advanced/image_processing/
+
+http://scikit-image.org/
+
+Also, don't forget about ImageMagick, which has python bindings.
+
+http://code.google.com/p/priithon/
+

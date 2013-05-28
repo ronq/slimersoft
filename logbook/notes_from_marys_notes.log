@@ -1,0 +1,90 @@
+May 28th 2013---------------
+Looking through Mary's logbook. I'm going to make note of anything
+interesting and/or imporant.
+
+p18  : She thought about using ImageJ or Rimage(from R) for image processing.
+
+p18  : She found a paper (IEEE Trans Nuc Sci 57,3, June 2010) that details 
+a process for image analysis:
+1) Subtract background: take BG image -- avg 1000s of frames 
+   of given exp. time. Then subtract this avg from each data acq frame
+2) Filter image: smooth w/ Gaussian filter, remove high freq noise
+   3x3 kernel for this is 0 1 0
+                          1 2 1
+                          0 1 0
+3) threshold image:
+   lower threshold chosen so that primary gamma and secondary K x-ray 
+   interactions  were well-seperated with minimal bg events 
+   upper threshold set well above maximum pixel output from scint events.
+
+p 24 : She details her analysis routine as:
+1) average many BG images (averaging removes outliers)
+2) subtract average BG image from each source image
+3) Gaussian blur each subtracted image
+4) use peakfinder on blurred images 
+
+p 25 : She thinks she's only seeing 10% of the dynamic range, or maybe only 1%
+
+p 27 : She does a mask calculation
+
+p 28 : She's using the ImageJ peakfinder
+
+p 32 : She notes that RapidCals should be done once a week
+
+p 33 : Mary does a "true" dark count by putting the lens cap on...the camera?
+       She also does a series of temperature studies with the camera detached 
+       and the lens cap ON.
+       She used 100ms exposures and a total length of 2 minutes here.
+
+p 35 : She has a plot of gray value versus temperature @ MAX e- GAIN!
+       It appears that the gray value goes down with temperature, and narrows.
+       This implies that warmer is better (as of 3/12/12)
+       She also notes in the previous page that it is hard to maintain -50C.
+
+p 36 : looks like she's settled on running at -63.6C
+
+p 37 : Mary has plots of Integrated Peak versus other things. A plot of 
+       peak area vs integrated peak shows good linearity with no source 
+       and 207Bi. 241Am shows a much wider spread, and a different scale?
+       I don't get this.
+
+p 41 : Mary makes mention of a "little black box" for blocking light, 
+       perhaps over the source and scintillator
+
+       She also makes clear that she is still using ImageJ, and has scripts.
+
+p 44 : Mary notes that CsI(Tl) quenching is 15% @ 20 keV nuclear recoil.
+       BUT this will be different for alphas.
+
+       She is taking data at -60C and -83C again.
+
+p 47 : Mary talked with Chris Murphy at Photometrics. 
+	Temp is -83C, 
+	BERT is 1.2
+	exposure time is 200 ms
+	gain is 500 (actually 200 is recommended)
+	no binning
+	
+	With these settings, and a 5 min exposure using a 150 micron slide,
+	90Sr can be seen.
+p 48 : Mary notes that the Nikon DAQ software can forget about the filter
+	turrent setting. Doing "Manage Devices" and 
+	making sure the turrent is listed fixes this. 
+	She also notes that the filter setting does impact the noise,
+	implies there is a light leak somewhere.
+
+p 51 : For 90Sr, Mary's "final" settings seem to be 
+       50 ms exposures, 
+       2x2 binning, BERT=1.2, Gain 250 and "1/3"?
+       150micron CsI, 10x objective
+       
+       For 14C, she used 
+       200ms exposures, 
+       2x2 binning, BERT=1.2,
+       Gain of 250, "1/3"
+       45 micron CsI, 10x objective
+       10 min run					
+
+           
+     
+ 
