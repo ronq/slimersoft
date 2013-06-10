@@ -19,3 +19,138 @@ Also, don't forget about ImageMagick, which has python bindings.
 
 http://code.google.com/p/priithon/
 
+May 30th 2013 ---------------------------
+Had a chat with Mary via phone today. Here are the Q&A:
+1) procedure for centering scintillator?
+There is a button down and to the right--turn on light. This will shine through the 
+objective. Should try to focus this light down to ease alignment.  
+The spot light is about the same as a source, but cover camera just in case.  
+
+
+2) special handling precautions for scintillator? Has coating, don't touch base 
+(top yellow portion). White on edges is oxidation. Glass side is bottom. 
+
+3) Light settings when running? Is the box switched completely off? Switched off light.
+
+4) Confirm temperature dependence setting? Readout noise may be temperature dependent. 
+So it is a battle between readout noise and thermal noise. 
+Thermal noise is a constant noise throughout all pixels: not "spikey" 
+
+
+5) Camera calibration? How to do? Turn on camera, attachment ring turns to close shutter,
+orange light comes on, and this activates the RapidCal, and takes a few minutes.
+Once light turns green, it is done. Sometimes never turns to green.
+In this case, repeat. Camera has to be fully cooled. May have to be set to coldest setting.
+
+6) Had issues with filter wheels? Don't recall......Filters should help, not hurt.
+Could see 241Am and 90Sr signals with filters. These are the SEMROCK filters. 
+Their efficiency is quite high.
+
+7) Readout speed used? 1 Mhz --> use slowest.
+
+8) With the Ti-U, can't do z position with stage? How to focus?
+Nope. Must manually focus (see below). 
+
+9) Focus procedure? Manual? Look at edge of scintillator, can see fiber optic 
+Use light for this, need to adjust down to low light levels. Use Live View 
+in video mode. 
+
+10) worry about objectives hitting the motorized stage?
+Biggest objective would get really close to sample. biggest is 40X
+Be careful. 
+
+
+11) any mounts for holder on stage? Or just put scintillator on top?
+Clamp scintillator on holder---should fit. 
+
+12) SLIMER data on external rugged disk? Safe to wipe clean?
+May have uploaded everything to WIT before, but can't recall.
+Check first.
+ 
+13) Manual for Nikon NIS Elements? There is one on the computer. 
+It may be on the anti-priracy thumb drive.
+
+14) Any other hints?
+
+15) Your best idea of problems?
+
+16) Anything hard to reproduce? No. 241Am plots could be reproduced consistenly. 
+
+17) Anything special about nd2 file format? 
+Maybe not. Maybe only way to take movies. 
+
+18) Any solutions/thoughts about dynamic range issues?
+Have a bunch of grey scale available on camera, everything is crowded
+down by 300. Camera guys thought she was crazy when brought up. 
+Nothing would really blow out a pixel. 
+Normally played with gain of camera and total number of possible grey scale numbers. 
+2^32. Never really helped. 
+Noise is around grey value of 300....
+
+19) Will need to chat again next week!!!!!!!!!!!
+
+20) power input for firewire cable? Problems with board?
+Microscope guy was missing a bracket to hold it still.
+Should get bracket. 
+But always worked. Cover was loose so bracket could be installed later. 
+No idea about power.
+
+21) What is the "1/3" next to gain setting?
+This is the fractional gain thing. Couldn't see a difference.
+Maybe gain without E/M on. 
+
+22) What are LUTS? It is a noise histogram: number of pixels at a certain value. 
+But not sure.  
+ 
+23) Worry about exposing camera to ambient light? While on?
+Never seemed to hurt it. Try not to shine light directly onto it.
+
+24) No filters should be in place, correct? Filters don't help signals.
+Filter is tuned to CsI output. Second? Look for empty boxes to find out what the second
+was tuned to.
+
+25) Always start with lowest power.....if not far enough back you may miss activity
+Start with 4x. Only use 40x when everything is fine tuned. 
+This is more a function of activity area. 
+Objectives are manual. 
+ 
+26) Mode setting is all on software. Needed to use EM mode and high gain (250)
+to see 241Am. Readout noise is much worse in EM mode though. 
+
+Other notes:
+Mary thought that we had proof of principle in that we had some signals from radiation.
+Cs137 and 90Sr --> clearly seeing signals, just couldn't get down to carbon 14 energies.
+
+Different readout modes: BERT, some noise problems, including readout noise.
+Noise obscures the C14. 
+Maybe all readout noise? 
+Camera was roughly $30k. 
+
+May have seen the 59 keV x-ray from Am241, using a source that was encapsulated.
+This was in the form of the shoulder 
+C14 endpoint is 156 keV:
+
+Noise is randomly distributed and is single pixel spikes: turning up readout rate,
+this increases.
+
+
+
+
+
+
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
