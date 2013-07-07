@@ -15,5 +15,7 @@ Things to do:
 12) Git repo for analysis?
 13) See if ESR foil on top of the CsI impacts light output. It might if light is channeled 
     upward and downward. Also check the optics of the glass: would the light diffuse out?
+14) Collect data while the camera shutter is closed with the darkbox open and closed: see if this matters in terms of counts or hot pixels. 
+
     
 

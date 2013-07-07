@@ -133,6 +133,245 @@ C14 endpoint is 156 keV:
 Noise is randomly distributed and is single pixel spikes: turning up readout rate,
 this increases.
 
+June 24th 2013 ----------------------------
+Time to look at backgrounds. A few days ago, we took different data sets in order to study backgrounds. 
+These data can be found here:
+/proj3/Slimer/Slimer_mk2/6_11_2013
+
+they are:
+am241_6_11_2013_90msec --> data using am241
+bi207_6_11_2013_90msec001 --> data using bi207
+cs137_6_11_2013_90msec --> data using cs137
+no_camera2_6_11_2013_90msec --> second run with camera shutter closed
+no_camera_6_11_2013_90msec --> first run with camera shutter closed
+no_lens_6_11_2013_90msec002 --> run with a blank lens selected, but with the camera shutter open
+no_light_6_11_2013_90msec --> can't recall
+no_source_6_11_2013_90msec001 --> run with an objective lense selected, and the CsI in place
+with_lens_6_11_2013_90msec---> run with an objective lens selected, but no CsI in place
+
+I'm interested in the background levels. There should be two, maybe three kinds of background:
+1) random thermal noise--> shows up as a baseline for all pixels
+2) readout noise --> shows up as single pixel "spikes"
+3) fake hits --> large, distributed hits of many pixels, which look like actual events 
+
+Using my code here:
+~/Work/SLIMER/AnalysisCode/BackgroundAverage
+Reduce the images to numpy arrays, and place them here:
+/proj3/Slimer/Slimer_mk2/6_11_2013_mikes_ana
+
+I'm also interested in plotting values as a function of time, or least as a function of the sequence.
+I should plot a histogram of the pixel counts per image, as a function of image, as long as the images are ordered. 
+
+Start writing some analysis code here:
+~/Work/SLIMER/AnalysisCode/BackgroundStudy
+
+The first thing to do is to calculate the means and standard deviations of each data set.
+Do this by running:
+~/Work/SLIMER/AnalysisCode/BackgroundStudy/background_averages.py
+
+Which outputs:
+For  with_lens_6_11_2013_90msec_image_array.npz  mean = 494.325271892  +/-  16.6281920055
+For  no_camera2_6_11_2013_90msec_image_array.npz  mean = 493.885512532  +/-  15.983255603
+For  no_source_6_11_2013_90msec_image_array.npz  mean = 494.132803889  +/-  17.5102654233
+For  no_lens_6_11_2013_90msec_image_array.npz  mean = 494.39873512  +/-  17.7422307399
+For  no_camera_6_11_2013_90msec_image_array.npz  mean = 493.991134101  +/-  17.2801490173
+For  no_light_6_11_2013_90msec_image_array.npz  mean = 494.2603611  +/-  15.5165295105
+
+Clearly, there appears to be no difference in the thermal noise. I should consider looking at the first and second moments 
+
+Next up, plot the histograms of each dataset. The tails may be different between different data sets.
+I've generated some plots using this script:
+    ~/Work/SLIMER/AnalysisCode/BackgroundStudy/background_plot.py
+which was used to generate the spectra in this PDF:
+    /proj3/Slimer/Slimer_mk2/6_11_2013_mikes_ana/background_plot_output.df
+The pages are not labeled, but they show the exact same spectrum. So there's no sign of a difference
+in the tail between the various datasets.
+
+I should try to plot the sources though, just to make sure I can see a difference there.
+I may also want to nudge the axis of the histograms out past 800 to make sure there are no pixels with huge counts that could then get smeared out by gaussian smoothing.
+
+Assuming that is not the case, an increase in single pixel spikes may be be excluded
+So, the thermal mean, spread and tail don't appear to change between the runs.
+However, distributed spikes as well as narrow ones may still contribute.
+
+June 25th 2013 ---------------------------
+Go ahead and run background_plot_output again, this time using wider axes to look for large amplitude pixels. 
+Also include the source data as well. 
+
+I can also plot the maximum pixel in each image for the various datasets. That should be easy. 
+Wow. There are a good number of pixels above 1000 counts. The exponential tail may be just the pedestal.
+
+Maximum value for 16bit integer is:
+        65535
+this is the largest pixel value we should see. 
+
+Mary found the mean grey value to be around 510-530 counts, with a spread of roughly 10 counts or so. 
+This is consistent with what we are seeing.
+
+I've written 
+    ~/Work/SLIMER/AnalysisCode/BackgroundStudy/summary_statistics_background_inspect.py
+to look at the means, maxes, mins and STDS of the summary statistics of the data.
+Here is the output:
+For  with_lens_6_11_2013_90msec_image_array.npz
+        126915490.0  <  imageSums  <  131934408.0   imageSums  =  129584404.075 +/- 642580.571585
+        484.144172668  <  imageMeans  <  503.289825439   imageMeans  =  494.325271892 +/- 2.45125034937
+        14.2513587371  <  imageSTDs  <  250.348696942   imageSTDs  =  14.8402789701 +/- 7.08902397438
+        702.0  <  imageMaxes  <  65535.0   imageMaxes  =  962.207210626 +/- 2739.62641249
+        8.0  <  imageHotPixels  <  2334.0   imageHotPixels  =  2163.93510436 +/- 161.667966129
+For  cs137_6_11_2013_90msec_image_array.npz
+        126774794.0  <  imageSums  <  131998273.0   imageSums  =  129463840.815 +/- 618587.497161
+        483.607460022  <  imageMeans  <  503.53345108   imageMeans  =  493.865359553 +/- 2.35972403397
+        14.2508105421  <  imageSTDs  <  205.384624051   imageSTDs  =  15.1666403246 +/- 9.01863443228
+        688.0  <  imageMaxes  <  65535.0   imageMaxes  =  1108.82460137 +/- 3883.26414632
+        10.0  <  imageHotPixels  <  2441.0   imageHotPixels  =  2199.18982536 +/- 213.214623644
+For  no_camera2_6_11_2013_90msec_image_array.npz
+        127151672.0  <  imageSums  <  131447612.0   imageSums  =  129469123.797 +/- 609546.317926
+        485.045135498  <  imageMeans  <  501.432846069   imageMeans  =  493.885512532 +/- 2.32523467226
+        13.5128387949  <  imageSTDs  <  244.673207387   imageSTDs  =  14.1719132506 +/- 7.01531311756
+        688.0  <  imageMaxes  <  65535.0   imageMaxes  =  997.710198092 +/- 2952.33922059
+        4.0  <  imageHotPixels  <  1710.0   imageHotPixels  =  1565.2325752 +/- 137.082739189
+For  no_source_6_11_2013_90msec_image_array.npz
+        127454129.0  <  imageSums  <  131631737.0   imageSums  =  129533949.743 +/- 609942.825006
+        486.198917389  <  imageMeans  <  502.135227203   imageMeans  =  494.132803889 +/- 2.32674722674
+        14.2750948375  <  imageSTDs  <  232.590609155   imageSTDs  =  14.9876637445 +/- 8.7501758906
+        701.0  <  imageMaxes  <  65535.0   imageMaxes  =  984.318199016 +/- 3145.68775114
+        12.0  <  imageHotPixels  <  2450.0   imageHotPixels  =  2209.38251986 +/- 162.278155881
+For  no_lens_6_11_2013_90msec_image_array.npz
+        127102892.0  <  imageSums  <  131612256.0   imageSums  =  129603662.019 +/- 612114.026318
+        484.859054565  <  imageMeans  <  502.060913086   imageMeans  =  494.39873512 +/- 2.33502970245
+        14.2532590737  <  imageSTDs  <  246.461033299   imageSTDs  =  15.0206592961 +/- 9.14954544455
+        702.0  <  imageMaxes  <  65535.0   imageMaxes  =  1032.55462822 +/- 3477.94478414
+        6.0  <  imageHotPixels  <  2336.0   imageHotPixels  =  2158.33877086 +/- 179.358476253
+For  no_camera_6_11_2013_90msec_image_array.npz
+        127110406.0  <  imageSums  <  131701571.0   imageSums  =  129496811.858 +/- 612977.322348
+        484.887718201  <  imageMeans  <  502.401622772   imageMeans  =  493.991134101 +/- 2.33832291545
+        13.5685855493  <  imageSTDs  <  192.575227729   imageSTDs  =  14.4970734516 +/- 9.10882304613
+        695.0  <  imageMaxes  <  65535.0   imageMaxes  =  1154.93179951 +/- 4163.58203042
+        8.0  <  imageHotPixels  <  1710.0   imageHotPixels  =  1578.50041085 +/- 163.899232149
+For  bi207_6_11_2013_90msec_image_array.npz
+        127084222.0  <  imageSums  <  131358876.0   imageSums  =  129560077.262 +/- 617985.792275
+        484.787834167  <  imageMeans  <  501.094345093   imageMeans  =  494.232472466 +/- 2.35742871199
+        14.4878725447  <  imageSTDs  <  205.327066126   imageSTDs  =  15.7535460707 +/- 9.76963909973
+        698.0  <  imageMaxes  <  65535.0   imageMaxes  =  1238.93920973 +/- 4472.78337055
+        9.0  <  imageHotPixels  <  2828.0   imageHotPixels  =  2469.06458967 +/- 286.584434199
+For  no_light_6_11_2013_90msec_image_array.npz
+        126949017.0  <  imageSums  <  131924005.0   imageSums  =  129567388.1 +/- 610598.200612
+        484.272068024  <  imageMeans  <  503.250141144   imageMeans  =  494.2603611 +/- 2.32924728627
+        14.2126337106  <  imageSTDs  <  130.085587209   imageSTDs  =  14.6745136458 +/- 4.47168255053
+        702.0  <  imageMaxes  <  65535.0   imageMaxes  =  934.127942293 +/- 2379.22987306
+        4.0  <  imageHotPixels  <  2319.0   imageHotPixels  =  2143.91609719 +/- 154.062859374
+
+
+The only thing that seems to change is the number of hot pixels! Clear differences with the camera shutter closed on the low end, and 
+the bi207 data on the high end. 
+
+Findings:  mean pixels (the noise floor) don't seem to be effected,except by the temp setting. Makes sense: this is the thermal noise.
+           The hottest pixel in an image is quite random, and the mean hottest pixel has a huge spread centered on ~ 1000. 
+           The number of hot pixels (those 3 sigma above an average for each image) DOES vary when a source is present, and when the camera shutter is closed. 
+           The mean does not vary much, so this is something to look at. 
+June 26th 2013----------------------------------------------------------------------
+Evidence that the pixel counts are not being processed correctly:
+            When using background_plot.py, the histogram produced shows no pixels larger than 1,000 or so. Unless the problem is with the linear plot.
+            When using summary_statistics_inspect.py, the average maximum pixel is shown to be ~1000, with a very large deviation?
+            When using summary_statistics_plot.py, the histogram of imageMax clearly shows some images with pixel counts below 65535, but above 10,000. 
+               
+The distribution of hotpixels also is confusing: it looks like for all data sets, the number is >1000 most of the time? Gaussian statistics would expect 99% to be within 700....
+It does look like most are >1000......I need to rethink my threshold.
+For this, I need to look at the pixel count histograms. It looks like the pedestal doesn't go away until ~~~550 pixel counts, which is closer to 4 sigma away from the mean.
+Use 5 as the threshold. run background_average on the images again. For these analysis runs, I've appended "_mk2" the resulting .npz files. 
+It looks like the trend is still present: the no_lens data file has on average 555 +/- 55 hot pixels, while other sets have 770 +/- 70
+
+Still confused about the pixel counts though.
+I should try to replicate the computation of the max pixel counts again.
+
+
+June 27th 2013-------------------------------------------------------------------------------------
+Look into max pixel counts again. 
+modify background_average.py into background_average_test.py to see what is going on.
+First, display the output of amax(oneImageArray). Seeing large values above 1000 here will prove that my summary statistics analysis programs are not buggy.
+
+I am already seeing the large max pixels show up. Okay. Now check to see if these pixels are actually present in the data.....
+or if amax is somehow doing something funny.
+
+I'm printing out pixel values in excess of 10,000, as well as the number. I'm also displaying amax(oneImageArray) when it is above 10,000.
+Sometimes amax is displayed, but no associated pixel values are displayed. Something is behaving strangely.
+It looks like comparing integer and decimal values can lead to problems. Comparing against integers appears to work.
+
+Bottom line: there are some pixels with values above 10,000. Sometimes more than one in an image. 
+Looks like I may have an histogram problem. 
+Putting some code into background_plot_debug.py, I can see that these large pixels are still present in the data.
+So I can focus on the histogram routine now. Limiting the plot to counts above 10,000 and with a linear y axis, I can clearly see
+counts now. The problem: many bins =1, which would be zero in a logy plot.
+
+So I need to clean up the histograms in general now. 
+
+Looks like I am having problems with the Am241 run. After processing many files, it chokes and eats up memory.
+During the first try, it chocked on am241_6_11_2013_90msect6886.tif
+
+Try again, and count the number of files input first. 
+The program has stalled again on am241_6_11_2013_90msect6886.tif after half an hour. This was file 7858.
+Delete (or move) the file, and try again.
+7857 /proj3/Slimer/Slimer_mk2/6_11_2013/am241_6_11_2013_90msec/am241_6_11_2013_90msect3561.tif
+This is the last file in the bunch. The problem is AFTER the files are loaded.
+The problem is during the computation of the STD.
+Actually, even getting past that, I can't save the npz file since it is larger than 2GB, and npz files can't be larger than that. 
+I'll need to switch over to using HDF5 format!
+
+
+Once I've taken a look at the pixel counts past 1,000 and compared the different data sets, I can move on. 
+I don't see much of a difference in terms of the shape of the tail past 100 pixel counts. 
+Plot them all over on top of each other, perhaps with a log plot, and see if the AMPLITUDE of the tail is different. 
+I don't see much of a difference, if any. 
+----> only the # of hot pixels is a unique observable, it seems
+
+
+The next step is to PLOT the images, setting pixels less than say 3,4,or 5 sigma equal to zero, and setting the other pixels to maximum amplitude.
+Do this for all datasets in order to look at the distribution of hot pixels. 
+I want to see if the hot pixels are clustered in any way.
+
+
+
+Need to switch to HDF format, perhaps use PANDAS?!
+
+
+      
+Given the hot pixel observation, I should take some more data with the camera shutter closed, by:
+having the box open
+having the box closed (we've done with before)
+having the box closed and covered
+having the box closed and covered, and the lights off downstairs (need to cover screen, and use delay in data taking)      
+      
+      
+      
+      
+                  
+            
+           
+           
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
