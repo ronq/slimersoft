@@ -325,16 +325,40 @@ I don't see much of a difference, if any.
 ----> only the # of hot pixels is a unique observable, it seems
 
 
+July 8th 2013 -------------------------------------------------------
+We've switched from using wit's standard python distribution to using Anaconda. This gives us newer code. 
+The new version of numpy CAN write out npz files larger than 2GB now. This is good, since using PANDAS is tricky...
+I think I would have needed to use a Panel, instead of series or DataFrame since I was trying to store a 3D ndarry. 
+
+I'm still having issues with calculating the STD though. Could be a bug. The variance actually works. The only difference is a sqrt, and perhaps some 
+array manipulations. I've run background_average on all the 6_11_2013 data sets, so this step should be done.
+
+It looks like numpy has trouble using nunmpy.load on large arrays. This is fixed with a new numpy, but I don't think I want to mess with that. 
+It should work with Python3 though, so I could switch.
+
+Reexamine what I wish to do. 
+             Compute a background average: this code works
+             Compute summary statistics: this code works
+             Quickly scan through many files: use parallel computing. 
+Eventually I will want to be able to scan through many image files and look at images that pass certain cuts. 
+For THAT I'll need some complicated HDF5 stuff, NOT pandas which aren't setup for this type of thing. 
+                
+
+
+
+
+
+
+
+
+
+
+
 The next step is to PLOT the images, setting pixels less than say 3,4,or 5 sigma equal to zero, and setting the other pixels to maximum amplitude.
 Do this for all datasets in order to look at the distribution of hot pixels. 
 I want to see if the hot pixels are clustered in any way.
 
 
-
-Need to switch to HDF format, perhaps use PANDAS?!
-
-
-      
 Given the hot pixel observation, I should take some more data with the camera shutter closed, by:
 having the box open
 having the box closed (we've done with before)
