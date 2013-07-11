@@ -342,8 +342,84 @@ Reexamine what I wish to do.
              Quickly scan through many files: use parallel computing. 
 Eventually I will want to be able to scan through many image files and look at images that pass certain cuts. 
 For THAT I'll need some complicated HDF5 stuff, NOT pandas which aren't setup for this type of thing. 
-                
 
+I committed my existing code to git, and will now par things down. 
+
+The existing averaged images are fine to use however.                
+
+I could still use Pandas for other observables. I could record:
+file name, including the whole path
+the number of hot pixels
+location of peak
+peak height
+peak area
+and so on.
+
+July 9th 2013----------------------------------------------------
+I have some analysis code running for images now. The location is here:
+    ~/Work/SLIMER/AnalysisCode/ImageAnalysis/image_analysis.py
+this can input multiple images, and subtracts the background using a NPZ file. 
+The background subtraction was a bit tricky, as the unsigned 16 bit integers in the array wrap around when the background is higher than the source pixel. 
+I got around this by using a mask array. 
+
+I need to code in a peak finder now. I should consider writing a seperate class for this, and need to select a technique. 
+ndimage.measurements may be useful here
+scikit-image may be useful as well
+
+Cluster Analysis in general might be useful.
+So might blob detection
+watershed may work in a median or gaussian blur is applied.
+k-means clustering(in scikits-learn, scipy, or openCV, or scipy-cluster)
+Otsu's method
+scikit-learn's linear support vector machine in kernel (radial basis function)smode
+
+I'm seeing evidence of clustering, even with a threshold of 0.5 sigma. 
+
+To implement a k-means approach, I'll need to integrate itensity data into the algorithm.
+One way to do this is to feed the algorithm each point N times, where N is the pixel count
+
+July 10th 2013 --------------------------------------------------
+I've got a test k-means script running, and have also been able to apply it to images.
+The key with the scipy implementation is to NOT whiten the data.
+
+It looks like using k=2 works fairly well, one cluster will be the peak, and the other will be the background and thus junk, with wide seperations 
+Using kmeans for images with 70 or more hot pixels that are at least 0.75 sigma above background seems to work. 
+Applying it to ALL images seems to work: images with no clear cluster seem to product distortions of 100 or greater, and only 50% of pixels 
+are in one cluster. The images with clusters seem to have distortions < 20, and 80% or more pixels are in a cluster. 
+
+So this may work, when cuts are applied to the output of the kmeans algorithm. 
+
+July 11th 2013---------------------------------------------------
+It looks like my background average routine is choking again....the arrays are simply too large. 
+Instead, I'll need to compute a running average and variance instead, as detailed here:
+http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+
+def online_variance(data):
+    n = 0
+    mean = 0
+    M2 = 0
+ 
+    for x in data:
+        n = n + 1
+        delta = x - mean
+        mean = mean + delta/n
+        M2 = M2 + delta*(x - mean)
+ 
+    variance = M2/(n - 1)
+    return variance
+
+
+
+
+I should check to make sure that events that appear to be real events don't also have more hit pixels in the background as well. 
+
+
+
+
+
+
+
+   
 
 
 
