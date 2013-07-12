@@ -407,6 +407,34 @@ def online_variance(data):
  
     variance = M2/(n - 1)
     return variance
+Okay...the new background average has been implemented. 
+
+The k-means algorithm when run on 241Am data, seems to do a pretty good job of finding clusters: there are far more points in one cluster, 
+and the distortion is far lower (~30 instead of ~150).
+
+On C14 data, the fraction is picking up clusters. The distortion is high though: 120 pixels. At least for some.
+The efficiency is quite low as well. The good news is that the the algorithm is picking up fairly low energy events. I think.
+A fraction of .39 still produces a very noticeable cluster
+
+July 12th 2013 ----------------------------------------------------
+I've coded a DBSCAN implementation, but the memory use is REALLY bad. I think I can code my own implemenation using the original image matrix, and have it run much faster.
+Or I could run ELKI externally
+
+
+
+
+I should be able to find the "good cluster" by averging the distance for all points, and picking the one with the smaller average distance. 
+
+
+
+
+
+
+
+
+
+
+
 
 
 
