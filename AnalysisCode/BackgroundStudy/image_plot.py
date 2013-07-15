@@ -1,0 +1,56 @@
+#! /usr/bin/env python
+#
+"""  This script will display some images already put into numpy foramt 
+
+     Extra discription
+     
+     usage:  image_plot.py  [path to images to display]  
+     
+     
+     
+"""
+import sys
+import math
+import numpy
+import scipy
+import glob
+import matplotlib.pyplot
+#import matplotlib.backends.backend_pdf
+import os
+
+
+# get arguments
+inputList=glob.glob(sys.argv[1])
+outputRoot=sys.argv[2]
+
+for npzfile in inputList:
+    fileRootName=os.path.basename(npzfile)
+    inputArray=(numpy.load(npzfile))['imageArray']
+    print inputArray.shape
+    for i in range(inputArray.shape[2]):
+        #print image.shape, image.dtype
+        # apply the threshold, and turn the image into a boolean array
+        #print inputArray[:,:,i].shape
+        boolArray=inputArray[:,:,i] > 650
+        print numpy.sum(boolArray)
+        matplotlib.pyplot.gray()
+        #matplotlib.pyplot.title("Data From "+fileRootName)
+        matplotlib.pyplot.imshow(boolArray)
+        matplotlib.pyplot.imshow(inputArray[:,:,i])
+        matplotlib.pyplot.show()
+        #data=numpy.reshape(inputArray,-1)  # need to format the numpyArray as a single dimension
+        #matplotlib.pyplot.title("Data From "+fileRootName)
+        #matplotlib.pyplot.yscale('log')
+        raw_input("Press Enter To Continue")
+
+
+
+# form list of npz files
+# for each file
+#    compute the average for all pixels for all images
+#    compute the STD for all pixels for all images
+#    print out the results 
+
+
+
+

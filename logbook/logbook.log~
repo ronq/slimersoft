@@ -1,0 +1,548 @@
+May 28th 2013 ---------------------
+Begin work on SLIMER. 
+
+Image manipulation using python:
+See
+http://pythonvision.org/software
+
+http://www.itk.org/
+
+http://www.cellprofiler.org/
+
+http://opencv.willowgarage.com/documentation/python/cookbook.html
+
+http://scipy-lectures.github.io/advanced/image_processing/
+
+http://scikit-image.org/
+
+Also, don't forget about ImageMagick, which has python bindings.
+
+http://code.google.com/p/priithon/
+
+May 30th 2013 ---------------------------
+Had a chat with Mary via phone today. Here are the Q&A:
+1) procedure for centering scintillator?
+There is a button down and to the right--turn on light. This will shine through the 
+objective. Should try to focus this light down to ease alignment.  
+The spot light is about the same as a source, but cover camera just in case.  
+
+
+2) special handling precautions for scintillator? Has coating, don't touch base 
+(top yellow portion). White on edges is oxidation. Glass side is bottom. 
+
+3) Light settings when running? Is the box switched completely off? Switched off light.
+
+4) Confirm temperature dependence setting? Readout noise may be temperature dependent. 
+So it is a battle between readout noise and thermal noise. 
+Thermal noise is a constant noise throughout all pixels: not "spikey" 
+
+
+5) Camera calibration? How to do? Turn on camera, attachment ring turns to close shutter,
+orange light comes on, and this activates the RapidCal, and takes a few minutes.
+Once light turns green, it is done. Sometimes never turns to green.
+In this case, repeat. Camera has to be fully cooled. May have to be set to coldest setting.
+
+6) Had issues with filter wheels? Don't recall......Filters should help, not hurt.
+Could see 241Am and 90Sr signals with filters. These are the SEMROCK filters. 
+Their efficiency is quite high.
+
+7) Readout speed used? 1 Mhz --> use slowest.
+
+8) With the Ti-U, can't do z position with stage? How to focus?
+Nope. Must manually focus (see below). 
+
+9) Focus procedure? Manual? Look at edge of scintillator, can see fiber optic 
+Use light for this, need to adjust down to low light levels. Use Live View 
+in video mode. 
+
+10) worry about objectives hitting the motorized stage?
+Biggest objective would get really close to sample. biggest is 40X
+Be careful. 
+
+
+11) any mounts for holder on stage? Or just put scintillator on top?
+Clamp scintillator on holder---should fit. 
+
+12) SLIMER data on external rugged disk? Safe to wipe clean?
+May have uploaded everything to WIT before, but can't recall.
+Check first.
+ 
+13) Manual for Nikon NIS Elements? There is one on the computer. 
+It may be on the anti-priracy thumb drive.
+
+14) Any other hints?
+
+15) Your best idea of problems?
+
+16) Anything hard to reproduce? No. 241Am plots could be reproduced consistenly. 
+
+17) Anything special about nd2 file format? 
+Maybe not. Maybe only way to take movies. 
+
+18) Any solutions/thoughts about dynamic range issues?
+Have a bunch of grey scale available on camera, everything is crowded
+down by 300. Camera guys thought she was crazy when brought up. 
+Nothing would really blow out a pixel. 
+Normally played with gain of camera and total number of possible grey scale numbers. 
+2^32. Never really helped. 
+Noise is around grey value of 300....
+
+19) Will need to chat again next week!!!!!!!!!!!
+
+20) power input for firewire cable? Problems with board?
+Microscope guy was missing a bracket to hold it still.
+Should get bracket. 
+But always worked. Cover was loose so bracket could be installed later. 
+No idea about power.
+
+21) What is the "1/3" next to gain setting?
+This is the fractional gain thing. Couldn't see a difference.
+Maybe gain without E/M on. 
+
+22) What are LUTS? It is a noise histogram: number of pixels at a certain value. 
+But not sure.  
+ 
+23) Worry about exposing camera to ambient light? While on?
+Never seemed to hurt it. Try not to shine light directly onto it.
+
+24) No filters should be in place, correct? Filters don't help signals.
+Filter is tuned to CsI output. Second? Look for empty boxes to find out what the second
+was tuned to.
+
+25) Always start with lowest power.....if not far enough back you may miss activity
+Start with 4x. Only use 40x when everything is fine tuned. 
+This is more a function of activity area. 
+Objectives are manual. 
+ 
+26) Mode setting is all on software. Needed to use EM mode and high gain (250)
+to see 241Am. Readout noise is much worse in EM mode though. 
+
+Other notes:
+Mary thought that we had proof of principle in that we had some signals from radiation.
+Cs137 and 90Sr --> clearly seeing signals, just couldn't get down to carbon 14 energies.
+
+Different readout modes: BERT, some noise problems, including readout noise.
+Noise obscures the C14. 
+Maybe all readout noise? 
+Camera was roughly $30k. 
+
+May have seen the 59 keV x-ray from Am241, using a source that was encapsulated.
+This was in the form of the shoulder 
+C14 endpoint is 156 keV:
+
+Noise is randomly distributed and is single pixel spikes: turning up readout rate,
+this increases.
+
+June 24th 2013 ----------------------------
+Time to look at backgrounds. A few days ago, we took different data sets in order to study backgrounds. 
+These data can be found here:
+/proj3/Slimer/Slimer_mk2/6_11_2013
+
+they are:
+am241_6_11_2013_90msec --> data using am241
+bi207_6_11_2013_90msec001 --> data using bi207
+cs137_6_11_2013_90msec --> data using cs137
+no_camera2_6_11_2013_90msec --> second run with camera shutter closed
+no_camera_6_11_2013_90msec --> first run with camera shutter closed
+no_lens_6_11_2013_90msec002 --> run with a blank lens selected, but with the camera shutter open
+no_light_6_11_2013_90msec --> can't recall
+no_source_6_11_2013_90msec001 --> run with an objective lense selected, and the CsI in place
+with_lens_6_11_2013_90msec---> run with an objective lens selected, but no CsI in place
+
+I'm interested in the background levels. There should be two, maybe three kinds of background:
+1) random thermal noise--> shows up as a baseline for all pixels
+2) readout noise --> shows up as single pixel "spikes"
+3) fake hits --> large, distributed hits of many pixels, which look like actual events 
+
+Using my code here:
+~/Work/SLIMER/AnalysisCode/BackgroundAverage
+Reduce the images to numpy arrays, and place them here:
+/proj3/Slimer/Slimer_mk2/6_11_2013_mikes_ana
+
+I'm also interested in plotting values as a function of time, or least as a function of the sequence.
+I should plot a histogram of the pixel counts per image, as a function of image, as long as the images are ordered. 
+
+Start writing some analysis code here:
+~/Work/SLIMER/AnalysisCode/BackgroundStudy
+
+The first thing to do is to calculate the means and standard deviations of each data set.
+Do this by running:
+~/Work/SLIMER/AnalysisCode/BackgroundStudy/background_averages.py
+
+Which outputs:
+For  with_lens_6_11_2013_90msec_image_array.npz  mean = 494.325271892  +/-  16.6281920055
+For  no_camera2_6_11_2013_90msec_image_array.npz  mean = 493.885512532  +/-  15.983255603
+For  no_source_6_11_2013_90msec_image_array.npz  mean = 494.132803889  +/-  17.5102654233
+For  no_lens_6_11_2013_90msec_image_array.npz  mean = 494.39873512  +/-  17.7422307399
+For  no_camera_6_11_2013_90msec_image_array.npz  mean = 493.991134101  +/-  17.2801490173
+For  no_light_6_11_2013_90msec_image_array.npz  mean = 494.2603611  +/-  15.5165295105
+
+Clearly, there appears to be no difference in the thermal noise. I should consider looking at the first and second moments 
+
+Next up, plot the histograms of each dataset. The tails may be different between different data sets.
+I've generated some plots using this script:
+    ~/Work/SLIMER/AnalysisCode/BackgroundStudy/background_plot.py
+which was used to generate the spectra in this PDF:
+    /proj3/Slimer/Slimer_mk2/6_11_2013_mikes_ana/background_plot_output.df
+The pages are not labeled, but they show the exact same spectrum. So there's no sign of a difference
+in the tail between the various datasets.
+
+I should try to plot the sources though, just to make sure I can see a difference there.
+I may also want to nudge the axis of the histograms out past 800 to make sure there are no pixels with huge counts that could then get smeared out by gaussian smoothing.
+
+Assuming that is not the case, an increase in single pixel spikes may be be excluded
+So, the thermal mean, spread and tail don't appear to change between the runs.
+However, distributed spikes as well as narrow ones may still contribute.
+
+June 25th 2013 ---------------------------
+Go ahead and run background_plot_output again, this time using wider axes to look for large amplitude pixels. 
+Also include the source data as well. 
+
+I can also plot the maximum pixel in each image for the various datasets. That should be easy. 
+Wow. There are a good number of pixels above 1000 counts. The exponential tail may be just the pedestal.
+
+Maximum value for 16bit integer is:
+        65535
+this is the largest pixel value we should see. 
+
+Mary found the mean grey value to be around 510-530 counts, with a spread of roughly 10 counts or so. 
+This is consistent with what we are seeing.
+
+I've written 
+    ~/Work/SLIMER/AnalysisCode/BackgroundStudy/summary_statistics_background_inspect.py
+to look at the means, maxes, mins and STDS of the summary statistics of the data.
+Here is the output:
+For  with_lens_6_11_2013_90msec_image_array.npz
+        126915490.0  <  imageSums  <  131934408.0   imageSums  =  129584404.075 +/- 642580.571585
+        484.144172668  <  imageMeans  <  503.289825439   imageMeans  =  494.325271892 +/- 2.45125034937
+        14.2513587371  <  imageSTDs  <  250.348696942   imageSTDs  =  14.8402789701 +/- 7.08902397438
+        702.0  <  imageMaxes  <  65535.0   imageMaxes  =  962.207210626 +/- 2739.62641249
+        8.0  <  imageHotPixels  <  2334.0   imageHotPixels  =  2163.93510436 +/- 161.667966129
+For  cs137_6_11_2013_90msec_image_array.npz
+        126774794.0  <  imageSums  <  131998273.0   imageSums  =  129463840.815 +/- 618587.497161
+        483.607460022  <  imageMeans  <  503.53345108   imageMeans  =  493.865359553 +/- 2.35972403397
+        14.2508105421  <  imageSTDs  <  205.384624051   imageSTDs  =  15.1666403246 +/- 9.01863443228
+        688.0  <  imageMaxes  <  65535.0   imageMaxes  =  1108.82460137 +/- 3883.26414632
+        10.0  <  imageHotPixels  <  2441.0   imageHotPixels  =  2199.18982536 +/- 213.214623644
+For  no_camera2_6_11_2013_90msec_image_array.npz
+        127151672.0  <  imageSums  <  131447612.0   imageSums  =  129469123.797 +/- 609546.317926
+        485.045135498  <  imageMeans  <  501.432846069   imageMeans  =  493.885512532 +/- 2.32523467226
+        13.5128387949  <  imageSTDs  <  244.673207387   imageSTDs  =  14.1719132506 +/- 7.01531311756
+        688.0  <  imageMaxes  <  65535.0   imageMaxes  =  997.710198092 +/- 2952.33922059
+        4.0  <  imageHotPixels  <  1710.0   imageHotPixels  =  1565.2325752 +/- 137.082739189
+For  no_source_6_11_2013_90msec_image_array.npz
+        127454129.0  <  imageSums  <  131631737.0   imageSums  =  129533949.743 +/- 609942.825006
+        486.198917389  <  imageMeans  <  502.135227203   imageMeans  =  494.132803889 +/- 2.32674722674
+        14.2750948375  <  imageSTDs  <  232.590609155   imageSTDs  =  14.9876637445 +/- 8.7501758906
+        701.0  <  imageMaxes  <  65535.0   imageMaxes  =  984.318199016 +/- 3145.68775114
+        12.0  <  imageHotPixels  <  2450.0   imageHotPixels  =  2209.38251986 +/- 162.278155881
+For  no_lens_6_11_2013_90msec_image_array.npz
+        127102892.0  <  imageSums  <  131612256.0   imageSums  =  129603662.019 +/- 612114.026318
+        484.859054565  <  imageMeans  <  502.060913086   imageMeans  =  494.39873512 +/- 2.33502970245
+        14.2532590737  <  imageSTDs  <  246.461033299   imageSTDs  =  15.0206592961 +/- 9.14954544455
+        702.0  <  imageMaxes  <  65535.0   imageMaxes  =  1032.55462822 +/- 3477.94478414
+        6.0  <  imageHotPixels  <  2336.0   imageHotPixels  =  2158.33877086 +/- 179.358476253
+For  no_camera_6_11_2013_90msec_image_array.npz
+        127110406.0  <  imageSums  <  131701571.0   imageSums  =  129496811.858 +/- 612977.322348
+        484.887718201  <  imageMeans  <  502.401622772   imageMeans  =  493.991134101 +/- 2.33832291545
+        13.5685855493  <  imageSTDs  <  192.575227729   imageSTDs  =  14.4970734516 +/- 9.10882304613
+        695.0  <  imageMaxes  <  65535.0   imageMaxes  =  1154.93179951 +/- 4163.58203042
+        8.0  <  imageHotPixels  <  1710.0   imageHotPixels  =  1578.50041085 +/- 163.899232149
+For  bi207_6_11_2013_90msec_image_array.npz
+        127084222.0  <  imageSums  <  131358876.0   imageSums  =  129560077.262 +/- 617985.792275
+        484.787834167  <  imageMeans  <  501.094345093   imageMeans  =  494.232472466 +/- 2.35742871199
+        14.4878725447  <  imageSTDs  <  205.327066126   imageSTDs  =  15.7535460707 +/- 9.76963909973
+        698.0  <  imageMaxes  <  65535.0   imageMaxes  =  1238.93920973 +/- 4472.78337055
+        9.0  <  imageHotPixels  <  2828.0   imageHotPixels  =  2469.06458967 +/- 286.584434199
+For  no_light_6_11_2013_90msec_image_array.npz
+        126949017.0  <  imageSums  <  131924005.0   imageSums  =  129567388.1 +/- 610598.200612
+        484.272068024  <  imageMeans  <  503.250141144   imageMeans  =  494.2603611 +/- 2.32924728627
+        14.2126337106  <  imageSTDs  <  130.085587209   imageSTDs  =  14.6745136458 +/- 4.47168255053
+        702.0  <  imageMaxes  <  65535.0   imageMaxes  =  934.127942293 +/- 2379.22987306
+        4.0  <  imageHotPixels  <  2319.0   imageHotPixels  =  2143.91609719 +/- 154.062859374
+
+
+The only thing that seems to change is the number of hot pixels! Clear differences with the camera shutter closed on the low end, and 
+the bi207 data on the high end. 
+
+Findings:  mean pixels (the noise floor) don't seem to be effected,except by the temp setting. Makes sense: this is the thermal noise.
+           The hottest pixel in an image is quite random, and the mean hottest pixel has a huge spread centered on ~ 1000. 
+           The number of hot pixels (those 3 sigma above an average for each image) DOES vary when a source is present, and when the camera shutter is closed. 
+           The mean does not vary much, so this is something to look at. 
+June 26th 2013----------------------------------------------------------------------
+Evidence that the pixel counts are not being processed correctly:
+            When using background_plot.py, the histogram produced shows no pixels larger than 1,000 or so. Unless the problem is with the linear plot.
+            When using summary_statistics_inspect.py, the average maximum pixel is shown to be ~1000, with a very large deviation?
+            When using summary_statistics_plot.py, the histogram of imageMax clearly shows some images with pixel counts below 65535, but above 10,000. 
+               
+The distribution of hotpixels also is confusing: it looks like for all data sets, the number is >1000 most of the time? Gaussian statistics would expect 99% to be within 700....
+It does look like most are >1000......I need to rethink my threshold.
+For this, I need to look at the pixel count histograms. It looks like the pedestal doesn't go away until ~~~550 pixel counts, which is closer to 4 sigma away from the mean.
+Use 5 as the threshold. run background_average on the images again. For these analysis runs, I've appended "_mk2" the resulting .npz files. 
+It looks like the trend is still present: the no_lens data file has on average 555 +/- 55 hot pixels, while other sets have 770 +/- 70
+
+Still confused about the pixel counts though.
+I should try to replicate the computation of the max pixel counts again.
+
+
+June 27th 2013-------------------------------------------------------------------------------------
+Look into max pixel counts again. 
+modify background_average.py into background_average_test.py to see what is going on.
+First, display the output of amax(oneImageArray). Seeing large values above 1000 here will prove that my summary statistics analysis programs are not buggy.
+
+I am already seeing the large max pixels show up. Okay. Now check to see if these pixels are actually present in the data.....
+or if amax is somehow doing something funny.
+
+I'm printing out pixel values in excess of 10,000, as well as the number. I'm also displaying amax(oneImageArray) when it is above 10,000.
+Sometimes amax is displayed, but no associated pixel values are displayed. Something is behaving strangely.
+It looks like comparing integer and decimal values can lead to problems. Comparing against integers appears to work.
+
+Bottom line: there are some pixels with values above 10,000. Sometimes more than one in an image. 
+Looks like I may have an histogram problem. 
+Putting some code into background_plot_debug.py, I can see that these large pixels are still present in the data.
+So I can focus on the histogram routine now. Limiting the plot to counts above 10,000 and with a linear y axis, I can clearly see
+counts now. The problem: many bins =1, which would be zero in a logy plot.
+
+So I need to clean up the histograms in general now. 
+
+Looks like I am having problems with the Am241 run. After processing many files, it chokes and eats up memory.
+During the first try, it chocked on am241_6_11_2013_90msect6886.tif
+
+Try again, and count the number of files input first. 
+The program has stalled again on am241_6_11_2013_90msect6886.tif after half an hour. This was file 7858.
+Delete (or move) the file, and try again.
+7857 /proj3/Slimer/Slimer_mk2/6_11_2013/am241_6_11_2013_90msec/am241_6_11_2013_90msect3561.tif
+This is the last file in the bunch. The problem is AFTER the files are loaded.
+The problem is during the computation of the STD.
+Actually, even getting past that, I can't save the npz file since it is larger than 2GB, and npz files can't be larger than that. 
+I'll need to switch over to using HDF5 format!
+
+
+Once I've taken a look at the pixel counts past 1,000 and compared the different data sets, I can move on. 
+I don't see much of a difference in terms of the shape of the tail past 100 pixel counts. 
+Plot them all over on top of each other, perhaps with a log plot, and see if the AMPLITUDE of the tail is different. 
+I don't see much of a difference, if any. 
+----> only the # of hot pixels is a unique observable, it seems
+
+
+July 8th 2013 -------------------------------------------------------
+We've switched from using wit's standard python distribution to using Anaconda. This gives us newer code. 
+The new version of numpy CAN write out npz files larger than 2GB now. This is good, since using PANDAS is tricky...
+I think I would have needed to use a Panel, instead of series or DataFrame since I was trying to store a 3D ndarry. 
+
+I'm still having issues with calculating the STD though. Could be a bug. The variance actually works. The only difference is a sqrt, and perhaps some 
+array manipulations. I've run background_average on all the 6_11_2013 data sets, so this step should be done.
+
+It looks like numpy has trouble using nunmpy.load on large arrays. This is fixed with a new numpy, but I don't think I want to mess with that. 
+It should work with Python3 though, so I could switch.
+
+Reexamine what I wish to do. 
+             Compute a background average: this code works
+             Compute summary statistics: this code works
+             Quickly scan through many files: use parallel computing. 
+Eventually I will want to be able to scan through many image files and look at images that pass certain cuts. 
+For THAT I'll need some complicated HDF5 stuff, NOT pandas which aren't setup for this type of thing. 
+
+I committed my existing code to git, and will now par things down. 
+
+The existing averaged images are fine to use however.                
+
+I could still use Pandas for other observables. I could record:
+file name, including the whole path
+the number of hot pixels
+location of peak
+peak height
+peak area
+and so on.
+
+July 9th 2013----------------------------------------------------
+I have some analysis code running for images now. The location is here:
+    ~/Work/SLIMER/AnalysisCode/ImageAnalysis/image_analysis.py
+this can input multiple images, and subtracts the background using a NPZ file. 
+The background subtraction was a bit tricky, as the unsigned 16 bit integers in the array wrap around when the background is higher than the source pixel. 
+I got around this by using a mask array. 
+
+I need to code in a peak finder now. I should consider writing a seperate class for this, and need to select a technique. 
+ndimage.measurements may be useful here
+scikit-image may be useful as well
+
+Cluster Analysis in general might be useful.
+So might blob detection
+watershed may work in a median or gaussian blur is applied.
+k-means clustering(in scikits-learn, scipy, or openCV, or scipy-cluster)
+Otsu's method
+scikit-learn's linear support vector machine in kernel (radial basis function)smode
+
+I'm seeing evidence of clustering, even with a threshold of 0.5 sigma. 
+
+To implement a k-means approach, I'll need to integrate itensity data into the algorithm.
+One way to do this is to feed the algorithm each point N times, where N is the pixel count
+
+July 10th 2013 --------------------------------------------------
+I've got a test k-means script running, and have also been able to apply it to images.
+The key with the scipy implementation is to NOT whiten the data.
+
+It looks like using k=2 works fairly well, one cluster will be the peak, and the other will be the background and thus junk, with wide seperations 
+Using kmeans for images with 70 or more hot pixels that are at least 0.75 sigma above background seems to work. 
+Applying it to ALL images seems to work: images with no clear cluster seem to product distortions of 100 or greater, and only 50% of pixels 
+are in one cluster. The images with clusters seem to have distortions < 20, and 80% or more pixels are in a cluster. 
+
+So this may work, when cuts are applied to the output of the kmeans algorithm. 
+
+July 11th 2013---------------------------------------------------
+It looks like my background average routine is choking again....the arrays are simply too large. 
+Instead, I'll need to compute a running average and variance instead, as detailed here:
+http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+
+def online_variance(data):
+    n = 0
+    mean = 0
+    M2 = 0
+ 
+    for x in data:
+        n = n + 1
+        delta = x - mean
+        mean = mean + delta/n
+        M2 = M2 + delta*(x - mean)
+ 
+    variance = M2/(n - 1)
+    return variance
+Okay...the new background average has been implemented. 
+
+The k-means algorithm when run on 241Am data, seems to do a pretty good job of finding clusters: there are far more points in one cluster, 
+and the distortion is far lower (~30 instead of ~150).
+
+On C14 data, the fraction is picking up clusters. The distortion is high though: 120 pixels. At least for some.
+The efficiency is quite low as well. The good news is that the the algorithm is picking up fairly low energy events. I think.
+A fraction of .39 still produces a very noticeable cluster
+
+July 12th 2013 ----------------------------------------------------
+I've coded a DBSCAN implementation, but the memory use is REALLY bad. I think I can code my own implemenation using the original image matrix, and have it run much faster.
+Or I could run ELKI externally.
+
+I've coded my own implemenation, commited a new git revision, and then started to take out the use of the scipy revision.
+At this point, I'm going to have to debug the new dbscan code, and the code that uses it. Then I'll have to see if it works.
+
+I also need to look at the two images that Erik sent me: I need to make sure they are not from a sharp spike.
+
+July 15th 2013-----------------------------------------------------
+DBSCAN is kind of working, but is slow. 
+profiling now:
+sum uses 144 total time
+dbscan uses 371 total time, of which
+regionQuery uses 221.577
+numpy reduce uses 144
+zeros uses 195
+
+Stop using zeros in regionQuery
+Profile again:
+sum is using 121
+dbscan uses 302 total time
+regionQuery uses 176
+sum is using 122
+reduce uses 122 (could be same thing, or could be formation of the reduced sqaure matrix ) 
+
+Stop using sums everywhere 
+
+
+
+
+
+I should be able to find the "good cluster" by averging the distance for all points, and picking the one with the smaller average distance. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+I should check to make sure that events that appear to be real events don't also have more hit pixels in the background as well. 
+
+
+
+
+
+
+
+   
+
+
+
+
+
+
+
+
+
+
+The next step is to PLOT the images, setting pixels less than say 3,4,or 5 sigma equal to zero, and setting the other pixels to maximum amplitude.
+Do this for all datasets in order to look at the distribution of hot pixels. 
+I want to see if the hot pixels are clustered in any way.
+
+
+Given the hot pixel observation, I should take some more data with the camera shutter closed, by:
+having the box open
+having the box closed (we've done with before)
+having the box closed and covered
+having the box closed and covered, and the lights off downstairs (need to cover screen, and use delay in data taking)      
+      
+      
+      
+      
+                  
+            
+           
+           
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+

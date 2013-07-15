@@ -1,0 +1,55 @@
+#! /usr/bin/env python
+#
+"""  This script will analyze the summary statistics arrays in the image array npz files
+
+     Extra discription
+     
+     usage:  summary_statistics_background_inspect.py  [path to npz files to analyze]
+     
+     
+     
+"""
+import sys
+import math
+import numpy
+import scipy
+import glob
+import matplotlib.pyplot
+import matplotlib.backends.backend_pdf
+import os
+
+nbins=100
+
+pdfOutput=matplotlib.backends.backend_pdf.PdfPages
+
+
+# get arguments
+inputList=glob.glob(sys.argv[1])
+
+arrayList=['imageSums','imageMeans','imageSTDs','imageMaxes','imageHotPixels']
+
+ 
+for npzfile in inputList:
+    fileRootName=os.path.basename(npzfile)
+    fileRootName=os.path.basename(npzfile)
+    print "For ",fileRootName
+    for array in arrayList:
+        #if array
+        arrayData=(numpy.load(npzfile))[array]
+        arrayMean=numpy.mean(arrayData)
+        arrayMax=numpy.amax(arrayData)
+        arrayMin=numpy.amin(arrayData)
+        arraySTD=numpy.std(arrayData)
+        #print "  Summary Statistics on: ",array
+        print "       ",arrayMin," < ", array,  " < ", arrayMax, " ",array," = ",arrayMean, "+/-",arraySTD 
+        #if array == 'imageMaxes':
+            #newarray 
+        
+        
+         
+    #data=numpy.reshape(inputArray,-1)  # nned to format the numpyArray as a single dimension?
+    
+
+
+
+
