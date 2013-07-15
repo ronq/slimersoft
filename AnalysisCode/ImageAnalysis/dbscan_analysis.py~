@@ -12,7 +12,7 @@ class dbscan_implementation:
         self.MinPts=20
         self.imageSize=image.shape[0] # assume it is square
         self.eps = 3.0 # must be a float!!!!!
-        self.pixelID=numpy.zeros((512,512))  # this marks each point in an image with a particular ID, either noise (-1) or a cluster (positive integer)
+        self.pixelID=numpy.zeros((512,512))  # this marks each point in an image with a particular ID, either zero (-2) noise (-1) or a cluster (positive integer)
         self.pixelVisited=numpy.zeros((512,512))
         self.tempPixels=numpy.zeros((self.imageSize,self.imageSize)) # for internal use 
         self.imageArray=image
@@ -28,7 +28,7 @@ class dbscan_implementation:
         while not arrayIterator.finished:
                     position=arrayIterator.multi_index
                     counts=arrayIterator[0]
-                    print "DBSCAN: Working on pixel:",position,counts
+                    #print "DBSCAN: Working on pixel:",position,counts
                     if position[1]==0:
                          print "DBSCAN: Working on pixel:",position,counts
                     self.pixelVisited[position]=True
@@ -40,7 +40,9 @@ class dbscan_implementation:
                             C+=1
                             # C denotes a new cluster
                             print "Found new cluster, calling expandCluster"
-                            self.expandCluster(position,neighborPixels,C,eps,MinPTs)  
+                            self.expandCluster(position,neighborPixels,C,self.eps,MinPTs)  
+                    else:
+                        self.pixelID[position]=-2 # pixel is zero! 
                     arrayIterator.iternext()       
         print "Done with DBScan"
         return
