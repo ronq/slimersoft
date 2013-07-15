@@ -28,17 +28,19 @@ class dbscan_implementation:
         while not arrayIterator.finished:
                     position=arrayIterator.multi_index
                     counts=arrayIterator[0]
+                    print "DBSCAN: Working on pixel:",position,counts
                     if position[1]==0:
                          print "DBSCAN: Working on pixel:",position,counts
                     self.pixelVisited[position]=True
-                    neighborPixels,neighborPixelsSum  = self.regionQuery(position) # neighborPixels will be a copy of the imageArray, with all but the neighbor pixels masked
-                    if neighborPixelsSum < self.MinPts:
-                        self.pixelID[position] = -1  #mark this position as noise
-                    else:
-                        C+=1
-                        # C denotes a new cluster
-                        print "Found new cluster, calling expandCluster"
-                        self.expandCluster(position,neighborPixels,C,eps,MinPTs)  
+                    if counts > 0.: # don't try to find a cluster when the pixel is zero <<this is my own logic!>>
+                        neighborPixels,neighborPixelsSum  = self.regionQuery(position) # neighborPixels will be a copy of the imageArray, with all but the neighbor pixels masked
+                        if neighborPixelsSum < self.MinPts:
+                            self.pixelID[position] = -1  #mark this position as noise
+                        else:
+                            C+=1
+                            # C denotes a new cluster
+                            print "Found new cluster, calling expandCluster"
+                            self.expandCluster(position,neighborPixels,C,eps,MinPTs)  
                     arrayIterator.iternext()       
         print "Done with DBScan"
         return
@@ -71,9 +73,11 @@ class dbscan_implementation:
         clusterSum=0.
         # setup bounds of a smaller, square array that contains every pixel in the neighborhood  
         lo_x=position[0]-int(self.eps)
-        hi_x=position[0]+int(self.eps)+1
+        #hi_x=position[0]+int(self.eps)+1
+        hi_x=position[0]+int(self.eps)
         lo_y=position[1]-int(self.eps)
-        hi_y=position[1]+int(self.eps)+1
+        #hi_y=position[1]+int(self.eps)+1
+        hi_y=position[1]+int(self.eps)
         # enforce boundaries of image:
         if lo_x <0 :
             lo_x = 0
@@ -84,29 +88,21 @@ class dbscan_implementation:
         if hi_y > (self.imageSize-1):
             hi_y = self.imageSize-1   
         # now iterate though the neighborhood, and test for being within eps
-        arrayIterator=numpy.nditer(self.imageArray[lo_x:hi_x,lo_y:hi_y],flags=['multi_index'])
+        #arrayIterator=numpy.nditer(self.imageArray[lo_x:hi_x,lo_y:hi_y],flags=['multi_index'])
+        arrayIterator=numpy.nditer(self.imageArray,flags=['multi_index'])
         while not arrayIterator.finished:
-                    
                     positionPrime=arrayIterator.multi_index
                     countsPrime=arrayIterator[0]
-                    
-                    """ 
                     if countsPrime: # only for non-zero elements
                         if positionPrime[0] >= lo_x: 
                             if positionPrime[0] <= hi_x: # don't add 1 here
                                 if positionPrime[1] >= lo_y:
-                                    if positionPrime[2] <= hi_y: # don't add 1 here 
-                                    
-                    """
-                    
-                    
-                    
-                    if countsPrime : # this pixel contains counts
-                        distance=self.distanceQuery(position,positionPrime)
-                        if distance <= self.eps:
-                            print "Adding ",positionPrime, " to cluster"
-                            clusterSum+=countsPrime
-                            neighborPixels[positionPrime]=self.imageArray[positionPrime] # this pixel is within eps of the primary, so add it to the neighborPixels array
+                                    if positionPrime[1] <= hi_y: # don't add 1 here 
+                                        distance=self.distanceQuery(position,positionPrime)
+                                        if distance <= self.eps:
+                                            print "Adding ",positionPrime, " to cluster"
+                                            clusterSum+=countsPrime
+                                            neighborPixels[positionPrime]=self.imageArray[positionPrime] # this pixel is within eps of the primary, so add it to the neighborPixels array
                     arrayIterator.iternext()          
         return neighborPixels,clusterSum
 #---------------------------------------------------------------------------------

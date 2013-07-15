@@ -442,9 +442,12 @@ regionQuery uses 176
 sum is using 122
 reduce uses 122 (could be same thing, or could be formation of the reduced sqaure matrix ) 
 
-Stop using sums everywhere 
+Stop using sums everywhere.
 
+dbscan now uses 175 total time  
+regionQuery uses 173 total time!
 
+Indexing the array IS faster than applying bounds manually to a much larger matrix.
 
 
 

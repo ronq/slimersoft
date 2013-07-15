@@ -445,8 +445,10 @@ reduce uses 122 (could be same thing, or could be formation of the reduced sqaur
 Stop using sums everywhere.
 
 dbscan now uses 175 total time  
+regionQuery uses 173 total time!
 
-
+Indexing the array IS faster than applying bounds manually to a much larger matrix.
+I think my logic has some issues: I need to be sure I only work with non-zero pixels in my code. Doing otherwise makes things very slow, and perhaps incorrect!
 
 
 
