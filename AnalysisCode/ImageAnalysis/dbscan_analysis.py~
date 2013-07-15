@@ -9,12 +9,12 @@ import sklearn.cluster
 class dbscan_implementation:
 #------------------------------------------------------------------------------------------------------------------------------------------
     def __init__(self,image):
-        self.MinPts=20
+        self.MinPts=10
         self.imageSize=image.shape[0] # assume it is square
-        self.eps = 3.0 # must be a float!!!!!
+        self.eps = 30.0 # must be a float!!!!!
         self.pixelID=numpy.zeros((512,512))  # this marks each point in an image with a particular ID, either zero (-2) noise (-1) or a cluster (positive integer)
         self.pixelVisited=numpy.zeros((512,512))
-        self.tempPixels=numpy.zeros((self.imageSize,self.imageSize)) # for internal use 
+        self.tempPixels=numpy.zeros((self.imageSize,self.imageSize)) # for internal use only
         self.imageArray=image
         self.dbscan() 
         return
@@ -168,12 +168,7 @@ class dbscan_analysis:
             return
       #---------------------------------------------------------------------------  
       def DoDBSCAN(self):
-            db=dbscan_implementation(self.imageArray)
-            self.core_samples = db.core_sample_indices_
-            self.labels = db.labels_
-            print core_samples
-            print labels
-            
+            self.db=dbscan_implementation(self.imageArray)
             # debug code
             #print centers, distortion
             #print numpy.shape(code), numpy.sum(code)
@@ -184,6 +179,19 @@ class dbscan_analysis:
             # get the number of clusters
             # get the number of points (actually counts) in the cluster
             # look at the distortion too
+            # get zero pixels:
+            zeroMask= (self.db.pixelID == -2)
+            # get noise pixels:
+            noiseMask= (self.db.pixelID  == -1)
+            # get actual clusters
+            maxClusterID=self.db.pixelID.max()
+            
+            print "DBSCAN Found ",maxClusterID+1, " clusters"
+            clusterMask=numpy.zeros((self.imageArray.shape[0],self.imageArray.shape[0],maxClusterID+1))
+            for clusterID in range(maxClusterID):
+                clusterMask[:,:,clusterID]= (self.db.pixelID  == clusterID)
+                print "Cluster ", clusterID, " contains ", clusterMask[:,:,clusterID].sum(), " pixels and ", clusterMask[:,:,clusterID]*self.imageArray.sum(), "counts"
+            """
             totalpoints=self.features.size/2. # each point is 2x1
             clusterLabelsFound=[]   # this is the number of clusters +1 (for noise)
             clusterPointsFound=[]   # this is the energy estimate for the cluster 
@@ -217,6 +225,7 @@ class dbscan_analysis:
             for counts in self.clusterCounts:
                     self.clusterToTotalFrac.append(counts/totalpoints)
                     self.clusterToBackgroundFrac.append(counts/backgroundCounts)
+            """
             return
       #---------------------------------------------------------------------------
       
