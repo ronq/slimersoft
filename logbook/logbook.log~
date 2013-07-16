@@ -475,6 +475,8 @@ Profile again:
 2.299 distanceQuery
 Not clear how to speed things up now. 
 
+DBSCAN is now finding clusters, but it is not recording the members correctly: each cluster has only 1 pixel, even if that pixel is NOT large enough to form a cluster
+
 
 
 

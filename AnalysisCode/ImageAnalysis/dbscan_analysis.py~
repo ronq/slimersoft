@@ -11,7 +11,7 @@ class dbscan_implementation:
     def __init__(self,image):
         self.MinPts=500
         self.imageSize=image.shape[0] # assume it is square
-        self.eps = 5.0 # must be a float!!!!!
+        self.eps = 15.0 # must be a float!!!!!
         self.pixelID=numpy.zeros((512,512))  # this marks each point in an image with a particular ID, either zero (-2) noise (-1) or a cluster (positive integer)
         self.pixelVisited=numpy.zeros((512,512))
         self.tempPixels=numpy.zeros((self.imageSize,self.imageSize)) # for internal use only
@@ -20,7 +20,7 @@ class dbscan_implementation:
         return
 #-----------------------------------------------------------------------------------------------------------   
     def dbscan(self):
-        print "Beginning DBScan"
+        #print "Beginning DBScan"
         C=0 # this marks the cluster number
         #self.MinPts =100 # this is actually the minimum sum of COUNTS
         self.imageSize=512
@@ -41,12 +41,12 @@ class dbscan_implementation:
                         else:
                             C+=1
                             # C denotes a new cluster
-                            print "Found new cluster, calling expandCluster"
+                            #print "Found new cluster, calling expandCluster"
                             self.expandCluster(position,neighborPixels,C)  
                     else:
                         self.pixelID[position]=-2 # pixel is zero! 
                     arrayIterator.iternext()       
-        print "Done with DBScan", C
+        #print "Done with DBScan", C
         return
 #---------------------------------------------------------------------------------          
     def expandCluster(self,position, neighborPixels, C):
@@ -78,7 +78,7 @@ class dbscan_implementation:
                             self.pixelVisited[positionPrime]=True
                             if countsPrime:  # only do this for non-zero pixels <<My own logic>>
                                 neighborPixelsPrime,neighborPixelsSum = self.regionQuery(positionPrime)
-                                print neighborPixelsSum
+                                #print neighborPixelsSum
                                 if neighborPixelsSum >= self.MinPts:
                                     # i think I need to call expandCluster again here, starting from positionPrime
                                     # or perhaps I simply can't slice the neighbor matrix
@@ -90,9 +90,11 @@ class dbscan_implementation:
                                 if not (self.pixelID[positionPrime]): 
                                     self.pixelID[positionPrime]=-2 # zero pixel 
                         else: # pixel has already been visited 
-                            if countsPrime:   # if the point is zero, it is has already been marked as a zero point
-                                self.pixelID[positionPrime]=C  # mark this point as belonging to the cluster
-                                         
+                            if self.pixelID[positionPrime] == -1:  # if the point is zero, it has already been marked as a zero point and pixelID=-2
+                                                                   # if the point is already a member of a cluster, pixelID > 0
+                                                                   # if point has already been visited, pixelID != 0                                          
+                                                                   # so the point must have been marked as noise, and should be changed
+                                    self.pixelID[positionPrime]=C  # mark this point as belonging to the cluster
                         arrayIterator.iternext()
                              
         return
@@ -205,7 +207,7 @@ class dbscan_analysis:
             return
       #---------------------------------------------------------------------------
       def ExploreClusters(self):
-            print "Exploring Clusters"
+            print "Exploring DBSCAN Clusters"
             arrayIterator=numpy.nditer(self.imageArray,flags=['multi_index'])
             while not arrayIterator.finished:
                     position=arrayIterator.multi_index
