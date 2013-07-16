@@ -9,9 +9,9 @@ import sklearn.cluster
 class dbscan_implementation:
 #------------------------------------------------------------------------------------------------------------------------------------------
     def __init__(self,image):
-        self.MinPts=10
+        self.MinPts=100
         self.imageSize=image.shape[0] # assume it is square
-        self.eps = 30.0 # must be a float!!!!!
+        self.eps = 80.0 # must be a float!!!!!
         self.pixelID=numpy.zeros((512,512))  # this marks each point in an image with a particular ID, either zero (-2) noise (-1) or a cluster (positive integer)
         self.pixelVisited=numpy.zeros((512,512))
         self.tempPixels=numpy.zeros((self.imageSize,self.imageSize)) # for internal use only
@@ -22,25 +22,23 @@ class dbscan_implementation:
     def dbscan(self):
         print "Beginning DBScan"
         C=0 # this marks the cluster number
-        self.MinPts =40 # this is actually the minimum sum of COUNTS
+        self.MinPts =10 # this is actually the minimum sum of COUNTS
         self.imageSize=512
         arrayIterator=numpy.nditer(self.imageArray,flags=['multi_index'])
         while not arrayIterator.finished:
                     position=arrayIterator.multi_index
                     counts=arrayIterator[0]
-                    #print "DBSCAN: Working on pixel:",position,counts
-                    if position[1]==0:
-                         print "DBSCAN: Working on pixel:",position,counts
                     self.pixelVisited[position]=True
                     if counts: # don't try to find a cluster when the pixel is zero <<this is my own logic!>>
                         neighborPixels,neighborPixelsSum  = self.regionQuery(position) # neighborPixels will be a copy of the imageArray, with all but the neighbor pixels masked
+                        #print neighborPixels.sum(),neighborPixelsSum
                         if neighborPixelsSum < self.MinPts:
                             self.pixelID[position] = -1  #mark this position as noise
                         else:
                             C+=1
                             # C denotes a new cluster
                             print "Found new cluster, calling expandCluster"
-                            self.expandCluster(position,neighborPixels,C,self.eps,self.MinPts)  
+                            self.expandCluster(position,neighborPixels,C)  
                     else:
                         self.pixelID[position]=-2 # pixel is zero! 
                     arrayIterator.iternext()       
@@ -51,7 +49,7 @@ class dbscan_implementation:
         """ this function will expand a DBSCAN cluster, and modify neighborPixels"""
     
         self.pixelID[position]=C   # add this point to cluster "C"
-        arrayIterator=numpy.nditer(self.neighborPixels,flags=['multi_index'])
+        arrayIterator=numpy.nditer(neighborPixels,flags=['multi_index'])
         while not arrayIterator.finished:
                         positionPrime=arrayIterator.multi_index
                         countsPrime=arrayIterator[0]
@@ -101,7 +99,8 @@ class dbscan_implementation:
                         if distance <= self.eps:
                             print "Adding ",positionPrime, " to cluster"
                             clusterSum+=countsPrime
-                            neighborPixels[positionPrime]=self.imageArray[positionPrime] # this pixel is within eps of the primary, so add it to the neighborPixels array
+                            neighborPixels[positionPrime]+=self.imageArray[positionPrime] # this pixel is within eps of the primary, so add it to the neighborPixels array
+                            print neighborPixels[positionPrime],countsPrime,clusterSum,positionPrime
                     arrayIterator.iternext()          
                     
         """ 
@@ -137,6 +136,7 @@ class dbscan_implementation:
                                             neighborPixels[positionPrime]=self.imageArray[positionPrime] # this pixel is within eps of the primary, so add it to the neighborPixels array
                     arrayIterator.iternext()        
         """
+        
         return neighborPixels,clusterSum
 #---------------------------------------------------------------------------------
     def distanceQuery(self,position,positionPrime):
@@ -180,17 +180,27 @@ class dbscan_analysis:
             # get the number of points (actually counts) in the cluster
             # look at the distortion too
             # get zero pixels:
-            zeroMask= (self.db.pixelID == -2)
+            self.zeroMask= (self.db.pixelID == -2)
             # get noise pixels:
-            noiseMask= (self.db.pixelID  == -1)
-            # get actual clusters
-            maxClusterID=self.db.pixelID.max()
+            self.noiseMask= (self.db.pixelID  == -1)
             
-            print "DBSCAN Found ",maxClusterID+1, " clusters"
-            clusterMask=numpy.zeros((self.imageArray.shape[0],self.imageArray.shape[0],maxClusterID+1))
-            for clusterID in range(maxClusterID):
-                clusterMask[:,:,clusterID]= (self.db.pixelID  == clusterID)
-                print "Cluster ", clusterID, " contains ", clusterMask[:,:,clusterID].sum(), " pixels and ", clusterMask[:,:,clusterID]*self.imageArray.sum(), "counts"
+            # get actual clusters
+            self.maxClusterID=int(self.db.pixelID.max())
+            
+            print "DBSCAN Found ",self.maxClusterID+1, " clusters"
+            self.clusterMask=numpy.zeros((self.imageArray.shape[0],self.imageArray.shape[0],self.maxClusterID+1))
+            for clusterID in range(self.maxClusterID):
+                self.clusterMask[:,:,clusterID]= (self.db.pixelID  == clusterID)
+                print "Cluster ", clusterID, " contains ", self.clusterMask[:,:,clusterID].sum(), " pixels and ", (self.clusterMask[:,:,clusterID]*self.imageArray).sum(), "counts"
+            
+            totalpoints=self.noiseMask.sum() + self.clusterMask.sum()
+            checkpoints=totalpoints+self.zeroMask.sum()
+            
+            backgroundCounts=(self.noiseMask*self.imageArray).sum()
+            print "Background: ",backgroundCounts
+            print "    Totalpoints and Checkpoints:  ",totalpoints, checkpoints,512*512
+            
+            
             """
             totalpoints=self.features.size/2. # each point is 2x1
             clusterLabelsFound=[]   # this is the number of clusters +1 (for noise)
@@ -236,7 +246,8 @@ class dbscan_analysis:
             self.DoDBSCAN() # run the DBSCAN algorithm
             # check for a second cluster
             self.AnalyzeResults() # get cluster info
-            print "DBSCAN Results:", self.backgroundFrac,self.clusterToTotalFrac,self.clusterToBackgroundFrac
+            #print "DBSCAN Results:", self.backgroundFrac,self.clusterToTotalFrac,self.clusterToBackgroundFrac
+            
             return    
       #------------------------------------------------------------------------------         
       

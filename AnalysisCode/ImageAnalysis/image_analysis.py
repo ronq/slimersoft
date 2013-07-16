@@ -82,6 +82,7 @@ class analyze_images:
       #---------------------------------------------------------------------------  
       def SubtractBackground(self,image_number):
             aboveBackground=self.imageArray[:,:,image_number] > self.backgroundAverageArray  # get pixels above background, to serve as a mask
+            print self.backgroundAverageArray.dtype,self.imageArray.dtype
             self.imageArray[:,:,image_number]-=self.backgroundAverageArray  # do the subtraction in place
             self.imageArray[:,:,image_number]*=aboveBackground              # apply the mask, as unsigned 16 bit integers will cause pixels below background to "turn over" 
             # may want to zero out negative entries 
