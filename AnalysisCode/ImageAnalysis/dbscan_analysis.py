@@ -80,18 +80,21 @@ class dbscan_implementation:
                                 neighborPixelsPrime,neighborPixelsSum = self.regionQuery(positionPrime)
                                 print neighborPixelsSum
                                 if neighborPixelsSum >= self.MinPts:
-                                    neighborPixels+=neighborPixelsPrime  # need to make sure I'm not double counting pixels here
+                                    # i think I need to call expandCluster again here, starting from positionPrime
+                                    # or perhaps I simply can't slice the neighbor matrix
+                                    self.expandCluster(positionPrime,neighborPixelsPrime,C)
+                                    #neighborPixels+=neighborPixelsPrime  # need to make sure I'm not double counting pixels here
                                 if not (self.pixelID[positionPrime]): 
                                     self.pixelID[positionPrime]=C  
                             else:
                                 if not (self.pixelID[positionPrime]): 
                                     self.pixelID[positionPrime]=-2 # zero pixel 
+                        else: # pixel has already been visited 
+                            if countsPrime:   # if the point is zero, it is has already been marked as a zero point
+                                self.pixelID[positionPrime]=C  # mark this point as belonging to the cluster
+                                         
                         arrayIterator.iternext()
-                       
-                        
-                        
-                        
-                                 
+                             
         return
 #--------------------------------------------------------------------------------    
     def regionQuery(self,position):
@@ -201,11 +204,27 @@ class dbscan_analysis:
             #print numpy.shape(code), numpy.sum(code)
             return
       #---------------------------------------------------------------------------
+      def ExploreClusters(self):
+            print "Exploring Clusters"
+            arrayIterator=numpy.nditer(self.imageArray,flags=['multi_index'])
+            while not arrayIterator.finished:
+                    position=arrayIterator.multi_index
+                    counts=arrayIterator[0]
+                    if counts:
+                        if self.db.pixelID[position] > 0:
+                            print "      Cluster ID, position, counts = ",self.db.pixelID[position], position,counts
+       
+                    arrayIterator.iternext()      
+      
+      
+      #---------------------------------------------------------------------------
       def AnalyzeResults(self):
             # get the number of points (actually counts) in the total data
             # get the number of clusters
             # get the number of points (actually counts) in the cluster
             # look at the distortion too
+            self.ExploreClusters()
+            
             # get zero pixels:
             self.zeroMask= (self.db.pixelID == -2)
             # get noise pixels:
