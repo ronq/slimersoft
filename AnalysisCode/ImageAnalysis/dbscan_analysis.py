@@ -22,13 +22,14 @@ class dbscan_implementation:
     def dbscan(self):
         print "Beginning DBScan"
         C=0 # this marks the cluster number
-        self.MinPts =10 # this is actually the minimum sum of COUNTS
+        self.MinPts =100 # this is actually the minimum sum of COUNTS
         self.imageSize=512
         arrayIterator=numpy.nditer(self.imageArray,flags=['multi_index'])
         while not arrayIterator.finished:
                     position=arrayIterator.multi_index
                     counts=arrayIterator[0]
                     self.pixelVisited[position]=True
+                    print position
                     if counts: # don't try to find a cluster when the pixel is zero <<this is my own logic!>>
                         neighborPixels,neighborPixelsSum  = self.regionQuery(position) # neighborPixels will be a copy of the imageArray, with all but the neighbor pixels masked
                         #print neighborPixels.sum(),neighborPixelsSum
@@ -37,7 +38,7 @@ class dbscan_implementation:
                         else:
                             C+=1
                             # C denotes a new cluster
-                            print "Found new cluster, calling expandCluster"
+                            #print "Found new cluster, calling expandCluster"
                             self.expandCluster(position,neighborPixels,C)  
                     else:
                         self.pixelID[position]=-2 # pixel is zero! 
@@ -92,15 +93,15 @@ class dbscan_implementation:
         # now iterate though the neighborhood, and test for being within eps
         arrayIterator=numpy.nditer(self.imageArray[lo_x:hi_x,lo_y:hi_y],flags=['multi_index'])
         while not arrayIterator.finished:
-                    positionPrime=arrayIterator.multi_index
+                    slicedPosition=arrayIterator.multi_index # this will return the indices of the SLICED array!
+                    positionPrime=(lo_x+slicedPosition[0],lo_y+slicedPosition[1]) 
                     countsPrime=arrayIterator[0]
                     if countsPrime: # only for non-zero elements
                         distance=self.distanceQuery(position,positionPrime)
                         if distance <= self.eps:
-                            print "Adding ",positionPrime, " to cluster"
+                            #print "Adding ",positionPrime, " to cluster"
                             clusterSum+=countsPrime
                             neighborPixels[positionPrime]+=self.imageArray[positionPrime] # this pixel is within eps of the primary, so add it to the neighborPixels array
-                            print neighborPixels[positionPrime],self.imageArray[positionPrime],countsPrime,clusterSum,positionPrime
                     arrayIterator.iternext()          
                     
         """ 
