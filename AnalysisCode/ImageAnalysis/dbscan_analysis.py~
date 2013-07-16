@@ -100,7 +100,7 @@ class dbscan_implementation:
                             print "Adding ",positionPrime, " to cluster"
                             clusterSum+=countsPrime
                             neighborPixels[positionPrime]+=self.imageArray[positionPrime] # this pixel is within eps of the primary, so add it to the neighborPixels array
-                            print neighborPixels[positionPrime],countsPrime,clusterSum,positionPrime
+                            print neighborPixels[positionPrime],self.imageArray[positionPrime],countsPrime,clusterSum,positionPrime
                     arrayIterator.iternext()          
                     
         """ 
