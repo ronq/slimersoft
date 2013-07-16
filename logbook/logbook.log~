@@ -448,8 +448,31 @@ dbscan now uses 175 total time
 regionQuery uses 173 total time!
 
 Indexing the array IS faster than applying bounds manually to a much larger matrix.
+I think my logic has some issues: I need to be sure I only work with non-zero pixels in my code. Doing otherwise makes things very slow, and perhaps incorrect!
 
+July 16th 2013----------------
+Fixed a problem with array indices in queryRegion. Now code is slow again.
+Cna profile python code using this command:
+python -m cProfile
 
+a 'sum' instance is using 2.725, and has been called 1300 times 
+dbscan is using 172.472 per iteration. Of this,
+expandCluster is using 157
+regionQuery now uses 14.
+iterNext uses 13.197
+
+Fixed a few bugs.
+now profile again:
+348.444 dbscan
+320.179 expandCluster
+40.927 regionQuery
+
+expandCluster was iterating through the whole 512x512 matrix. Only iterate through the non-zero neighborhood!
+Profile again:
+71.914 dbscan
+43.127 expandCluster
+38.620 regionQuery
+2.299 distanceQuery
 
 I should be able to find the "good cluster" by averging the distance for all points, and picking the one with the smaller average distance. 
 

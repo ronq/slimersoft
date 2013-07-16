@@ -29,7 +29,10 @@ class dbscan_implementation:
                     position=arrayIterator.multi_index
                     counts=arrayIterator[0]
                     self.pixelVisited[position]=True
-                    print position
+                    """
+                    if position[1] == 0:
+                        print position
+                    """
                     if counts: # don't try to find a cluster when the pixel is zero <<this is my own logic!>>
                         neighborPixels,neighborPixelsSum  = self.regionQuery(position) # neighborPixels will be a copy of the imageArray, with all but the neighbor pixels masked
                         #print neighborPixels.sum(),neighborPixelsSum
@@ -50,22 +53,44 @@ class dbscan_implementation:
         """ this function will expand a DBSCAN cluster, and modify neighborPixels"""
     
         self.pixelID[position]=C   # add this point to cluster "C"
-        arrayIterator=numpy.nditer(neighborPixels,flags=['multi_index'])
+        lo_x=position[0]-int(self.eps)
+        hi_x=position[0]+int(self.eps)+1
+        lo_y=position[1]-int(self.eps)
+        hi_y=position[1]+int(self.eps)+1
+        # enforce boundaries of image:
+        if lo_x <0 :
+            lo_x = 0
+        if hi_x > (self.imageSize-1):     
+            hi_x = self.imageSize-1 
+        if lo_y < 0:     
+            lo_y = 0
+        if hi_y > (self.imageSize-1):
+            hi_y = self.imageSize-1   
+        #arrayIterator=numpy.nditer(neighborPixels,flags=['multi_index'])
+        arrayIterator=numpy.nditer(neighborPixels[lo_x:hi_x,lo_y:hi_y],flags=['multi_index'])
         while not arrayIterator.finished:
-                        positionPrime=arrayIterator.multi_index
+                        #positionPrime=arrayIterator.multi_index
+                        #countsPrime=arrayIterator[0]
+                        slicedPosition=arrayIterator.multi_index # this will return the indices of the SLICED array!
+                        positionPrime=(lo_x+slicedPosition[0],lo_y+slicedPosition[1]) 
                         countsPrime=arrayIterator[0]
-                        if not (self.pixelVisited[position]):
-                            self.pixelVisited[position]=True
+                        if not (self.pixelVisited[positionPrime]):
+                            self.pixelVisited[positionPrime]=True
                             if countsPrime:  # only do this for non-zero pixels <<My own logic>>
                                 neighborPixelsPrime,neighborPixelsSum = self.regionQuery(positionPrime)
                                 if neighborPixelsSum >= self.MinPts:
                                     neighborPixels+=neighborPixelsPrime  # need to make sure I'm not double counting pixels here
-                                if not (self.pixelID[position]): 
-                                    self.pixelID[position]=C  
+                                if not (self.pixelID[positionPrime]): 
+                                    self.pixelID[positionPrime]=C  
                             else:
-                                if not (self.pixelID[position]): 
-                                    self.pixelID[position]=-2 # zero pixel 
-                        arrayIterator.iternext()         
+                                if not (self.pixelID[positionPrime]): 
+                                    self.pixelID[positionPrime]=-2 # zero pixel 
+                        arrayIterator.iternext()
+                       
+                        
+                        
+                        
+                                 
         return
 #--------------------------------------------------------------------------------    
     def regionQuery(self,position):
