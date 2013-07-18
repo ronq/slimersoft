@@ -476,6 +476,19 @@ Profile again:
 Not clear how to speed things up now. 
 
 DBSCAN is now finding clusters, but it is not recording the members correctly: each cluster has only 1 pixel, even if that pixel is NOT large enough to form a cluster
+fixed a problem with expandCluster.
+Now getting multiple pixels, but now getting clusters with no pixels!!!!!!!!!!!! Also getting clusters with too few counts.
+Zero cluster problem went away once I fixed some logic in expandCluster.
+
+It seems that points are being removed from clusters after the fact: and points marked as being parts of clusters are being marked as noise later, or as members of other clusters.
+So I've still got the logic wrong.
+
+July 17th 2013 ------------
+Core points should never be removed from a cluster. But edge points can: they can be memembers of more than one cluster
+Corrected a problem with the dbscan method: I should only use points that haven't yet been visited.
+This seems to help: points are no longer being moved from one cluster to another.
+
+Now clusters have more than one pixel, have a count above MinPTS. So things look better now!
 
 
 
