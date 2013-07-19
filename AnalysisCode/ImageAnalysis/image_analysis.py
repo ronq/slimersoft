@@ -110,7 +110,9 @@ class analyze_images:
       #-------------------------------------------------------------------------------
       def DoDBSCAN(self,imageNumber):
             dbscan=dbscan_analysis.dbscan_analysis()
-            dbscan.DoIt(self.imageArray[:,:,imageNumber])
+            MinPts=700
+            eps = 10.0 # must be a float!!!!!
+            dbscan.DoIt(self.imageArray[:,:,imageNumber],minPts,eps)
             return dbscan
       #-------------------------------------------------------------------------------
       def GetPeakInfo(self,imageNumber):
@@ -122,6 +124,18 @@ class analyze_images:
       #-------------------------------------------------------------------------------
       def OutputResults(self):
             """ write results in ASCII format, each line corresponding to an image. This way I can 'cat' everything together later on"""
+            #
+            #
+            #  this is what I want to calculate for each method:
+            #  position of cluster -- weighted mean or peak position
+            #  "width" of cluster -- perhaps the standard deviation or variance of the cluster?
+            #  area of the cluster --number of pixels above a threshold
+            #  peak of the cluster -- highest pixel count inside
+            #  integrated counts inside cluster
+            #  background outside the cluster
+            #
+            #
+            
             return
       #-------------------------------------------------------------------------------
       #---------------------------------------------------------------------------

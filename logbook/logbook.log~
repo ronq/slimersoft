@@ -490,6 +490,7 @@ This seems to help: points are no longer being moved from one cluster to another
 
 Now clusters have more than one pixel, have a count above MinPTS. So things look better now!
 
+Need a good way to check the code now. Should code up the ability to compute the density of a cluster, and the percentage of counts in a cluster as well.
 
 
 
