@@ -50,7 +50,8 @@ class analyze_images:
             """ load <number> images into the overall array, and also calculate per image statistics"""
             # create the arrays first
             #print "Creating Array"
-            self.imageArray=numpy.zeros( (self.imageSize,self.imageSize,number),dtype=numpy.uint16)
+            #self.imageArray=numpy.zeros( (self.imageSize,self.imageSize,number),dtype=numpy.uint16)
+            self.imageArray=numpy.zeros( (self.imageSize,self.imageSize,number),dtype=numpy.float)
             for i in range(number):
                 self.imageArray[:,:,i] = self.Load1Image(self.inputFileList[i]) 
             return    

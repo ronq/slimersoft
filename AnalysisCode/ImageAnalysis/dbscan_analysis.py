@@ -249,6 +249,8 @@ class dbscan_analysis:
             # get actual clusters
             self.maxClusterID=int(self.db.pixelID.max())
             
+            backgroundCounts=(self.noiseMask*self.imageArray).sum()
+            
             if self.maxClusterID < 0:
                 #print "DBSCAN Found Zero Clusters"
                 pass
@@ -262,15 +264,13 @@ class dbscan_analysis:
                     self.clusterMask[:,:,clusterID]= (self.db.pixelID  == clusterID+1)
                     #print "Cluster ", clusterID, " contains ", self.clusterMask[:,:,clusterID].sum(), " pixels and ", (self.clusterMask[:,:,clusterID]*self.imageArray).sum(), "counts"
                     self.clusterPixels.append(self.clusterMask[:,:,clusterID].sum())
-                    self.clusterCounts.append(self.clusterMask[:,:,clusterID]*self.imageArray).sum())
-                    clusterFrac=self.clusterCounts/backgroundCounts  
+                    self.clusterCounts.append((self.clusterMask[:,:,clusterID]*self.imageArray).sum())
+                    self.clusterFrac.append(self.clusterCounts/backgroundCounts)  
                 totalpoints=self.noiseMask.sum() + self.clusterMask.sum()
-                checkpoints=totalpoints+self.zeroMask.sum()
-            
-                backgroundCounts=(self.noiseMask*self.imageArray).sum()
+                print self.clusterFrac
                
-                print "Background: ",backgroundCounts
-                print "    Totalpoints and Checkpoints:  ",totalpoints, checkpoints,512*512
+                #print "Background: ",backgroundCounts
+               # print "    Totalpoints and Checkpoints:  ",totalpoints, checkpoints,512*512
             
             
             """
