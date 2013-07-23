@@ -1,0 +1,123 @@
+July 19th 2013 ----------------------------------------
+have coded a simulation into rat, using the deap-rat branch
+
+Generate events INSIDE a block of scintillator.
+
+Using NaI, and 60 keV gammas, get a spike at 26.85 keV?
+Ah, the source was outside the block. 
+Generate INSIDE the block: most events are full energy events.
+Using CsI, I see the 26.85 keV spike and a new one at
+24.05 keV
+
+For an incident gamma at 0.060 MeV 
+The single scatter Compton Edge is located at 0.01141 MeV 
+The single scatter backscattered compton photon is located at 0.048590 MeV 
+The double scatter Compton Edge is located at 0.007764 MeV 
+
+Not right. 
+I must be seeing something related to x-rays.
+From this website:
+http://xdb.lbl.gov/Section1/Table_1-2.pdf
+
+In eV, the:
+        Kalpha1    Kalpha2  Kbeta1    Lalpha1 Lalpha3   Lbeta1
+53 I    28,612.0   28,317.2 32,294.7 3,937.65 3,926.04 4,220.72 4,507.5 4,800.9 
+55 Cs   30,972.8   30,625.1 34,986.9 4,286.5  4,272.2  4,619.8 4,935.9 5,280.4
+At 28.612keV:
+The single scatter backscattered compton photon is located at 0.025731 MeV
+At 32.294 keV:
+The single scatter backscattered compton photon is located at 0.028675 MeV 
+
+Don't know what is going on. Perhaps G4 is wrong?
+Nothing seems to be adding up. I'll need to turn on particle tracking to find out.
+
+Did this for 60 keV photons. The processes at play are:
+start (10^5)
+phot (10^4)
+Comp (328)
+EIoni (128)
+eBrem (even less)
+
+using the livermore physics list for em results in VERY different results. they are more complicated now.
+However, I still see two large spikes!
+bottom line: there is some crazy stuff going on. 
+July 20th 2013----------------------------------
+Go ahead and run simulations using what I have.
+ready to run Sr90, except for the 90Y bit
+ready to run 14C
+ready to run Co57
+ready to run Am241, except there's a 13 keV x-ray present as well
+ready to run Ba133, except there are some x-rays as well. 
+
+running these jobs now.
+
+should also run some 10,20,30,40,50 kev gamma-rays
+
+July 22nd 2013 ------------------
+Seeing the same low energy as before: gamma rays seem to be exciting some photoelectric lines.
+Looking at the XCOM database, photoelectric effects DO dominate here
+For iodine, there are lines at:
+1.072 keV
+4.557 keV
+4.852 keV
+5.188 keV
+33.17 keV
+
+For caesium, there are lines at:
+1.065 keV
+1.217 keV
+5.012 keV
+5.359 keV
+5.714 keV
+35.98 keV
+
+The lines still don't match, but the bottom line is that the low energy photons will produce photoelectric interactions: not compton scattering
+
+I'm seeing a feature in the Sr90 spectrum at 36.5 keV. Not sure if this is Y90, or a cross section effect.
+I should generate some "pure" Y90 to see. 
+Y90 has the same peak around 36.5 keV.
+
+It appears that no matter what, I am NOT seeing the same thing as mary. This could be an angle effect: I should generate right on the CsI to test.
+
+July 23rd 2013 ---------------
+Y90 generated closer to the CsI produces the same thing: a spike at 36.5 keV. 
+Make a new geometry, where events are generated INSIDE a thick scintillator.
+
+WAIT.
+I see the problem: I had TWO sensistive detectors defined! One was the source, the other the CsI.
+Turn off hit finding in the source!!!!!!!!!
+
+This seems to have helped quite a bit. 
+I still see x-rays though. Let's take a close look at them!
+They still do not make sense!
+Y90 looks better now. 
+
+Go ahead and re-generate events for C14, Sr90/Y90 and the gamma sources.
+Jobs are running now.
+
+It looks like Co57 is the way to go: the new simulations show the Compton Edge, and the 14 keV x-ray.
+
+I had the wrong endpoint for Y90 decays: it was way too high. 
+Regenerate these simulations.
+
+Things look different now. I still can't reproduce Mary's simulations for Sr90 or C14: her C14 is higher in energy on average, while 
+her Sr90 simulations are MUCH higher in energy on average.  
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+

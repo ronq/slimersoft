@@ -492,6 +492,11 @@ Now clusters have more than one pixel, have a count above MinPTS. So things look
 
 Need a good way to check the code now. Should code up the ability to compute the density of a cluster, and the percentage of counts in a cluster as well.
 
+July 19th 2013---------------
+Clean up dbscan code, then the entire analysis code, and then begin to run it on background
+July 23rd 2013---------------
+Continue code cleanup
+
 
 
 I should be able to find the "good cluster" by averging the distance for all points, and picking the one with the smaller average distance. 

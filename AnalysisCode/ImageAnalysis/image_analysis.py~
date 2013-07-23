@@ -110,8 +110,8 @@ class analyze_images:
       #-------------------------------------------------------------------------------
       def DoDBSCAN(self,imageNumber):
             dbscan=dbscan_analysis.dbscan_analysis()
-            #self.MinPts=700
-            #self.eps = 10.0 # must be a float!!!!!
+            minPts=700
+            eps = 10.0 # must be a float!!!!!
             dbscan.DoIt(self.imageArray[:,:,imageNumber],minPts,eps)
             return dbscan
       #-------------------------------------------------------------------------------
