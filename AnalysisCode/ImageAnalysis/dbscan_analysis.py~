@@ -262,13 +262,24 @@ class dbscan_analysis:
                     #print "Cluster ", clusterID, " contains ", self.clusterMask[:,:,clusterID].sum(), " pixels and ", (self.clusterMask[:,:,clusterID]*self.imageArray).sum(), "counts"
                     self.clusterPixels.append(self.clusterMask[:,:,clusterID].sum())    # number of pixels in a cluster
                     self.clusterCounts.append((self.clusterMask[:,:,clusterID]*self.imageArray).sum()) # number of counts in a cluster
-                    self.clusterFrac.append(self.clusterCounts/backgroundCounts)                       # number of counts in a cluster compared to identified background
+                    self.clusterFrac.append(self.clusterCounts[-1]/backgroundCounts)                       # number of counts in a cluster compared to identified background
                     self.avgPixelCount.append(self.clusterCounts[-1]/self.clusterPixels[-1])           # average pixel count in a cluster
                     pos,var = self.ComputeClusterPosition(clusterID)                                   # compute the weighted position and variance of the pixels in the cluster
                     self.clusterPosition.append(pos)
                     self.clusterPositionVariance.append(var)
                     self.clusterHottestPixel.append((self.clusterMask[:,:,clusterID]*self.imageArray).max())  # extract the position of the hottest pixel 
                 totalpoints=self.noiseMask.sum() + self.clusterMask.sum()                              # this is the total number of pixels about threshold in this image 
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                """
                 print self.clusterFrac
                 print self.clusterPixels
                 print self.clusterCounts
@@ -276,7 +287,7 @@ class dbscan_analysis:
                 print self.clusterHottestPixel
                 print self.clusterPosition
                 print self.clusterPositionVariance
-                
+                """
              
             """
             totalpoints=self.features.size/2. # each point is 2x1
@@ -317,29 +328,59 @@ class dbscan_analysis:
       #---------------------------------------------------------------------------
       def ComputeClusterPosition(self,clusterID): 
             """ this will compute the weighted average of the cluster position
+            
+                note that the means can be computed by just multiplying the clusterArray with row or column vectors like [0,1,2....] and then taking the sum 
+                
+               
+            
+            
             """
-            clusterArray=self.imageArray*self.clusterMask[:,:,clusterID]
-            # compute the mean position first
-            arrayIterator=numpy.nditer(clusterArray,flags=['multi_index'])
             mean=[0.,0.]
-            variance=[0.,0.]
+            covariance=numpy.zeros((2,2))
+            countsSquared=0.0
+            # compute the imageArray of just the cluster, and normalize it
+            clusterArray=(self.imageArray*self.clusterMask[:,:,clusterID])/self.clusterCounts[clusterID-1]
+            
+            # compute the mean. Do this quickly by using projections -------------------------------------
+            # project in two dimensions 
+            projectX=numpy.sum(clusterArray,axis=1) # note the ordering of the axis here!
+            projectY=numpy.sum(clusterArray,axis=0)
+            
+            # compute the means from the projections
+            # get mean x
+            arrayIterator=numpy.nditer(projectX,flags=['multi_index'])
             while not arrayIterator.finished:
                     position=arrayIterator.multi_index # this will return the indices of the SLICED array!
                     counts=arrayIterator[0]
-                    mean[0]+=float(position[0])*counts/(self.clusterCounts[clusterID-1])
-                    mean[1]+=float(position[1])*counts/(self.clusterCounts[clusterID-1])
+                    if counts:
+                        mean[0]+=float(position[0])*counts
                     arrayIterator.iternext() 
-            # then the standard deviation
-            res=[0.,0.]
-            arrayIterator.reset()
+            # get mean y
+            arrayIterator=numpy.nditer(projectY,flags=['multi_index']) 
             while not arrayIterator.finished:
                     position=arrayIterator.multi_index # this will return the indices of the SLICED array!
                     counts=arrayIterator[0]
-                    res[0]=float(position[0])-mean[0]
-                    res[1]=float(position[1])-mean[1]
-                    variance[0]+=(res[0]*res[0])*counts/(self.clusterCounts[clusterID-1])
-                    variance[1]+=(res[1]*res[1])*counts/(self.clusterCounts[clusterID-1])
+                    if counts:
+                        mean[1]+=float(position[0])*counts  # note the indexing of the position array: this is correct
+                    arrayIterator.iternext()        
+                    
+                    
+            # now compute the covariance matrix-------------------------------------------------------------
+            arrayIterator=numpy.nditer(clusterArray,flags=['multi_index'])
+            while not arrayIterator.finished:
+                    position=arrayIterator.multi_index # this will return the indices of the SLICED array!
+                    counts=arrayIterator[0]
+                    if counts:
+                        countsSquared+=counts*counts
+                        covariance[0,0]+=counts* (float(position[0])-mean[0])*(float(position[0]-mean[0]))
+                        covariance[0,1]+=counts* (float(position[0])-mean[0])*(float(position[1]-mean[1]))
+                        covariance[1,1]+=counts* (float(position[1])-mean[1])*(float(position[1]-mean[1]))
                     arrayIterator.iternext() 
+            covariance[1,0] =  covariance[0,1]      
+            covarianceFactor=1./(1.-countsSquared) # because we've already normalized
+            covariance=covariance*covarianceFactor      
+            variance=(covariance[0,0],covariance[1,1])
+            
             return (mean,variance)
       #---------------------------------------------------------------------------
       def ChooseBestCluster(self):
@@ -370,8 +411,9 @@ class dbscan_analysis:
             self.DoDBSCAN(minimumPoints,eps) # run the DBSCAN algorithm
             # check for a second cluster
             self.AnalyzeResults() # get cluster info
+            print "DBSCAN: Choosing Best Cluster"
             self.ChooseBestCluster() # out of the clusters found, pick the "best"
-            #print "DBSCAN Results:", self.backgroundFrac,self.clusterToTotalFrac,self.clusterToBackgroundFrac
+            print "DBSCAN Complete"
             
             return    
       #------------------------------------------------------------------------------         

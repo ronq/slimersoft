@@ -100,6 +100,126 @@ It looks like Co57 is the way to go: the new simulations show the Compton Edge, 
 I had the wrong endpoint for Y90 decays: it was way too high. 
 Regenerate these simulations.
 
+Things look different now. I still can't reproduce Mary's simulations for Sr90 or C14: her C14 is higher in energy on average, while 
+her Sr90 simulations are MUCH higher in energy on average.  
+
+I can try to turn off the source material for both. This didn't help with the Sr90. 
+Try moving the "source" closer to the CsI now:
+This didn't help.
+Try collimated beam
+
+Even with a beam, I can't reproduce Mary's plots. 
+Even overlapping the Sr90 and Y90, I can't reproduce Mary's plots.
+
+Try with a very thick scintillator.
+This does not work either.
+
+Generate INSIDE. 
+C14 inside looks okay
+Sr90 inside does NOT: it appears that only ~100 keV of energy is being deposited.
+Things become worse if the emlivermore physics list is NOT used......
+
+I should use a MiniCLEAN Rat now ...
+however, to do this, I'll need to checkout a new RAT and modify it. 
+
+Instead, generate events using NaI. Use a macro which can use new or old rats .
+It looks like secondaryHit-->Edep() works the same for both rat-deap and rat-miniclean.
+
+???
+July 24th, 2013-----------------
+run gammas and see if behavior is the same
+It is. I just see about 100 keV of energy.
+Now I am printing out track info. 
+
+It looks like for low energy events (50 keV) the first Edep is reading as non-zero, while for
+higher energy events, the first Edep is reading as zero!!!!!
+
+Actually, for the first Edep, the value is either zero, or always the same for 100 keV gamma events 
+This is the case for 50 keV gammas too. And 500 keV gammas! And 5 keV gammas!
+
+the first hit is always zero or 0.033169
+
+This is not the case when the livermore library is used.
+Seeing full energy deposit with 50 keV gammas and electrons. and 100 keV electrons, except in a few cases.
+THings go to shit for 500 keV electrons. Debug using 100 keV electrons: explore the odd cases.
+
+
+The veto hit stuff uses this to get the hit info:
+
+G4Step aStep->GetTotalEnergyDeposit()
+it neglects optical photons!
+
+lOOK what RAT prints out:
+Index : 1     used in the geometry : Yes     recalculation needed : No 
+ Material : CsI
+ Range cuts        :  gamma  10 um     e-  10 um     e+  10 um  proton 10 um 
+ Energy thresholds :  gamma  2.2324 keV    e-  36.5478 keV    e+  35.8184 keV proton 1 keV
+ Region(s) which use this couple : 
+    DefaultRegionForTheWorld
+
+
+Also, when I generate inside a LAr volume, the ScintillatorEdep is correct, while the secondary det edep is wrong.
+So there is a problem with the secdet code I think.
+Could be optical photons?
+
+Looking at BWVetGenericChamber.cc
+edep is recorded if fLastEventID != eventID || fLastTrackID != trackID
+track ID may not be properly set?
+or maybe eventID?
+
+Actually what is happening is that edep is not recorded along the track steps.....just for the first step. 
+commenting out the check of EventID and trackID fixes the problem!!!!!!!!!!
+
+I've reverted the code to get rid of my debugging code. 
+
+Okay. Time to regenerate EVERYTHING.
+Jobs are running.
+
+My Sr90 spectrum for the 150 micron CsI array looks much like Mary's, except hers has a peak at around 90 keV, and mine peaks a bit lower,
+at 80 keV. 
+I could try generating close to the scintillator though. Do this. 
+This didn't help. 
+Close enough.
+
+
+
+Next job will be to code up a Gaussian smear algorithm for the energy deposited in the CsI, and maybe add the glass part of the slide.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

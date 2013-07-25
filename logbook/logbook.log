@@ -498,6 +498,14 @@ July 23rd 2013---------------
 Continue code cleanup.
 Things are now running. Commit and continue.
 
+DBSCAN takes ALOT of time between when it announces the number of clusters found and picking the best.
+This time is spent on "analyze_results" and is due to the computation of the cluster position.
+
+I've changed the code to compute the covariance matrix, which isn't used just yet. 
+A code tweak sped up the computation of the variance nicely
+
+
+
 
 
 I should be able to find the "good cluster" by averging the distance for all points, and picking the one with the smaller average distance. 
