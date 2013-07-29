@@ -248,7 +248,6 @@ class dbscan_analysis:
                 #print "DBSCAN Found Zero Clusters"
                 pass
             else:    
-                print "DBSCAN Found ",self.maxClusterID, " clusters"
                 self.clusterMask=numpy.zeros((self.imageArray.shape[0],self.imageArray.shape[0],self.maxClusterID))
                 self.clusterPixels=[]
                 self.clusterCounts=[]
@@ -402,19 +401,14 @@ class dbscan_analysis:
                 width_r=math.sqrt((width_x*width_x)+(width_y*width_y))
                 relative_width=width_r/counts
                 if relative_width < minWidth:
-                    minWidth=relative_width     
-                    
-                     
+                    minWidth=relative_width      
       #---------------------------------------------------------------------------
       def DoIt(self,inputArray,minimumPoints,eps):
             self.imageArray=inputArray
             self.DoDBSCAN(minimumPoints,eps) # run the DBSCAN algorithm
             # check for a second cluster
             self.AnalyzeResults() # get cluster info
-            print "DBSCAN: Choosing Best Cluster"
             self.ChooseBestCluster() # out of the clusters found, pick the "best"
-            print "DBSCAN Complete"
-            
             return    
       #------------------------------------------------------------------------------         
       

@@ -68,7 +68,6 @@ class kmeans_analysis:
             return
       #---------------------------------------------------------------------------
       
-      
       #---------------------------------------------------------------------------
       def DoIt(self,inputArray):
             self.imageArray=inputArray
@@ -82,7 +81,7 @@ class kmeans_analysis:
             self.DoKmeans()# run the kmeans test
             # check for a second cluster
             self.AnalyzeResults() # get cluster info
-            print "Kmeans",self.clusterpoints,self.clusterFrac,self.distortion
+            #print "Kmeans",self.clusterpoints,self.clusterFrac,self.distortion
             return    
       #------------------------------------------------------------------------------         
       

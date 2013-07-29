@@ -502,7 +502,15 @@ DBSCAN takes ALOT of time between when it announces the number of clusters found
 This time is spent on "analyze_results" and is due to the computation of the cluster position.
 
 I've changed the code to compute the covariance matrix, which isn't used just yet. 
-A code tweak sped up the computation of the variance nicely
+A code tweak sped up the computation of the variance nicely.
+
+Now circle back and code in the ability to actually extract and save parameters.
+For now, just write out the cluster parameters and the file path to the image. I can look at parameters and the image using another program.
+I will however need to code in an option look at which pixels are in which clusters.
+
+
+
+
 
 
 

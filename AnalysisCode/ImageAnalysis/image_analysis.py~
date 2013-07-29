@@ -93,7 +93,23 @@ class analyze_images:
       def ApplyThreshold(self,image_number):
             passThreshold=self.imageArray[:,:,image_number] > (self.thresholdInSigma*self.backgroundVarArray)
             self.imageArray[:,:,image_number] *= passThreshold # this will modify the array to zero out anything below threshold 
+      #-------------------------------------------------------------------------------      
+      def ComputeGeneralVariables(self,image_number):
+            self.imageAverage=numpy.mean(self.imageArray[:,:,image_number]) # compute image average
+            self.imageVar=numpy.var(self.imageArray[:,:,image_number])      # compute image variance  
+            self.imageMax=numpy.amax(self.imageArray[:,:,image_number])     # compute hottest pixel
+            self.imageSum=self.imageArray[:,:,image_number].sum()           # compute sum of entire image  
+            # compute the number of pixels 1,2,3,4,5 sigma above background
+            # keep in mind that the image has already been subtracted, so only need to compare to the standard deviation
+            relativeResidualArray=self.imageArray[:,:,image_number]/numpy.sqrt(self.backgroundVarArray) # converts the image to units of standard deviations
+            self.hotPixels_1Sigma=(relativeResidualArray > 1.0).sum()
+            self.hotPixels_2Sigma=(relativeResidualArray > 2.0).sum()
+            self.hotPixels_3Sigma=(relativeResidualArray > 3.0).sum()
+            self.hotPixels_4Sigma=(relativeResidualArray > 4.0).sum()
+            self.hotPixels_5Sigma=(relativeResidualArray > 5.0).sum()
             
+            return
+      
       #-------------------------------------------------------------------------------
       def ApplyFilters(self,image_number):
             """ Apply filters to an image array. I may want to make a new array to store this info, as I may want access to the original"""
@@ -118,8 +134,35 @@ class analyze_images:
       def GetPeakInfo(self,imageNumber):
             return    
       #-------------------------------------------------------------------------------
+      def PrepareResults(self):
+            self.output_fullFilePath=[]
+            self.output_imageMax=[]
+            self.output_imageMean=[]
+            self.output_imageVariance=[]
+            self.output_imageSum=[]
+            self.output_hotpixels1Sigma=[]
+            self.output_hotpixels2Sigma=[]
+            self.output_hotpixels3Sigma=[]
+            self.output_hotpixels4Sigma=[]
+            self.output_hotpixels5Sigma=[]
+            return
+      #-------------------------------------------------------------------------------
       def StoreResults(self,imageNumber):
             """ Will want to append some arrays here..."""
+            #
+            self.output_fullFilePath.append(self.inputFileList[imageNumber])
+            # general image parameters
+            self.output_imageMax.append(self.imageMax)
+            self.output_imageMean.append(self.imageAverage)
+            self.output_imageVariance.append(self.imageVar)
+            self.output_imageSum.append(self.imageSum)
+            self.output_hotpixels1Sigma.append(self.hotPixels_1Sigma)
+            self.output_hotpixels2Sigma.append(self.hotPixels_1Sigma)
+            self.output_hotpixels3Sigma.append(self.hotPixels_1Sigma)
+            self.output_hotpixels4Sigma.append(self.hotPixels_1Sigma)
+            self.output_hotpixels5Sigma.append(self.hotPixels_1Sigma)
+            
+            
             return
       #-------------------------------------------------------------------------------
       def OutputResults(self):
@@ -149,25 +192,27 @@ inputList=sys.argv[1]
 backgroundNPZ=sys.argv[2]
 outputRootName=sys.argv[3]
 
+
 # initialize class
 bigA=analyze_images()
 numImages=bigA.MakeInputList(inputList)
 print "Number of Images:",numImages
+bigA.PrepareResults()
 bigA.LoadImages(numImages)
 bigA.LoadBackground(backgroundNPZ)
 for imageNumber in range(numImages):
     bigA.SubtractBackground(imageNumber)
     bigA.ApplyThreshold(imageNumber)
+    bigA.ComputeGeneralVariables(imageNumber)
     bigA.ApplyFilters(imageNumber)
     bigA.FindPeaks(imageNumber)
     bigA.GetPeakInfo(imageNumber)
     bigA.StoreResults(imageNumber)
     # for debugging
     hotPixels=numpy.sum(bigA.imageArray[:,:,imageNumber] > 0)
-    imageSum=bigA.imageArray[:,:,imageNumber].sum()
-    print "Non-zero Pixel count and Sum:",hotPixels,imageSum
+    #print "Non-zero Pixel count and Sum:",hotPixels,imageSum
     kmeans_results=bigA.DoKmeans(imageNumber)
-    dbresults_results=bigA.DoDBSCAN(imageNumber)
+    dbscan_results=bigA.DoDBSCAN(imageNumber)
     #kmeans_results.clusterfrac
     #if (hotPixels >= 500) or (imageSum > 60000):
     if (kmeans_results.clusterFrac < 0.4) or (kmeans_results.clusterFrac > 0.6):
@@ -179,7 +224,7 @@ for imageNumber in range(numImages):
         matplotlib.pyplot.show()
         raw_input("Press a key to continue")
         #bigA.DoKmeans(imageNumber)
-        
+    bigA.StoreResults(image_number)
         
 bigA.OutputResults()    
 #print "Writing out Averaged Arrays"
