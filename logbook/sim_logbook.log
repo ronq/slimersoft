@@ -181,6 +181,17 @@ I could try generating close to the scintillator though. Do this.
 This didn't help. 
 Close enough.
 
+July 29th 2013-------------------------------------------------------------
+Comparing 59 keV gammas from 241Am, Mary and I are producing different spectra with our simulations. 
+Continuum look the same, except I have lines at:
+55.4 keV (I presume an escape peak)
+23.8, 24.6,26.6, 28.6 and 31.0 keV. 
+
+It looks like there are some 5-6 keV particles escaping the volume as well. 
+I'll want to crank up the resolution on hEnergy...could be Cs and I x-rays 
+
+
+
 
 Next job will be to code up a Gaussian smear algorithm for the energy deposited in the CsI, and maybe add the glass part of the slide.
 

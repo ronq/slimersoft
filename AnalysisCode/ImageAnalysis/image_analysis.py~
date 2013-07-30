@@ -18,6 +18,7 @@ import Image
 import matplotlib.pyplot
 import kmeans_analysis
 import dbscan_analysis
+import pandas
 
 class analyze_images:
       "Class for analyzing images"
@@ -165,7 +166,7 @@ class analyze_images:
             
             return
       #-------------------------------------------------------------------------------
-      def OutputResults(self):
+      def OutputASCIIResults(self,root_name):
             """ write results in ASCII format, each line corresponding to an image. This way I can 'cat' everything together later on"""
             #
             #
@@ -178,9 +179,39 @@ class analyze_images:
             #  background outside the cluster
             #
             #
-            
+            asciiFileName=root_name+"_ascii.dat"
+            asciiFile=open(asciiFileName,'w')
+            for i in range(len(self.output_fullFilePath)):
+                outputString= (self.output_fullFilePath[i] + " " +
+                              str(self.output_imageMax[i]) + " " +
+                              str(self.output_imageMean[i]) + " " +
+                              str(self.output_imageVariance[i]) + " " +
+                              str(self.output_imageSum[i]) + " " +
+                              str(self.output_hotpixels1Sigma[i]) + " " +
+                              str(self.output_hotpixels2Sigma[i]) + " " +
+                              str(self.output_hotpixels3Sigma[i]) + " " +
+                              str(self.output_hotpixels4Sigma[i]) + " " +
+                              str(self.output_hotpixels5Sigma[i]) + " " +
+                              "\n")
+                                
+                asciiFile.write(outputString)
+            asciiFile.close()     
             return
       #-------------------------------------------------------------------------------
+      def OutputHDF5Results(self,root_name):
+            """ output into a PANDAS HDF5
+            """
+            hdf5FileName=root_name +"_hdf5.h5"
+            store=pandas.HDFStore(hdf5FileName)
+            print store
+            df=pandas.DataFrame({'ImagePath': self.output_fullFilePath,
+                                 'ImageMax' : self.output_imageMax,
+                                 'ImageMean': self.output_imageMean
+                                 })
+            print df                     
+            store.append(df) # this will make a table, which can be appended to
+            store.close()
+            
       #---------------------------------------------------------------------------
       def DoIt(self):
             return
@@ -224,9 +255,10 @@ for imageNumber in range(numImages):
         matplotlib.pyplot.show()
         raw_input("Press a key to continue")
         #bigA.DoKmeans(imageNumber)
-    bigA.StoreResults(image_number)
+    bigA.StoreResults(imageNumber)
         
-bigA.OutputResults()    
+bigA.OutputASCIIResults(outputRootName)  
+bigA.OutputHDF5Results(outputRootName)  
 #print "Writing out Averaged Arrays"
 #bigA.WriteAverageArrays(averageArrayFileName)            
             

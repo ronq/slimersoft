@@ -508,14 +508,15 @@ Now circle back and code in the ability to actually extract and save parameters.
 For now, just write out the cluster parameters and the file path to the image. I can look at parameters and the image using another program.
 I will however need to code in an option look at which pixels are in which clusters.
 
+July 29th 2013----------------------------------
+ascii and hdf5 output now work! Code committed!
 
 
 
 
 
 
-
-
+I will however need to code in an option look at which pixels are in which clusters.
 I should be able to find the "good cluster" by averging the distance for all points, and picking the one with the smaller average distance. 
 
 
