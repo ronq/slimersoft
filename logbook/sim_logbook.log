@@ -190,6 +190,20 @@ Continuum look the same, except I have lines at:
 It looks like there are some 5-6 keV particles escaping the volume as well. 
 I'll want to crank up the resolution on hEnergy...could be Cs and I x-rays 
 
+I've figured out the problem. Mary/MaGe does not have atomic deexcitation turned on. I/RAT do. 
+This can be seen in the log files: in the physics list sections many of the RAT processes show up as 
+"FluorActive". So more evidence that these are x-rays or Auger electrons 
+
+July 30th 2013 -------------------------------------------------------
+I've generated some more events with finer binning in hEnergy. 
+Confirmed: many of these lines are x-rays from Cs and I.
+
+Next step: code in the glass slide. It is 1mm thick.
+
+
+
+
+
 
 
 

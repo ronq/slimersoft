@@ -92,7 +92,7 @@ class analyze_images:
             return
       #-------------------------------------------------------------------------------
       def ApplyThreshold(self,image_number):
-            passThreshold=self.imageArray[:,:,image_number] > (self.thresholdInSigma*self.backgroundVarArray)
+            passThreshold=self.imageArray[:,:,image_number] > (self.thresholdInSigma*numpy.sqrt(self.backgroundVarArray))
             self.imageArray[:,:,image_number] *= passThreshold # this will modify the array to zero out anything below threshold 
       #-------------------------------------------------------------------------------      
       def ComputeGeneralVariables(self,image_number):
@@ -107,8 +107,8 @@ class analyze_images:
             self.hotPixels_2Sigma=(relativeResidualArray > 2.0).sum()
             self.hotPixels_3Sigma=(relativeResidualArray > 3.0).sum()
             self.hotPixels_4Sigma=(relativeResidualArray > 4.0).sum()
-            self.hotPixels_5Sigma=(relativeResidualArray > 5.0).sum()
-            
+            #self.hotPixels_5Sigma=(relativeResidualArray > 5.0).sum()
+            self.hotPixels_5Sigma=(relativeResidualArray > 20.0).sum()
             return
       
       #-------------------------------------------------------------------------------
@@ -136,6 +136,7 @@ class analyze_images:
             return    
       #-------------------------------------------------------------------------------
       def PrepareResults(self):
+            # general image parameters 
             self.output_fullFilePath=[]
             self.output_imageMax=[]
             self.output_imageMean=[]
@@ -146,6 +147,7 @@ class analyze_images:
             self.output_hotpixels3Sigma=[]
             self.output_hotpixels4Sigma=[]
             self.output_hotpixels5Sigma=[]
+            
             return
       #-------------------------------------------------------------------------------
       def StoreResults(self,imageNumber):
@@ -163,6 +165,7 @@ class analyze_images:
             self.output_hotpixels4Sigma.append(self.hotPixels_1Sigma)
             self.output_hotpixels5Sigma.append(self.hotPixels_1Sigma)
             
+            #
             
             return
       #-------------------------------------------------------------------------------
@@ -203,12 +206,17 @@ class analyze_images:
             """
             hdf5FileName=root_name +"_hdf5.h5"
             store=pandas.HDFStore(hdf5FileName)
-            print store
             df=pandas.DataFrame({'ImagePath': self.output_fullFilePath,
                                  'ImageMax' : self.output_imageMax,
-                                 'ImageMean': self.output_imageMean
-                                 })
-            print df                     
+                                 'ImageMean': self.output_imageMean,
+                                 'ImageVariance':           self.output_imageVariance,
+                                 'ImageSum':                self.output_imageSum,
+                                 'HotPixels1Sigma':         self.output_hotpixels1Sigma,
+                                 'HotPixels2Sigma':         self.output_hotpixels2Sigma,
+                                 'HotPixels3Sigma':         self.output_hotpixels3Sigma,
+                                 'HotPixels4Sigma':         self.output_hotpixels4Sigma,
+                                 'HotPixels5Sigma':         self.output_hotpixels5Sigma
+                                 })                    
             store.append('ImageData',df) # this will make a table, which can be appended to
             store.close()
             
@@ -231,6 +239,7 @@ print "Number of Images:",numImages
 bigA.PrepareResults()
 bigA.LoadImages(numImages)
 bigA.LoadBackground(backgroundNPZ)
+print "preparing to cycle"
 for imageNumber in range(numImages):
     bigA.SubtractBackground(imageNumber)
     bigA.ApplyThreshold(imageNumber)
@@ -251,12 +260,13 @@ for imageNumber in range(numImages):
         # 300 hot pixels --> 0.5 sigma
         # 100 hot pixels --> 0.75 sigma?
         #print "Non-zero Pixel count and Sum:",hotPixels,bigA.imageArray[:,:,imageNumber].sum()
-        matplotlib.pyplot.imshow(bigA.imageArray[:,:,imageNumber] > 0, cmap=matplotlib.pyplot.cm.gray)  # for debugging
-        matplotlib.pyplot.show()
-        raw_input("Press a key to continue")
+        #matplotlib.pyplot.imshow(bigA.imageArray[:,:,imageNumber] > 0, cmap=matplotlib.pyplot.cm.gray)  # for debugging
+        #matplotlib.pyplot.show()
+        #raw_input("Press a key to continue")
         #bigA.DoKmeans(imageNumber)
+        pass
     bigA.StoreResults(imageNumber)
-        
+print "done with cycle"        
 bigA.OutputASCIIResults(outputRootName)  
 bigA.OutputHDF5Results(outputRootName)  
 #print "Writing out Averaged Arrays"

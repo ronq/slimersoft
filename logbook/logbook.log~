@@ -509,8 +509,10 @@ For now, just write out the cluster parameters and the file path to the image. I
 I will however need to code in an option look at which pixels are in which clusters.
 
 July 29th 2013----------------------------------
-ascii and hdf5 output now work!
+ascii and hdf5 output now work! Code committed!
 
+It seems like something is trying to make an X connection however. That is NOT right!
+It is okay....it is matplotlib.
 
 
 

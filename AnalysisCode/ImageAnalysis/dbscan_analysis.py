@@ -258,7 +258,7 @@ class dbscan_analysis:
                 self.clusterHottestPixel=[]
                 for clusterID in range(self.maxClusterID):  # loop over all clusters found 
                     self.clusterMask[:,:,clusterID]= (self.db.pixelID  == clusterID+1)  # this produces a mask of pixels in a particular cluster
-                    #print "Cluster ", clusterID, " contains ", self.clusterMask[:,:,clusterID].sum(), " pixels and ", (self.clusterMask[:,:,clusterID]*self.imageArray).sum(), "counts"
+                    print "Cluster ", clusterID, " contains ", self.clusterMask[:,:,clusterID].sum(), " pixels and ", (self.clusterMask[:,:,clusterID]*self.imageArray).sum(), "counts"
                     self.clusterPixels.append(self.clusterMask[:,:,clusterID].sum())    # number of pixels in a cluster
                     self.clusterCounts.append((self.clusterMask[:,:,clusterID]*self.imageArray).sum()) # number of counts in a cluster
                     self.clusterFrac.append(self.clusterCounts[-1]/backgroundCounts)                       # number of counts in a cluster compared to identified background
@@ -267,7 +267,7 @@ class dbscan_analysis:
                     self.clusterPosition.append(pos)
                     self.clusterPositionVariance.append(var)
                     self.clusterHottestPixel.append((self.clusterMask[:,:,clusterID]*self.imageArray).max())  # extract the position of the hottest pixel 
-                totalpoints=self.noiseMask.sum() + self.clusterMask.sum()                              # this is the total number of pixels about threshold in this image 
+                totalpoints=self.noiseMask.sum() + self.clusterMask.sum()                              # this is the total number of pixels above threshold in this image 
                 
                 
                 
@@ -394,21 +394,29 @@ class dbscan_analysis:
                 counts = self.clusterCounts[clusterID]
                 if counts > maxCounts:
                     maxCounts=counts
-                    bestID=clusterID
+                    bestID_counts=clusterID
                 #check width, this code can be improved using numpy methods
                 width_x=(self.clusterPositionVariance[clusterID])[0]
                 width_y=(self.clusterPositionVariance[clusterID])[1]
                 width_r=math.sqrt((width_x*width_x)+(width_y*width_y))
                 relative_width=width_r/counts
                 if relative_width < minWidth:
-                    minWidth=relative_width      
+                    minWidth=relative_width
+                    bestID_width=clusterID
+            if bestID_counts==bestID_width:
+                bestID=bestID_counts
+            else:
+                print "DBSCAN:ChooseBestCluster: can't find best cluster! Counts and width disagree!"
+                bestID=bestID_counts   
+            print "DBSCAN maxCounts:",maxCounts              
+            return bestID            
       #---------------------------------------------------------------------------
       def DoIt(self,inputArray,minimumPoints,eps):
             self.imageArray=inputArray
             self.DoDBSCAN(minimumPoints,eps) # run the DBSCAN algorithm
             # check for a second cluster
             self.AnalyzeResults() # get cluster info
-            self.ChooseBestCluster() # out of the clusters found, pick the "best"
+            self.bestClusterID=self.ChooseBestCluster() # out of the clusters found, pick the "best"
             return    
       #------------------------------------------------------------------------------         
       
