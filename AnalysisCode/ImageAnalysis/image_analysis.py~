@@ -18,6 +18,7 @@ import Image
 import matplotlib.pyplot
 import kmeans_analysis
 import dbscan_analysis
+import cluster_output
 import pandas
 
 class analyze_images:
@@ -201,14 +202,14 @@ class analyze_images:
                               str(self.output_hotpixels3Sigma[i]) + " " +
                               str(self.output_hotpixels4Sigma[i]) + " " +
                               str(self.output_hotpixels5Sigma[i]) + " " +
-                              str(self.output_dbscan_results.outputClusterSize)+ " " +
-                              str(self.output_dbscan_results.outputCounts)+ " " +
-                              str(self.output_dbscan_results.outputClusterFrac)+ " " +
-                              str(self.output_dbscan_results.outputAvgPixelCount)+ " " +
-                              str(self.output_dbscan_results.outputPosition)+ " " +
-                              str(self.output_dbscan_results.outputPositionVariance)+ " " +
-                              str(self.output_dbscan_results.outputPeakHeight)+ " " +
-                              str(self.output_dbscan_results.outputNumberOfClusters)+ " " +
+                              str(self.output_dbscan_results[i].clusterOutput.outputClusterSize)+ " " +
+                              str(self.output_dbscan_results[i].clusterOutput.outputCounts)+ " " +
+                              str(self.output_dbscan_results[i].clusterOutput.outputClusterFrac)+ " " +
+                              str(self.output_dbscan_results[i].clusterOutput.outputAvgPixelCount)+ " " +
+                              str(self.output_dbscan_results[i].clusterOutput.outputPosition)+ " " +
+                              str(self.output_dbscan_results[i].clusterOutput.outputPositionVariance)+ " " +
+                              str(self.output_dbscan_results[i].clusterOutput.outputPeakHeight)+ " " +
+                              str(self.output_dbscan_results[i].clusterOutput.outputNumberOfClusters)+ " " +
                               "\n")
                                 
                 asciiFile.write(outputString)
@@ -230,14 +231,14 @@ class analyze_images:
                                  'HotPixels3Sigma':         self.output_hotpixels3Sigma,
                                  'HotPixels4Sigma':         self.output_hotpixels4Sigma,
                                  'HotPixels5Sigma':         self.output_hotpixels5Sigma,
-                                 'DBScan_NumPixels':        self.output_dbscan_results.outputClusterSize,
-                                 'DBScan_Counts':           self.output_dbscan_results.outputCounts,
-                                 'DBScan_ClusterFrac':      self.output_dbscan_results.outputClusterFrac,
-                                 'DBScan_AvgPixelCount':    self.output_dbscan_results.outputAvgPixelCount,
-                                 'DBScan_Position':         self.output_dbscan_results.outputPosition,
-                                 'DBScan_PositionVariance': self.output_dbscan_results.outputPositionVariance,
-                                 'DBScan_PeakHeight':       self.output_dbscan_results.outputPeakHeight,
-                                 'DBScan_NumClusters':      self.output_dbscan_results.outputNumberOfClusters
+                                 'DBScan_NumPixels':        self.output_dbscan_results.clusterOutput.outputClusterSize,
+                                 'DBScan_Counts':           self.output_dbscan_results.clusterOutput.outputCounts,
+                                 'DBScan_ClusterFrac':      self.output_dbscan_results.clusterOutput.outputClusterFrac,
+                                 'DBScan_AvgPixelCount':    self.output_dbscan_results.clusterOutput.outputAvgPixelCount,
+                                 'DBScan_Position':         self.output_dbscan_results.clusterOutput.outputPosition,
+                                 'DBScan_PositionVariance': self.output_dbscan_results.clusterOutput.outputPositionVariance,
+                                 'DBScan_PeakHeight':       self.output_dbscan_results.clusterOutput.outputPeakHeight,
+                                 'DBScan_NumClusters':      self.output_dbscan_results.clusterOutput.outputNumberOfClusters
                                  })                    
             store.append('ImageData',df) # this will make a table, which can be appended to
             store.close()
@@ -269,7 +270,7 @@ for imageNumber in range(numImages):
     bigA.ApplyFilters(imageNumber)
     bigA.FindPeaks(imageNumber)
     bigA.GetPeakInfo(imageNumber)
-    bigA.StoreResults(imageNumber)
+    #bigA.StoreResults(imageNumber)
     # for debugging
     hotPixels=numpy.sum(bigA.imageArray[:,:,imageNumber] > 0)
     #print "Non-zero Pixel count and Sum:",hotPixels,imageSum
