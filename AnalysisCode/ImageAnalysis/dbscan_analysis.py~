@@ -175,10 +175,11 @@ regionQuery(P, eps)
         # now iterate though the neighborhood, and test for being within eps
         arrayIterator=numpy.nditer(self.imageArray[lo_x:hi_x,lo_y:hi_y],flags=['multi_index'])
         while not arrayIterator.finished:
-                    slicedPosition=arrayIterator.multi_index # this will return the indices of the SLICED array!
-                    positionPrime=(lo_x+slicedPosition[0],lo_y+slicedPosition[1]) 
                     countsPrime=arrayIterator[0]
                     if countsPrime: # only for non-zero elements
+                        # only get indices for non-zero elements
+                        slicedPosition=arrayIterator.multi_index # this will return the indices of the SLICED array!
+                        positionPrime=(lo_x+slicedPosition[0],lo_y+slicedPosition[1]) 
                         distance=self.distanceQuery(position,positionPrime)
                         if distance <= self.eps:
                             #print "Adding ",positionPrime, " to cluster"
@@ -408,8 +409,28 @@ class dbscan_analysis:
             else:
                 print "DBSCAN:ChooseBestCluster: can't find best cluster! Counts and width disagree!"
                 bestID=bestID_counts   
-            print "DBSCAN maxCounts",maxCounts              
+            print "DBSCAN maxCounts:",maxCounts              
             return bestID            
+      #---------------------------------------------------------------------------
+      def GenerateOutput(self):
+            """ load relevant results into standard output variables
+            """
+            # cluster energy
+            # cluster "size" in units of pixels
+            # cluster position
+            # "energy density" of cluster
+            # ratio of cluster counts to overall 
+            
+            
+            self.outputClusterSize=self.clusterPixels[self.bestClusterID]
+            self.outputCounts=self.clusterCounts[self.bestClusterID]
+            self.outputClusterFrac=self.clusterFrac[self.bestClusterID]
+            self.outputAvgPixelCount=self.avgPixelCount[self.bestClusterID]
+            self.outputPosition=self.clusterPosition[self.bestClusterID]
+            self.outputPositionVariance=self.clusterPositionVariance=[self.bestClusterID]
+            self.outputPeakHeight=self.clusterHottestPixel[self.bestClusterID]
+            self.outputNumberOfClusters=self.maxClusterID
+            return
       #---------------------------------------------------------------------------
       def DoIt(self,inputArray,minimumPoints,eps):
             self.imageArray=inputArray
@@ -417,6 +438,7 @@ class dbscan_analysis:
             # check for a second cluster
             self.AnalyzeResults() # get cluster info
             self.bestClusterID=self.ChooseBestCluster() # out of the clusters found, pick the "best"
+            self.GenerateOutput() # load results into the final observables
             return    
       #------------------------------------------------------------------------------         
       

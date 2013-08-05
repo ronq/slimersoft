@@ -127,8 +127,8 @@ class analyze_images:
       #-------------------------------------------------------------------------------
       def DoDBSCAN(self,imageNumber):
             dbscan=dbscan_analysis.dbscan_analysis()
-            minPts=700
-            eps = 10.0 # must be a float!!!!!
+            minPts=1000
+            eps = 5.0 # must be a float!!!!!
             dbscan.DoIt(self.imageArray[:,:,imageNumber],minPts,eps)
             return dbscan
       #-------------------------------------------------------------------------------
@@ -147,10 +147,11 @@ class analyze_images:
             self.output_hotpixels3Sigma=[]
             self.output_hotpixels4Sigma=[]
             self.output_hotpixels5Sigma=[]
-            
+            # output of dbscan analysis. This is an array of objects. 
+            self.output_dbscan_results=[]
             return
       #-------------------------------------------------------------------------------
-      def StoreResults(self,imageNumber):
+      def StoreResults(self,imageNumber,dbscan_results):
             """ Will want to append some arrays here..."""
             #
             self.output_fullFilePath.append(self.inputFileList[imageNumber])
@@ -165,7 +166,12 @@ class analyze_images:
             self.output_hotpixels4Sigma.append(self.hotPixels_1Sigma)
             self.output_hotpixels5Sigma.append(self.hotPixels_1Sigma)
             
-            #
+            #dbscan parameters
+            self.output_dbscan_results.append(dbscan_results)
+            
+            
+            
+            
             
             return
       #-------------------------------------------------------------------------------
@@ -195,6 +201,14 @@ class analyze_images:
                               str(self.output_hotpixels3Sigma[i]) + " " +
                               str(self.output_hotpixels4Sigma[i]) + " " +
                               str(self.output_hotpixels5Sigma[i]) + " " +
+                              str(self.output_dbscan_results.outputClusterSize)+ " " +
+                              str(self.output_dbscan_results.outputCounts)+ " " +
+                              str(self.output_dbscan_results.outputClusterFrac)+ " " +
+                              str(self.output_dbscan_results.outputAvgPixelCount)+ " " +
+                              str(self.output_dbscan_results.outputPosition)+ " " +
+                              str(self.output_dbscan_results.outputPositionVariance)+ " " +
+                              str(self.output_dbscan_results.outputPeakHeight)+ " " +
+                              str(self.output_dbscan_results.outputNumberOfClusters)+ " " +
                               "\n")
                                 
                 asciiFile.write(outputString)
@@ -215,7 +229,15 @@ class analyze_images:
                                  'HotPixels2Sigma':         self.output_hotpixels2Sigma,
                                  'HotPixels3Sigma':         self.output_hotpixels3Sigma,
                                  'HotPixels4Sigma':         self.output_hotpixels4Sigma,
-                                 'HotPixels5Sigma':         self.output_hotpixels5Sigma
+                                 'HotPixels5Sigma':         self.output_hotpixels5Sigma,
+                                 'DBScan_NumPixels':        self.output_dbscan_results.outputClusterSize,
+                                 'DBScan_Counts':           self.output_dbscan_results.outputCounts,
+                                 'DBScan_ClusterFrac':      self.output_dbscan_results.outputClusterFrac,
+                                 'DBScan_AvgPixelCount':    self.output_dbscan_results.outputAvgPixelCount,
+                                 'DBScan_Position':         self.output_dbscan_results.outputPosition,
+                                 'DBScan_PositionVariance': self.output_dbscan_results.outputPositionVariance,
+                                 'DBScan_PeakHeight':       self.output_dbscan_results.outputPeakHeight,
+                                 'DBScan_NumClusters':      self.output_dbscan_results.outputNumberOfClusters
                                  })                    
             store.append('ImageData',df) # this will make a table, which can be appended to
             store.close()
@@ -247,7 +269,7 @@ for imageNumber in range(numImages):
     bigA.ApplyFilters(imageNumber)
     bigA.FindPeaks(imageNumber)
     bigA.GetPeakInfo(imageNumber)
-    bigA.StoreResults(imageNumber)
+    #bigA.StoreResults(imageNumber)
     # for debugging
     hotPixels=numpy.sum(bigA.imageArray[:,:,imageNumber] > 0)
     #print "Non-zero Pixel count and Sum:",hotPixels,imageSum
@@ -265,7 +287,7 @@ for imageNumber in range(numImages):
         #raw_input("Press a key to continue")
         #bigA.DoKmeans(imageNumber)
         pass
-    bigA.StoreResults(imageNumber)
+    bigA.StoreResults(imageNumber,dbscan_results)
 print "done with cycle"        
 bigA.OutputASCIIResults(outputRootName)  
 bigA.OutputHDF5Results(outputRootName)  

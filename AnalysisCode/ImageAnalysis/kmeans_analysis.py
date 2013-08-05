@@ -67,7 +67,20 @@ class kmeans_analysis:
             self.clusterFrac=self.clusterpoints/totalpoints
             return
       #---------------------------------------------------------------------------
-      
+      def GenerateOutput(self):
+            """ load relevant results into standard output variables
+            """
+            """
+            self.outputClusterSize=self.clusterPixels[self.bestClusterID]
+            self.outputCounts=self.clusterCounts[self.bestClusterID]
+            self.outputClusterFrac=self.clusterFrac[self.bestClusterID]
+            self.outputAvgPixelCount=self.avgPixelCount[self.bestClusterID]
+            self.outputPosition=self.clusterPosition[self.bestClusterID]
+            self.outputPositionVariance=self.clusterPositionVariance=[self.bestClusterID]
+            self.outputPeakHeight=self.clusterHottestPixel[self.bestClusterID]
+            self.outputNumberOfClusters=self.maxClusterID
+            """
+            return
       #---------------------------------------------------------------------------
       def DoIt(self,inputArray):
             self.imageArray=inputArray

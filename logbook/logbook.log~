@@ -514,6 +514,15 @@ ascii and hdf5 output now work! Code committed!
 It seems like something is trying to make an X connection however. That is NOT right!
 It is okay....it is matplotlib.
 
+July 31st 2013 -------------------------------
+Found a problem with the threshold setting: I was multiplying the threshold in sigma by the variance, NOT the sigma
+I'm seeing events with DBSCAN clusters < minPts. This implies a bug.
+I've tweaked the DBSCAN requirements, and this seems to reject background more effectively.
+However, the code runs MUCH longer now. 
+Time to do some more profiling.....
+regionQuery is eating up most of the time.
+Of this, roughly a third is spent with distanceQuery.
+Not much to do now.....
 
 
 
