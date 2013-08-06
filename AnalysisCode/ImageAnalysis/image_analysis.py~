@@ -150,9 +150,10 @@ class analyze_images:
             self.output_hotpixels5Sigma=[]
             # output of dbscan analysis. This is an array of objects. 
             self.output_dbscan_results=[]
+            self.output_kmeans_results=[]
             return
       #-------------------------------------------------------------------------------
-      def StoreResults(self,imageNumber,dbscan_results):
+      def StoreResults(self,imageNumber,dbscan_results,kmeans_results):
             """ Will want to append some arrays here..."""
             #
             self.output_fullFilePath.append(self.inputFileList[imageNumber])
@@ -170,7 +171,8 @@ class analyze_images:
             #dbscan parameters
             self.output_dbscan_results.append(dbscan_results)
             
-            
+            #kmeans parameters
+            self.output_kmeans_results.append(kmeans_results)
             
             
             
@@ -210,6 +212,14 @@ class analyze_images:
                               str(self.output_dbscan_results[i].clusterOutput.outputPositionVariance)+ " " +
                               str(self.output_dbscan_results[i].clusterOutput.outputPeakHeight)+ " " +
                               str(self.output_dbscan_results[i].clusterOutput.outputNumberOfClusters)+ " " +
+                              str(self.output_kmeans_results[i].clusterOutput.outputClusterSize)+ " " +
+                              str(self.output_kmeans_results[i].clusterOutput.outputCounts)+ " " +
+                              str(self.output_kmeans_results[i].clusterOutput.outputClusterFrac)+ " " +
+                              str(self.output_kmeans_results[i].clusterOutput.outputAvgPixelCount)+ " " +
+                              str(self.output_kmeans_results[i].clusterOutput.outputPosition)+ " " +
+                              str(self.output_kmeans_results[i].clusterOutput.outputPositionVariance)+ " " +
+                              str(self.output_kmeans_results[i].clusterOutput.outputPeakHeight)+ " " +
+                              str(self.output_kmeans_results[i].clusterOutput.outputNumberOfClusters)+ " " +
                               "\n")
                                 
                 asciiFile.write(outputString)
@@ -231,14 +241,26 @@ class analyze_images:
                                  'HotPixels3Sigma':         self.output_hotpixels3Sigma,
                                  'HotPixels4Sigma':         self.output_hotpixels4Sigma,
                                  'HotPixels5Sigma':         self.output_hotpixels5Sigma,
-                                 'DBScan_NumPixels':        self.output_dbscan_results.clusterOutput.outputClusterSize,
-                                 'DBScan_Counts':           self.output_dbscan_results.clusterOutput.outputCounts,
-                                 'DBScan_ClusterFrac':      self.output_dbscan_results.clusterOutput.outputClusterFrac,
-                                 'DBScan_AvgPixelCount':    self.output_dbscan_results.clusterOutput.outputAvgPixelCount,
-                                 'DBScan_Position':         self.output_dbscan_results.clusterOutput.outputPosition,
-                                 'DBScan_PositionVariance': self.output_dbscan_results.clusterOutput.outputPositionVariance,
-                                 'DBScan_PeakHeight':       self.output_dbscan_results.clusterOutput.outputPeakHeight,
-                                 'DBScan_NumClusters':      self.output_dbscan_results.clusterOutput.outputNumberOfClusters
+                                 'DBScan_NumPixels':        [result.clusterOutput.outputClusterSize for result in self.output_dbscan_results],
+                                 'DBScan_Counts':           [result.clusterOutput.outputCounts for result in self.output_dbscan_results],
+                                 'DBScan_ClusterFrac':      [result.clusterOutput.outputClusterFrac for result in self.output_dbscan_results],
+                                 'DBScan_AvgPixelCount':    [result.clusterOutput.outputAvgPixelCount for result in self.output_dbscan_results],
+                                 'DBScan_PositionX':         [result.clusterOutput.outputPosition[0] for result in self.output_dbscan_results],
+                                 'DBScan_PositionXVariance': [result.clusterOutput.outputPositionVariance[0] for result in self.output_dbscan_results],
+                                 'DBScan_PositionY':         [result.clusterOutput.outputPosition[1] for result in self.output_dbscan_results],
+                                 'DBScan_PositionYVariance': [result.clusterOutput.outputPositionVariance[1] for result in self.output_dbscan_results],
+                                 'DBScan_PeakHeight':       [result.clusterOutput.outputPeakHeight for result in self.output_dbscan_results],
+                                 'DBScan_NumClusters':      [result.clusterOutput.outputNumberOfClusters for result in self.output_dbscan_results],
+                                 'kmeans_NumPixels':        [result.clusterOutput.outputClusterSize for result in self.output_kmeans_results],
+                                 'kmeans_Counts':           [result.clusterOutput.outputCounts for result in self.output_kmeans_results],
+                                 'kmeans_ClusterFrac':      [result.clusterOutput.outputClusterFrac for result in self.output_kmeans_results],
+                                 'kmeans_AvgPixelCount':    [result.clusterOutput.outputAvgPixelCount for result in self.output_kmeans_results],
+                                 'kmeans_PositionX':         [result.clusterOutput.outputPosition[0] for result in self.output_kmeans_results],
+                                 'kmeans_PositionXVariance': [result.clusterOutput.outputPositionVariance[0] for result in self.output_kmeans_results],
+                                 'kmeans_PositionY':         [result.clusterOutput.outputPosition[1] for result in self.output_kmeans_results],
+                                 'kmeans_PositionYVariance': [result.clusterOutput.outputPositionVariance[1] for result in self.output_kmeans_results],
+                                 'kmeans_PeakHeight':       [result.clusterOutput.outputPeakHeight for result in self.output_kmeans_results],
+                                 'kmeans_NumClusters':      [result.clusterOutput.outputNumberOfClusters for result in self.output_kmeans_results]
                                  })                    
             store.append('ImageData',df) # this will make a table, which can be appended to
             store.close()
@@ -288,7 +310,7 @@ for imageNumber in range(numImages):
         #raw_input("Press a key to continue")
         #bigA.DoKmeans(imageNumber)
         pass
-    bigA.StoreResults(imageNumber,dbscan_results)
+    bigA.StoreResults(imageNumber,dbscan_results,kmeans_results)
 print "done with cycle"        
 bigA.OutputASCIIResults(outputRootName)  
 bigA.OutputHDF5Results(outputRootName)  

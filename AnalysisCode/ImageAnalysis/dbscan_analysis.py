@@ -329,7 +329,7 @@ class dbscan_analysis:
             covariance[1,0] =  covariance[0,1]      
             covarianceFactor=1./(1.-countsSquared) # because we've already normalized
             covariance=covariance*covarianceFactor      
-            variance=(covariance[0,0],covariance[1,1])
+            variance=[covariance[0,0],covariance[1,1]]
             
             return (mean,variance)
       #---------------------------------------------------------------------------
@@ -375,9 +375,9 @@ class dbscan_analysis:
             self.clusterOutput.outputClusterFrac=self.clusterFrac[self.bestClusterID]
             self.clusterOutput.outputAvgPixelCount=self.avgPixelCount[self.bestClusterID]
             self.clusterOutput.outputPosition=self.clusterPosition[self.bestClusterID]
-            self.clusterOutput.outputPositionVariance=self.clusterPositionVariance=[self.bestClusterID]
+            self.clusterOutput.outputPositionVariance=self.clusterPositionVariance[self.bestClusterID]
             self.clusterOutput.outputPeakHeight=self.clusterHottestPixel[self.bestClusterID]
-            self.clusterOutput.outputNumberOfClusters=self.maxClusterID
+            self.clusterOutput.outputNumberOfClusters=float(self.maxClusterID)
             return
       #---------------------------------------------------------------------------
       def DoIt(self,inputArray,minimumPoints,eps):
