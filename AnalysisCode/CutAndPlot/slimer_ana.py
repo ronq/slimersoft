@@ -32,6 +32,15 @@ cutTable="""
 0.0     DBScan_Counts               9.e20       select
 1.0     DBScan_NumClusters          4.0         select
 """
+#define variables for which we want 2D histograms 
+pairsFor2D=[
+["DBSCAN_Counts","DBScan_PeakHeight"],
+["DBSCAN_Counts","DBScan_NumPixels"],
+["DBSCAN_NumPixels","DBScan_PeakHeight"],
+]
+
+
+
 
 #open file
 imageDataTable=pandas.read_hdf(inputFile,'ImageData')
@@ -51,7 +60,7 @@ outputROOTFileName=outputRootName + ".root"
 newfile=ROOT.TFile(outputROOTFileName,'RECREATE') # open output right away to enable easy histogram output
 
 pairs=["var1","var2"]
-plot_pandas_lib.plot_pandas(newfile,new_imageDataTable,pairs)
+plot_pandas_lib.plot_pandas(new_imageDataTable,pairsFor2D)
 
 
 
