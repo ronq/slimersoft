@@ -545,6 +545,24 @@ However the Numerical Aperture (NA) = 1/(2F-number)
 so phi_c approx (2*NA)^2
 So 10x -> 20x should produce (0.50/0.30)^2 = 2.78 more light! 
 
+Aug 7th 2013 ------------------------------
+slimer_ana is now done. Clean things up and think about what else is needed....
+The only parallel part of the analyis chain is image_analysis. 
+So I need to write:
+    bash scripts for running background_average.py on specific datasets
+    SGE scripts for running image_analysis.py on arbitrary datasets across the cluster
+        a bash script for running image_analysis.py on a specific subset of data
+    a bash script which runs the SGE script on specific datasets.
+    a tool with which to sum multiple hdf5 files
+    a bash script to run slimer_ana.py on a specific dataset.
+    
+    
+    
+    
+         
+
+
+
 
 
 

@@ -42,7 +42,7 @@ new_imageDataTable=(hdf5_cut_lib.hdf5_cut_lib(imageDataTable,cutTable)).result
 
 # output the crunched DataFrame to a new hdf5 file
 hdf5FileName=outputRootName +"_hdf5.h5"
-store=pandas.HDFStore(hdf5FileName,'w')
+store=pandas.HDFStore(hdf5FileName)
 store.append('ImageData',new_imageDataTable) # this will make a table, which can be appended to
 store.close()
 

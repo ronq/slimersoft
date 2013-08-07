@@ -92,11 +92,6 @@ bigA=average_image()
 numImages=bigA.MakeInputList(inputList)
 print "Number of Images:",numImages
 bigA.LoadImages(numImages)
-print "Computing Overall Average"
-#bigA.ComputeAverage()
-print "Computing Overall Variance"
-#bigA.ComputeVar()
-print "Writing out Averaged Arrays"
 bigA.WriteAverageArrays(averageArrayFileName)
 
 
