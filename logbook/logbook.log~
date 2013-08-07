@@ -524,6 +524,30 @@ regionQuery is eating up most of the time.
 Of this, roughly a third is spent with distanceQuery.
 Not much to do now.....
 
+Aug 5th 2013 ------------------------------
+I'll need to change the output code in case DBSCAN finds no clusters. 
+For now, continue to add to the output code.
+Aug 6th 2013 ------------------------------
+Erik is seeing a difference in energy scale between different magnifications (10x and 20x).
+The objectives that we have are:
+CFI Pan Flour    MRH 00401   40xa   NA 0.75  WD 0.72
+                 MRH 00201   20xa   NA 0.50  WD 2.1
+                 MRH 00041   4xa    NA 0.13  WD 17.2
+                 MRH 00101   10xa   NA 0.30  WD 16    
+                 
+Newport has a nice explaination of NA and general optics here:
+http://www.newport.com/Tutorial-Light-Collection-and-Systems-Throughput/381845/1033/content.aspx
+
+In the above, they relate flux (phi_c) to the F-number:
+    phi_c approx 1/(F-number^2)
+However the Numerical Aperture (NA) = 1/(2F-number)
+
+so phi_c approx (2*NA)^2
+
+
+
+
+
 
 
 

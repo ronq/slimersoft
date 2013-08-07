@@ -29,22 +29,37 @@ class hdf5_cut_lib:
 	            cut_action.append(line_variables[3])
 	    return lower_limit, variable_name, upper_limit, cut_action
 	#-----------------------------------------------------------------------
-    def computeCuts(self,df,lowerLimit, variableName, upperLimit, cutAction):
+    def computeCuts(self,df,lower_limit, variableName, upper_limit, cutAction):
 	    """
 	    """
 	    logicArrayList=[]        
 	    for i in range(len(variableName)):
-	        logicResult=(df[variableName[i]] > lower_limit[i]) and (df[variableName[i]] < upper_limit[i])
+	        logicResult=(df[variableName[i]] > lower_limit[i]) & (df[variableName[i]] < upper_limit[i])
 	        if cutAction[i] == "deselect":
 	            logicResult = not logicResult 
-	        print i, logicResult
 	        logicArrayList.append(logicResult)
 	    # now convert to a numpy array so we can use an efficient array manipulation
 	    logicArray=numpy.array(logicArrayList)
 	    # once this is done, I'll want to OR all the arrays together to form the final cut mask
 	    #print logicArray
-	    cutMask=numpy.any(logicArray,axis=1)
+	    cutMask=numpy.any(logicArray,axis=0)
 	    #print cutMask
 	    return cutMask 
 	#----------------------------------------------------------------------
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	       
