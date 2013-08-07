@@ -9,7 +9,6 @@ class plot_pandas:
     def __init__(self,df,pairs2D):
 	    """A class for quick plotting of variables inside PANDAS DataFrames. This will book and fill a histogram for each variable in the DataFrame. 
 	    """
-	    self.histoArray=[]  # array of histogram objects 
 	    self.numBins=1000
 	    # loop over all columns in dataFrame for 1D plotting
 	    dfIterator=df.iteritems()
@@ -63,30 +62,5 @@ class plot_pandas:
             newHisto.Fill(datum1,datum2)                 # fill the histogram
         newHisto.Write()                                 # write the histogram to the ROOT file. Through the magic of the PyROOT binding, there's no need to reference the file here!
         return
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    #-------------------------------------------------------------------------------------------------------------------------------------------------
 

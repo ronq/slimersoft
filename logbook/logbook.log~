@@ -543,7 +543,7 @@ In the above, they relate flux (phi_c) to the F-number:
 However the Numerical Aperture (NA) = 1/(2F-number)
 
 so phi_c approx (2*NA)^2
-
+So 10x -> 20x should produce (0.50/0.30)^2 = 2.78 more light! 
 
 
 

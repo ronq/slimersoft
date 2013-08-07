@@ -14,11 +14,6 @@ import sys
 import math
 import numpy
 import scipy
-#import Image
-#import matplotlib.pyplot
-#import kmeans_analysis
-#import dbscan_analysis
-#import cluster_output
 import pandas
 import hdf5_cut_lib
 import ROOT
@@ -38,10 +33,6 @@ pairsFor2D=[
 ["DBScan_Counts","DBScan_NumPixels"],
 ["DBScan_NumPixels","DBScan_PeakHeight"],
 ]
-
-
-
-
 #open file
 imageDataTable=pandas.read_hdf(inputFile,'ImageData')
 
@@ -57,15 +48,11 @@ store.close()
 
 # now book and fill histograms 
 outputROOTFileName=outputRootName + ".root"
-newfile=ROOT.TFile(outputROOTFileName,'RECREATE') # open output right away to enable easy histogram output
+newfile=ROOT.TFile(outputROOTFileName,'RECREATE') # open output right away to enable easy histogram output. 
 
-pairs=["var1","var2"]
-plot_pandas_lib.plot_pandas(new_imageDataTable,pairsFor2D)
+plot_pandas_lib.plot_pandas(new_imageDataTable,pairsFor2D)  # note that there's no need to pass the newfile object: PyRoot already has access to the file for writing
 
-
-
-
-newfile.Write()  # write all histograms to disk
+newfile.Write()  # write all histograms to disk, redundant?
 newfile.Close()
 
 
