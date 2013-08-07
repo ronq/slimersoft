@@ -34,9 +34,9 @@ cutTable="""
 """
 #define variables for which we want 2D histograms 
 pairsFor2D=[
-["DBSCAN_Counts","DBScan_PeakHeight"],
-["DBSCAN_Counts","DBScan_NumPixels"],
-["DBSCAN_NumPixels","DBScan_PeakHeight"],
+["DBScan_Counts","DBScan_PeakHeight"],
+["DBScan_Counts","DBScan_NumPixels"],
+["DBScan_NumPixels","DBScan_PeakHeight"],
 ]
 
 
