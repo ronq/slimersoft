@@ -284,7 +284,6 @@ print "Number of Images:",numImages
 bigA.PrepareResults()
 bigA.LoadImages(numImages)
 bigA.LoadBackground(backgroundNPZ)
-print "preparing to cycle"
 for imageNumber in range(numImages):
     bigA.SubtractBackground(imageNumber)
     bigA.ApplyThreshold(imageNumber)
@@ -310,8 +309,7 @@ for imageNumber in range(numImages):
         #raw_input("Press a key to continue")
         #bigA.DoKmeans(imageNumber)
         pass
-    bigA.StoreResults(imageNumber,dbscan_results,kmeans_results)
-print "done with cycle"        
+    bigA.StoreResults(imageNumber,dbscan_results,kmeans_results)       
 bigA.OutputASCIIResults(outputRootName)  
 bigA.OutputHDF5Results(outputRootName)  
 #print "Writing out Averaged Arrays"

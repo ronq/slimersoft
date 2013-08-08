@@ -230,7 +230,7 @@ class analyze_images:
             """ output into a PANDAS HDF5
             """
             hdf5FileName=root_name +"_hdf5.h5"
-            store=pandas.HDFStore(hdf5FileName)
+            store=pandas.HDFStore(hdf5FileName,'w')
             df=pandas.DataFrame({'ImagePath': self.output_fullFilePath,
                                  'ImageMax' : self.output_imageMax,
                                  'ImageMean': self.output_imageMean,

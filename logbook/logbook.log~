@@ -556,10 +556,62 @@ So I need to write:
     a tool with which to sum multiple hdf5 files
     a bash script to run slimer_ana.py on a specific dataset.
     
+The HDF5 summing tool is now written. 
+
+Now write scripts.
+I have a script ready to run image_analysis. I need to debug it. 
+
+
+Find some data:
+    /proj/Slimer/Slimer_mk2/8_01_2013/
+write a script to do the background average:
+    /proj/Slimer/Slimer_mk2/8_01_2013_mikes_ana/scripts/
+
+background_average is disk, not CPU, bound. Implies should always be run on node3, and perhaps on local_scratch.
+    Here was the output of that job:
+    Number of Images: 10641
+[[ 500.16398835  500.33239357  500.69702096 ...,  500.36152617
+   503.47213608  503.08890142]
+ [ 500.69523541  500.74570059  500.69702096 ...,  500.50765905
+   502.88873226  502.63565454]
+ [ 500.67249319  500.50089277  500.77145005 ...,  500.6090593   503.20740532
+   502.64138709]
+ ..., 
+ [ 503.11728221  502.97190114  503.10064844 ...,  502.89239733
+   505.58340382  505.10074241]
+ [ 503.28991636  502.91701908  503.32609717 ...,  503.19641011  505.3452683
+   505.42326849]
+ [ 503.15026783  503.26567052  503.32027065 ...,  502.83168875
+   505.49769758  505.26125364]] [[  90.29913913  142.25839511  220.79108981 ...,  123.63084669
+   150.34793124  143.65638151]
+ [ 144.07449703  139.51352122  134.81684169 ...,  149.93041596
+   163.70453562  131.73650683]
+ [ 144.41406379  132.83404526  156.7528352  ...,  131.96369236  157.2606444
+   141.45014409]
+ ..., 
+ [ 174.73530374  128.54610888  126.51684262 ...,  153.4501687   165.95547266
+   153.83063949]
+ [ 135.2303203   157.43907217  215.51977846 ...,  147.23679538
+   143.48641769  137.59413522]
+ [ 153.59668437  240.25413059  897.17128925 ...,  158.69074761
+   161.00189789  154.90711606]]
+
     
+I now have other scripts in:
+    /proj/Slimer/Slimer_mk2/8_01_2013_mikes_ana/scripts/    
+
+now everything is pretty much working!    
+    It DOES look lime hdf5_sum isn't working correctly: only one event is present. Or slimer_ana may be messed up.
     
-    
-         
+
+Aug 8th 2013 -------------------------------------------------
+It looks like the variance between pixels in the 8_01_2013 dataset is quite large!!!!!!!!!!!!!!!!!
+does this make sense?????
+
+Back to the analysis chain first. the summed HDF5 file seems to have 105 entries, so that part of the code should be working.
+The problem seems to be in slimer_ana, namely the cut stage.
+
+No, the problem is that ALL images are failing the DBSCan found clusters cut.
 
 
 
@@ -567,7 +619,9 @@ So I need to write:
 
 
 
+===========================
 
+Study pixel to pixel variances. 
 
 I will however need to code in an option look at which pixels are in which clusters.
 I should be able to find the "good cluster" by averging the distance for all points, and picking the one with the smaller average distance. 
@@ -575,34 +629,7 @@ I should be able to find the "good cluster" by averging the distance for all poi
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 I should check to make sure that events that appear to be real events don't also have more hit pixels in the background as well. 
-
-
-
-
-
-
-
-   
-
-
-
-
-
-
-
-
 
 
 The next step is to PLOT the images, setting pixels less than say 3,4,or 5 sigma equal to zero, and setting the other pixels to maximum amplitude.

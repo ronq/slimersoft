@@ -18,8 +18,10 @@ inputList=glob.glob(inputPath)
 # open output file 
 store=pandas.HDFStore(outputName,mode='w')
 #open each file and append contents to the new store
+print "Processing ",len(inputList), " files"
 for newfile in inputList:
     imageDataTable=pandas.read_hdf(newfile,'ImageData')
     store.append('ImageData',imageDataTable)
 store.close()
+
 

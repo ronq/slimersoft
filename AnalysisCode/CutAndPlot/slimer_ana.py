@@ -35,10 +35,12 @@ pairsFor2D=[
 ]
 #open file
 imageDataTable=pandas.read_hdf(inputFile,'ImageData')
-
+print imageDataTable['DBScan_Counts']
+print imageDataTable['DBScan_NumClusters']
 # apply cuts 
 new_imageDataTable=(hdf5_cut_lib.hdf5_cut_lib(imageDataTable,cutTable)).result
 
+#print new_imageDataTable
 
 # output the crunched DataFrame to a new hdf5 file
 hdf5FileName=outputRootName +"_hdf5.h5"

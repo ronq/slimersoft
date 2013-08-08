@@ -385,7 +385,6 @@ class dbscan_analysis:
             self.imageArray=inputArray
             self.DoDBSCAN(minimumPoints,eps) # run the DBSCAN algorithm
             foundClusters=self.AnalyzeResults() # get cluster info
-            print foundClusters
             if foundClusters:
                 self.bestClusterID=self.ChooseBestCluster() # out of the clusters found, pick the "best"
                 self.GenerateOutput() # load results into the final observables
