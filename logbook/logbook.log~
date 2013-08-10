@@ -492,41 +492,173 @@ Now clusters have more than one pixel, have a count above MinPTS. So things look
 
 Need a good way to check the code now. Should code up the ability to compute the density of a cluster, and the percentage of counts in a cluster as well.
 
+July 19th 2013---------------
+Clean up dbscan code, then the entire analysis code, and then begin to run it on background
+July 23rd 2013---------------
+Continue code cleanup.
+Things are now running. Commit and continue.
+
+DBSCAN takes ALOT of time between when it announces the number of clusters found and picking the best.
+This time is spent on "analyze_results" and is due to the computation of the cluster position.
+
+I've changed the code to compute the covariance matrix, which isn't used just yet. 
+A code tweak sped up the computation of the variance nicely.
+
+Now circle back and code in the ability to actually extract and save parameters.
+For now, just write out the cluster parameters and the file path to the image. I can look at parameters and the image using another program.
+I will however need to code in an option look at which pixels are in which clusters.
+
+July 29th 2013----------------------------------
+ascii and hdf5 output now work! Code committed!
+
+It seems like something is trying to make an X connection however. That is NOT right!
+It is okay....it is matplotlib.
+
+July 31st 2013 -------------------------------
+Found a problem with the threshold setting: I was multiplying the threshold in sigma by the variance, NOT the sigma
+I'm seeing events with DBSCAN clusters < minPts. This implies a bug.
+I've tweaked the DBSCAN requirements, and this seems to reject background more effectively.
+However, the code runs MUCH longer now. 
+Time to do some more profiling.....
+regionQuery is eating up most of the time.
+Of this, roughly a third is spent with distanceQuery.
+Not much to do now.....
+
+Aug 5th 2013 ------------------------------
+I'll need to change the output code in case DBSCAN finds no clusters. 
+For now, continue to add to the output code.
+Aug 6th 2013 ------------------------------
+Erik is seeing a difference in energy scale between different magnifications (10x and 20x).
+The objectives that we have are:
+CFI Pan Flour    MRH 00401   40xa   NA 0.75  WD 0.72
+                 MRH 00201   20xa   NA 0.50  WD 2.1
+                 MRH 00041   4xa    NA 0.13  WD 17.2
+                 MRH 00101   10xa   NA 0.30  WD 16    
+                 
+Newport has a nice explaination of NA and general optics here:
+http://www.newport.com/Tutorial-Light-Collection-and-Systems-Throughput/381845/1033/content.aspx
+
+In the above, they relate flux (phi_c) to the F-number:
+    phi_c approx 1/(F-number^2)
+However the Numerical Aperture (NA) = 1/(2F-number)
+
+so phi_c approx (2*NA)^2
+So 10x -> 20x should produce (0.50/0.30)^2 = 2.78 more light! 
+
+Aug 7th 2013 ------------------------------
+slimer_ana is now done. Clean things up and think about what else is needed....
+The only parallel part of the analyis chain is image_analysis. 
+So I need to write:
+    bash scripts for running background_average.py on specific datasets
+    SGE scripts for running image_analysis.py on arbitrary datasets across the cluster
+        a bash script for running image_analysis.py on a specific subset of data
+    a bash script which runs the SGE script on specific datasets.
+    a tool with which to sum multiple hdf5 files
+    a bash script to run slimer_ana.py on a specific dataset.
+    
+The HDF5 summing tool is now written. 
+
+Now write scripts.
+I have a script ready to run image_analysis. I need to debug it. 
 
 
+Find some data:
+    /proj/Slimer/Slimer_mk2/8_01_2013/
+write a script to do the background average:
+    /proj/Slimer/Slimer_mk2/8_01_2013_mikes_ana/scripts/
+
+background_average is disk, not CPU, bound. Implies should always be run on node3, and perhaps on local_scratch.
+    Here was the output of that job:
+    Number of Images: 10641
+[[ 500.16398835  500.33239357  500.69702096 ...,  500.36152617
+   503.47213608  503.08890142]
+ [ 500.69523541  500.74570059  500.69702096 ...,  500.50765905
+   502.88873226  502.63565454]
+ [ 500.67249319  500.50089277  500.77145005 ...,  500.6090593   503.20740532
+   502.64138709]
+ ..., 
+ [ 503.11728221  502.97190114  503.10064844 ...,  502.89239733
+   505.58340382  505.10074241]
+ [ 503.28991636  502.91701908  503.32609717 ...,  503.19641011  505.3452683
+   505.42326849]
+ [ 503.15026783  503.26567052  503.32027065 ...,  502.83168875
+   505.49769758  505.26125364]] [[  90.29913913  142.25839511  220.79108981 ...,  123.63084669
+   150.34793124  143.65638151]
+ [ 144.07449703  139.51352122  134.81684169 ...,  149.93041596
+   163.70453562  131.73650683]
+ [ 144.41406379  132.83404526  156.7528352  ...,  131.96369236  157.2606444
+   141.45014409]
+ ..., 
+ [ 174.73530374  128.54610888  126.51684262 ...,  153.4501687   165.95547266
+   153.83063949]
+ [ 135.2303203   157.43907217  215.51977846 ...,  147.23679538
+   143.48641769  137.59413522]
+ [ 153.59668437  240.25413059  897.17128925 ...,  158.69074761
+   161.00189789  154.90711606]]
+
+    
+I now have other scripts in:
+    /proj/Slimer/Slimer_mk2/8_01_2013_mikes_ana/scripts/    
+
+now everything is pretty much working!    
+    It DOES look lime hdf5_sum isn't working correctly: only one event is present. Or slimer_ana may be messed up.
+    
+
+Aug 8th 2013 -------------------------------------------------
+It looks like the variance between pixels in the 8_01_2013 dataset is quite large!!!!!!!!!!!!!!!!!
+does this make sense?????
+
+Back to the analysis chain first. the summed HDF5 file seems to have 105 entries, so that part of the code should be working.
+The problem seems to be in slimer_ana, namely the cut stage.
+
+No, the problem is that ALL images are failing the DBSCan found clusters cut.
+image_analysis IS finding "hot pixels", and many of them.
+It looks like the problem is with DBSCAN.
+Tweak minPts and eps from 1000 and 5.0 to 200 and 5.0.
+Now I'm getting MANY clusters.
+use 500 and 5.0.....now some clusters are found.
+
+slimer_ana is now working .... kind of. 
+
+Automatic histogram axis computation is NOT working in slimer_ana. Actually, it IS. there are some large outliers in the data.
+
+Computation of the cluster position is NOT working all the time in image_analysis. There was a problem with the weighted mean calculation.
+It has been fixed.
+
+Aug 9th 2013 --------------------------------------------
+We now have a new tool for nd2 --> tiff conversion. It is a library called Bio-Formats.
+The command line tools are written in java, and conversion from the head node is SLOOOOW when reading and writing over NFS. 
+I've installed icedtea java on all worker nodes to allow this tool to be run from node3, so NFS is not used. 
+Now it is FAST....much more so than using the SLIMER DAQ machine. 
+
+We want to compress the data down to monochrome, so the proper command is:
+/proj/Software/ImageProcessing/bftools/bfconvert <path to nd2 file> <root_name>_%t.tiff
+
+which will split the frames in the nd2 files, and append labels based on frame number
+
+using <root_name>_%A.tiff instead will result in file stamps according to exposure time.
+HOWEVER THE USE OF THE %A STAMP WILL ONLY GO DOWN TO THE SECOND, SO IMAGES WILL BE SUMMED INTO GROUPS OF SECONDS.
+
+For full seperation, we'll need to use the %t tag.
+
+
+Other information on bftools can be found here:
+http://www.farsight-toolkit.org/wiki/FARSIGHT_Tutorials/Bio-Formats
+
+
+===========================
+Check to make sure bfconvert is getting all exposures.
+
+
+Study pixel to pixel variances. 
+
+I will however need to code in an option look at which pixels are in which clusters.
 I should be able to find the "good cluster" by averging the distance for all points, and picking the one with the smaller average distance. 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 I should check to make sure that events that appear to be real events don't also have more hit pixels in the background as well. 
-
-
-
-
-
-
-
-   
-
-
-
-
-
-
-
-
 
 
 The next step is to PLOT the images, setting pixels less than say 3,4,or 5 sigma equal to zero, and setting the other pixels to maximum amplitude.

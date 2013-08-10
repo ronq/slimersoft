@@ -4,6 +4,7 @@ import numpy
 import scipy
 import scipy.cluster
 import scipy.cluster.vq
+import cluster_output
 class kmeans_analysis:
       """ this class executes a k-means clustering analysis to a greyscale uint16 array
 
@@ -67,14 +68,25 @@ class kmeans_analysis:
             self.clusterFrac=self.clusterpoints/totalpoints
             return
       #---------------------------------------------------------------------------
-      
-      
+      def GenerateOutput(self):
+            """ load relevant results into standard output variables
+            """
+            self.outputClusterSize=-999.0
+            self.outputCounts=self.clusterpoints
+            self.outputClusterFrac=self.clusterFrac
+            self.outputAvgPixelCount=-999
+            self.outputPosition=[-999.,-999.]
+            self.outputPositionVariance=[-999.,-999.]
+            self.outputPeakHeight=-999.0
+            self.outputNumberOfClusters=1.
+            
+            return
       #---------------------------------------------------------------------------
       def DoIt(self,inputArray):
+            self.clusterOutput=cluster_output.cluster_output()
             self.imageArray=inputArray
             #print "generating KMeans Data"
             self.GenerateKmeansData() # prepare the data first
-            
             # get estimate of "center of energy"
             #print "Whitening Features"
             self.WhitenFeatures() # whiten
@@ -82,7 +94,8 @@ class kmeans_analysis:
             self.DoKmeans()# run the kmeans test
             # check for a second cluster
             self.AnalyzeResults() # get cluster info
-            print "Kmeans",self.clusterpoints,self.clusterFrac,self.distortion
+            self.GenerateOutput() 
+            #print "Kmeans",self.clusterpoints,self.clusterFrac,self.distortion
             return    
       #------------------------------------------------------------------------------         
       

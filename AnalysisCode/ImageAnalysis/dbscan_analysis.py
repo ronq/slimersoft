@@ -6,7 +6,8 @@ import sklearn.cluster
 #import scipy
 #import scipy.cluster
 #import scipy.cluster.vq
-
+import math
+import cluster_output
 
 
 class dbscan_implementation:
@@ -45,11 +46,12 @@ regionQuery(P, eps)
 #------------------------------------------------------------------------------------------------------------------------------------------
     def __init__(self,input_image,input_minpts,input_eps):
         # input data and DBSCAN parameters 
+        self.imageArray=input_image
         self.MinPts=input_minpts
         self.eps=input_eps  # must be a float!
-        self.imageArray=image
+        #self.imageArray=imput_image
         # extract the image size, assume it is square
-        self.imageSize=image.shape[0] 
+        self.imageSize=input_image.shape[0] 
         
         # now initialize the pixelID array. This is the final product of the dbscan algorithm.
         #                                   It marks each point in an image with a particular ID, either zero (-2) noise (-1) or a cluster (positive integer)  
@@ -174,10 +176,11 @@ regionQuery(P, eps)
         # now iterate though the neighborhood, and test for being within eps
         arrayIterator=numpy.nditer(self.imageArray[lo_x:hi_x,lo_y:hi_y],flags=['multi_index'])
         while not arrayIterator.finished:
-                    slicedPosition=arrayIterator.multi_index # this will return the indices of the SLICED array!
-                    positionPrime=(lo_x+slicedPosition[0],lo_y+slicedPosition[1]) 
                     countsPrime=arrayIterator[0]
                     if countsPrime: # only for non-zero elements
+                        # only get indices for non-zero elements
+                        slicedPosition=arrayIterator.multi_index # this will return the indices of the SLICED array!
+                        positionPrime=(lo_x+slicedPosition[0],lo_y+slicedPosition[1]) 
                         distance=self.distanceQuery(position,positionPrime)
                         if distance <= self.eps:
                             #print "Adding ",positionPrime, " to cluster"
@@ -230,6 +233,9 @@ class dbscan_analysis:
             # get the number of clusters
             # get the number of points (actually counts) in the cluster
             # look at the distortion too
+            
+            foundClusters=False
+            
             #self.ExploreClusters()
             
             # get zero pixels:
@@ -244,99 +250,87 @@ class dbscan_analysis:
             
             # now compute per cluster variables 
             if self.maxClusterID < 0:
-                #print "DBSCAN Found Zero Clusters"
+                print "DBSCAN Found Zero Clusters"
                 pass
             else:    
-                print "DBSCAN Found ",self.maxClusterID, " clusters"
+                foundClusters=True
                 self.clusterMask=numpy.zeros((self.imageArray.shape[0],self.imageArray.shape[0],self.maxClusterID))
                 self.clusterPixels=[]
                 self.clusterCounts=[]
                 self.clusterFrac=[]
-                self.avgPixel=[]
+                self.avgPixelCount=[]
                 self.clusterPosition=[]
                 self.clusterPositionVariance=[]
-                
+                self.clusterHottestPixel=[]
                 for clusterID in range(self.maxClusterID):  # loop over all clusters found 
                     self.clusterMask[:,:,clusterID]= (self.db.pixelID  == clusterID+1)  # this produces a mask of pixels in a particular cluster
-                    #print "Cluster ", clusterID, " contains ", self.clusterMask[:,:,clusterID].sum(), " pixels and ", (self.clusterMask[:,:,clusterID]*self.imageArray).sum(), "counts"
+                    print "Cluster ", clusterID, " contains ", self.clusterMask[:,:,clusterID].sum(), " pixels and ", (self.clusterMask[:,:,clusterID]*self.imageArray).sum(), "counts"
                     self.clusterPixels.append(self.clusterMask[:,:,clusterID].sum())    # number of pixels in a cluster
                     self.clusterCounts.append((self.clusterMask[:,:,clusterID]*self.imageArray).sum()) # number of counts in a cluster
-                    self.clusterFrac.append(self.clusterCounts/backgroundCounts)                       # number of counts in a cluster compared to identified background
+                    self.clusterFrac.append(self.clusterCounts[-1]/backgroundCounts)                       # number of counts in a cluster compared to identified background
                     self.avgPixelCount.append(self.clusterCounts[-1]/self.clusterPixels[-1])           # average pixel count in a cluster
-                    pos,var = ComputeClusterPosition(self,clusterID)                                   # compute the weighted position and variance of the pixels in the cluster
+                    pos,var = self.ComputeClusterPosition(clusterID)                                   # compute the weighted position and variance of the pixels in the cluster
                     self.clusterPosition.append(pos)
                     self.clusterPositionVariance.append(var)
                     self.clusterHottestPixel.append((self.clusterMask[:,:,clusterID]*self.imageArray).max())  # extract the position of the hottest pixel 
-                totalpoints=self.noiseMask.sum() + self.clusterMask.sum()                              # this is the total number of pixels about threshold in this image 
-                print self.clusterFrac
-                print self.clusterPixels
-                print self.clusterCounts
-                print self.avgPixelCount
-                print self.clusterHottestPixel
-                print self.clusterPosition
-                print self.clusterPositionVariance
-                
-             
-            """
-            totalpoints=self.features.size/2. # each point is 2x1
-            clusterLabelsFound=[]   # this is the number of clusters +1 (for noise)
-            clusterPointsFound=[]   # this is the energy estimate for the cluster 
-            for pointLabel in labels:       # loop over all point labels
-                if pointLabel not in clusterLabelsFound:   # check if this label (cluster) is new
-                    clusterLabelsFound.append(pointLabel)     # if so add it to the list of clusters 
-                clusterPointsFound[clusterLabelsFound.index(pointLabel)]+=1    # another point(count) in this cluster
-                     
-            self.clustersFound=len(clusterLabelsFound) - (-1 in clusterLabelsFound) # -1 denotes noise
-            
-            if ( -1 in clusterLabelsFound ):
-                self.backgroundEvents=clusterPointsFound[clusterLabelsFound.index(-1)]
-            else:
-                self.backgroundEvents=0    
-            
-            # now setup other variables for later analysis:
-            
-            self.backgroundCounts=0
-            self.clusterCounts=[]
-            self.clusterLabels=[]  
-            for i in range(len(clusterPointsFound)):
-                if clusterLabelsFound[i]==-1:
-                    self.backgroundCounts=clusterPointsFound[i]
-                else:
-                    self.clusterLabels.append(clusterLabelsFound[i])    
-                    self.clusterCounts.append(clusterPointsFound[i])
-            
-            self.backgroundFrac=self.backgroundCounts/totalpoints
-            self.clusterToTotalFrac=[]
-            self.clusterToBackgroundFrac=[]
-            for counts in self.clusterCounts:
-                    self.clusterToTotalFrac.append(counts/totalpoints)
-                    self.clusterToBackgroundFrac.append(counts/backgroundCounts)
-            """
-            return
+                totalpoints=self.noiseMask.sum() + self.clusterMask.sum()                              # this is the total number of pixels above threshold in this image 
+            return foundClusters 
       #---------------------------------------------------------------------------
       def ComputeClusterPosition(self,clusterID): 
             """ this will compute the weighted average of the cluster position
+            
+                note that the means can be computed by just multiplying the clusterArray with row or column vectors like [0,1,2....] and then taking the sum 
+                
+               
+            
+            
             """
-            clusterArray=self.imageArray*self.clusterMask[:,:,clusterID]
-            # compute the mean position first
-            arrayIterator=numpy.nditer(clusterArray,flags=['multi_index'])
             mean=[0.,0.]
-            variance=[0.,0.]
+            covariance=numpy.zeros((2,2))
+            countsSquared=0.0
+            # compute the imageArray of just the cluster, and normalize it
+            clusterArray=(self.imageArray*self.clusterMask[:,:,clusterID])/self.clusterCounts[clusterID]
+            
+            # compute the mean. Do this quickly by using projections -------------------------------------
+            # project in two dimensions 
+            projectX=numpy.sum(clusterArray,axis=1) # note the ordering of the axis here!
+            projectY=numpy.sum(clusterArray,axis=0)
+            
+            # compute the means from the projections
+            # get mean x
+            arrayIterator=numpy.nditer(projectX,flags=['multi_index'])
             while not arrayIterator.finished:
                     position=arrayIterator.multi_index # this will return the indices of the SLICED array!
                     counts=arrayIterator[0]
-                    mean[0]+=float(position[0])*counts/(self.clusterCounts[clusterID-1])
-                    mean[1]+=float(position[1])*counts/(self.clusterCounts[clusterID-1])
-            # then the standard deviation
-            res=[0.,0.]
-            arrayIterator.reset()
+                    if counts:
+                        mean[0]+=float(position[0])*counts
+                    arrayIterator.iternext() 
+            # get mean y
+            arrayIterator=numpy.nditer(projectY,flags=['multi_index']) 
             while not arrayIterator.finished:
                     position=arrayIterator.multi_index # this will return the indices of the SLICED array!
                     counts=arrayIterator[0]
-                    res[0]=float(position[0])-mean[0]
-                    res[1]=float(position[1])-mean[1]
-                    var[0]+=(res[0]*res[0])*counts/(self.clusterCounts[clusterID-1])
-                    var[1]+=(res[1]*res[1])*counts/(self.clusterCounts[clusterID-1])
+                    if counts:
+                        mean[1]+=float(position[0])*counts  # note the indexing of the position array: this is correct
+                    arrayIterator.iternext()        
+                    
+                    
+            # now compute the covariance matrix-------------------------------------------------------------
+            arrayIterator=numpy.nditer(clusterArray,flags=['multi_index'])
+            while not arrayIterator.finished:
+                    position=arrayIterator.multi_index # this will return the indices of the SLICED array!
+                    counts=arrayIterator[0]
+                    if counts:
+                        countsSquared+=counts*counts
+                        covariance[0,0]+=counts* (float(position[0])-mean[0])*(float(position[0]-mean[0]))
+                        covariance[0,1]+=counts* (float(position[0])-mean[0])*(float(position[1]-mean[1]))
+                        covariance[1,1]+=counts* (float(position[1])-mean[1])*(float(position[1]-mean[1]))
+                    arrayIterator.iternext() 
+            covariance[1,0] =  covariance[0,1]      
+            covarianceFactor=1./(1.-countsSquared) # because we've already normalized
+            covariance=covariance*covarianceFactor      
+            variance=[covariance[0,0],covariance[1,1]]
+            
             return (mean,variance)
       #---------------------------------------------------------------------------
       def ChooseBestCluster(self):
@@ -351,22 +345,49 @@ class dbscan_analysis:
                 counts = self.clusterCounts[clusterID]
                 if counts > maxCounts:
                     maxCounts=counts
-                    bestID=clusterID
-                #check width
-                relative_width=self.clusterPositionVariance[clusterID]/counts
+                    bestID_counts=clusterID
+                #check width, this code can be improved using numpy methods
+                width_x=(self.clusterPositionVariance[clusterID])[0]
+                width_y=(self.clusterPositionVariance[clusterID])[1]
+                width_r=math.sqrt((width_x*width_x)+(width_y*width_y))
+                relative_width=width_r/counts
                 if relative_width < minWidth:
-                    minWidth=relateive_width     
-                    
-                     
+                    minWidth=relative_width
+                    bestID_width=clusterID
+            if bestID_counts==bestID_width:
+                bestID=bestID_counts
+            else:
+                print "DBSCAN:ChooseBestCluster: can't find best cluster! Counts and width disagree!"
+                bestID=bestID_counts   
+            print "DBSCAN maxCounts:",maxCounts              
+            return bestID            
+      #---------------------------------------------------------------------------
+      def GenerateOutput(self):
+            """ load relevant results into standard output variables
+            """
+            # cluster energy
+            # cluster "size" in units of pixels
+            # cluster position
+            # "energy density" of cluster
+            # ratio of cluster counts to overall 
+            self.clusterOutput.outputClusterSize=self.clusterPixels[self.bestClusterID]
+            self.clusterOutput.outputCounts=self.clusterCounts[self.bestClusterID]
+            self.clusterOutput.outputClusterFrac=self.clusterFrac[self.bestClusterID]
+            self.clusterOutput.outputAvgPixelCount=self.avgPixelCount[self.bestClusterID]
+            self.clusterOutput.outputPosition=self.clusterPosition[self.bestClusterID]
+            self.clusterOutput.outputPositionVariance=self.clusterPositionVariance[self.bestClusterID]
+            self.clusterOutput.outputPeakHeight=self.clusterHottestPixel[self.bestClusterID]
+            self.clusterOutput.outputNumberOfClusters=float(self.maxClusterID)
+            return
       #---------------------------------------------------------------------------
       def DoIt(self,inputArray,minimumPoints,eps):
+            self.clusterOutput=cluster_output.cluster_output()
             self.imageArray=inputArray
             self.DoDBSCAN(minimumPoints,eps) # run the DBSCAN algorithm
-            # check for a second cluster
-            self.AnalyzeResults() # get cluster info
-            self.ChooseBestCluster() # out of the clusters found, pick the "best"
-            #print "DBSCAN Results:", self.backgroundFrac,self.clusterToTotalFrac,self.clusterToBackgroundFrac
-            
+            foundClusters=self.AnalyzeResults() # get cluster info
+            if foundClusters:
+                self.bestClusterID=self.ChooseBestCluster() # out of the clusters found, pick the "best"
+                self.GenerateOutput() # load results into the final observables
             return    
       #------------------------------------------------------------------------------         
       
