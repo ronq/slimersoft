@@ -8,13 +8,93 @@
 \usepackage{epstopdf}
 \DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
 
-\title{Brief Article}
-\author{The Author}
+\title{SLIMER Long Writeup}
+\author{Michael Ronquest \\
+Erik Shaw \\
+Mary Kidd\\
+Steve Elliott}
 %\date{}                                           % Activate to display a given date or no date
 
 \begin{document}
 \maketitle
-%\section{}
+\section{Introduction}
+This document outlines the main findings of the SLIMER experiment. 
+\section{Description of the Apparatus}
+\subsection{Microscope Body}
+\subsection{Lenses}
+\subsection{EM CCD Camera}
+\subsection{Fluorescence System}
+
+
+
+\section{Recommended Procedure for Taking Data}
+\subsection{Power-up procedure}
+Describe the order in which things should be powered up and/or started.
+\subsection{Recommended EMCCD settings}
+Describe things like EM gain, BERT settings, etc. here
+\subsection{Focusing Procedure}
+\subsection{Data Taking Settings}
+
+\section{Data Analysis}
+The analysis code is written in Python, and utilizies a number of external libraries to enable reasonably fast analysis of data. These libraries include Numpy, Scipy, PANDAS as well as PIL. 
+These may all be obtained within the Anaconda Python package. 
+\subsection{Locations on WIT}
+The copy of Anaconda, which includes the python distribution and libraries used in this analysis, can be setup by sourcing this file:
+XXXXXXXX
+Note that this will also setup a copy of ROOT which can interact with the newer version of python. 
+
+We now use a seperate program on WIT to convert from nd2 files to tiff files. The location is here:
+proj/Software/ImageProcessing/bftools/bfconvert
+
+
+\subsection{Analysis Chain}
+The data flow, from data taking to final histograms is:
+\begin{itemize}
+	\item Nikon Elements Data Acquisition $\rightarrow$ 1 \verb+.nd2+ file per run
+	%\item  1 \verb+.nd2+ file per run $\rightarrow$ Nikon Elements Export to TIFF $\rightarrow$ N \verb+.tiff+ files, 1 per exposure 
+	\item 1 \verb+.nd2+ file per run $\rightarrow$ \verb+bfconvert+ $\rightarrow$ N \verb+.tiff+ files, 1 per exposure
+	\item  Background \verb+.tiff+ files $\rightarrow$ \verb+background_average.py+ $\rightarrow$ 1  \verb+.npz+ (NumPy Zip archive) file, which contains 2 \verb+ndarray+s representing the mean and variance for each pixel in the EMCCD camera
+	\item Background  \verb+.npz+ file, data \verb+.tiff+ files  $\rightarrow$ \verb+image_analysis.py+ $\rightarrow$ crunched data  (energy, position, etc..) in ASCII (\verb+.dat+) format as well as HDF5 (\verb+.h5+) format
+	\item Derived observable (\verb+.h5+) files  $\rightarrow$ \verb+slimer_ana.py+ (cuts defined in python script) $\rightarrow$ crunched data with cuts in HDF5 (\verb+.h5+) format as well as histograms in ROOT (\verb+.root+) format
+	\end{itemize}
+The main part of the data reduction takes place within \verb+image_analysis.py+, where clustering and other analysis is performed. This is computationally expensive, however this stage can be done in parallel on wit, with the output concatanted afterward. 
+
+
+
+
+
+\section{Results}
+\section{14C spectra and efficiency}
+show some plots, and estimate the DETECTION efficiency. Also estimate the energy threshold.
+ 
+
+\section{Observed Problems, Recommended Solutions}
+\subsection{Light Leaks}
+\subsection{Communication Problems}
+Detail the Elements to Micrscope comm problems which would modify the filter settings here
+
+\subsection{Focusing Problems}
+Erik found that the focus at the 20x setting changes when the source is placed/removed. Not touching the scintillator slide seems to help, but this may be a weight issue.
+He has confirmed that there is NOT a time-dependent drift in focus. NEED TO CLAMP THE SCINTILLATOR BETTER.
+
+\subsection{Varying Background Level}
+Erik has found a difference in the variance on the background level (the raw pixel counts) between two background runs taken during different days. The shift in variance is from 7 to 10 counts/pixel.
+
+He has also seen a variance in the mean pixel count on an image by image basis. This agrees with the behavior seen in the pixel count histogram in the Nikon elements DAQ software
+
+\subsection{Optimum Magnification}
+We have consistenly been able to produce good observations at 20x magnification, with few background events satisfying our analysis criteria. However, to check if this magnification was optimum, we also ran at 10x magnification, with all other DAQ settings the same. For these data, a number of things were observed:
+\begin{itemize}
+	\item The energy spectrum, in units of pixel counts, shifted to lower values relative to the 20x magnification
+\end{itemize}
+BUT WE NEED TO ENSURE WE UNDERTAND THE CHANGES REQUIRED TO SWITCH TO A DIFFERENT MANGIFICATION!
+
+ Different lenses have different numerical apertures. 
+ 
+ 
+ 
+ 
+
 %\subsection{}
 
 
