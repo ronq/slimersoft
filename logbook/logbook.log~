@@ -641,9 +641,13 @@ HOWEVER THE USE OF THE %A STAMP WILL ONLY GO DOWN TO THE SECOND, SO IMAGES WILL 
 
 For full seperation, we'll need to use the %t tag.
 
-
 Other information on bftools can be found here:
 http://www.farsight-toolkit.org/wiki/FARSIGHT_Tutorials/Bio-Formats
+
+Aug 10th 2013 ---------------------------------------------
+Syncing git repos.
+
+
 
 
 ===========================

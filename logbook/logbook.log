@@ -646,7 +646,8 @@ http://www.farsight-toolkit.org/wiki/FARSIGHT_Tutorials/Bio-Formats
 
 Aug 10th 2013 ---------------------------------------------
 Syncing git repos.
-
+to update things FROM another repo (from say wit):
+    git pull ronquest@wit.lanl.gov:/home/ronquest/Work/SLIMER master
 
 
 
