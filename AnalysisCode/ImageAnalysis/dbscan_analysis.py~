@@ -250,7 +250,7 @@ class dbscan_analysis:
             
             # now compute per cluster variables 
             if self.maxClusterID < 0:
-                #print "DBSCAN Found Zero Clusters"
+                print "DBSCAN Found Zero Clusters"
                 pass
             else:    
                 foundClusters=True

@@ -38,7 +38,6 @@ class plot_pandas:
         lower_limit, upper_limit = self.GetLimits(data)
         # book histogram, using label as the ROOT name and title
         newHisto=ROOT.TH1F(label,label, self.numBins, lower_limit, upper_limit)
-        print label, lower_limit, upper_limit
         # now fill histogram
         dataIterator=numpy.nditer(data) # get an iterator for the ndarray holding the data 
         while not dataIterator.finished:

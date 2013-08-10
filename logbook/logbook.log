@@ -613,14 +613,46 @@ The problem seems to be in slimer_ana, namely the cut stage.
 
 No, the problem is that ALL images are failing the DBSCan found clusters cut.
 image_analysis IS finding "hot pixels", and many of them.
-It looks like the problem is with DBSCAN
+It looks like the problem is with DBSCAN.
+Tweak minPts and eps from 1000 and 5.0 to 200 and 5.0.
+Now I'm getting MANY clusters.
+use 500 and 5.0.....now some clusters are found.
 
+slimer_ana is now working .... kind of. 
 
+Automatic histogram axis computation is NOT working in slimer_ana. Actually, it IS. there are some large outliers in the data.
+
+Computation of the cluster position is NOT working all the time in image_analysis. There was a problem with the weighted mean calculation.
+It has been fixed.
+
+Aug 9th 2013 --------------------------------------------
+We now have a new tool for nd2 --> tiff conversion. It is a library called Bio-Formats.
+The command line tools are written in java, and conversion from the head node is SLOOOOW when reading and writing over NFS. 
+I've installed icedtea java on all worker nodes to allow this tool to be run from node3, so NFS is not used. 
+Now it is FAST....much more so than using the SLIMER DAQ machine. 
+
+We want to compress the data down to monochrome, so the proper command is:
+/proj/Software/ImageProcessing/bftools/bfconvert <path to nd2 file> <root_name>_%t.tiff
+
+which will split the frames in the nd2 files, and append labels based on frame number
+
+using <root_name>_%A.tiff instead will result in file stamps according to exposure time.
+HOWEVER THE USE OF THE %A STAMP WILL ONLY GO DOWN TO THE SECOND, SO IMAGES WILL BE SUMMED INTO GROUPS OF SECONDS.
+
+For full seperation, we'll need to use the %t tag.
+
+Other information on bftools can be found here:
+http://www.farsight-toolkit.org/wiki/FARSIGHT_Tutorials/Bio-Formats
+
+Aug 10th 2013 ---------------------------------------------
+Syncing git repos.
 
 
 
 
 ===========================
+Check to make sure bfconvert is getting all exposures.
+
 
 Study pixel to pixel variances. 
 

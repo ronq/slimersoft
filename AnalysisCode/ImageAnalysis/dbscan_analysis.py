@@ -250,7 +250,7 @@ class dbscan_analysis:
             
             # now compute per cluster variables 
             if self.maxClusterID < 0:
-                #print "DBSCAN Found Zero Clusters"
+                print "DBSCAN Found Zero Clusters"
                 pass
             else:    
                 foundClusters=True
@@ -289,7 +289,7 @@ class dbscan_analysis:
             covariance=numpy.zeros((2,2))
             countsSquared=0.0
             # compute the imageArray of just the cluster, and normalize it
-            clusterArray=(self.imageArray*self.clusterMask[:,:,clusterID])/self.clusterCounts[clusterID-1]
+            clusterArray=(self.imageArray*self.clusterMask[:,:,clusterID])/self.clusterCounts[clusterID]
             
             # compute the mean. Do this quickly by using projections -------------------------------------
             # project in two dimensions 
@@ -385,7 +385,6 @@ class dbscan_analysis:
             self.imageArray=inputArray
             self.DoDBSCAN(minimumPoints,eps) # run the DBSCAN algorithm
             foundClusters=self.AnalyzeResults() # get cluster info
-            print foundClusters
             if foundClusters:
                 self.bestClusterID=self.ChooseBestCluster() # out of the clusters found, pick the "best"
                 self.GenerateOutput() # load results into the final observables
