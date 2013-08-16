@@ -1,0 +1,210 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{SLIMER Long Writeup}
+\author{Michael Ronquest \\
+Erik Shaw \\
+Mary Kidd\\
+Steve Elliott}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+\section{Introduction}
+This document outlines the main findings of the SLIMER experiment.  Permafrost underlies about 22-24\% of the Earth's surface.  Global climate models project the strongest future warming in the Northern Hemisphere high latitudes.  Thus, thawing permafrost and the resulting microbial decomposition of previously frozen organic carbon (C) is one of the most significant potential feedbacks from terrestrial ecosystems to the atmosphere.   There have been predictions that the decomposition of permafrost organic C will produce a significant feedback to global warming on a century timescale.  These estimates are based upon experiments performed at 30$^\circ$ C, not performed on permafrost materials and based upon homogenized samples, not intact active-layer/permafrost.  CH$_4$ has 25 times more greenhouse warming potential than CO$_2$ on a century timescale.  Increases in factors leading to deglaciation were followed by a rise in atmospheric CH$_4$ originating from  permafrost.  The concentration of atmospheric CH$_4$ appears to have risen over the last two years after a decade of stability. This increase may be related to unusually warm summers in Siberia, which harbors the largest reservoirs of permafrost C. 
+
+Part of this study relies upon understanding the rate at which individuals in the microbial community in the permafrost samples ingest the organic carbon.The community will be divided by type onto a RNA/DNA microarray.  Each microbial type will be fluorescently tagged.The microbes will be fed a carbon substrate doped with $^{14}$C, which decays via beta decay.Our apparatus will detect the fluorescent light from the tags as well as the electrons emitted from the beta decay.  This has never been done in a single step process.
+
+To summarize, our goal is to develop an apparatus that will read RNA/DNA microarrays and observe both the fluorescent tags from the samples and the electrons emitted from the $^{14}$C beta decay.  Each sample of RNA is distributed among wells that are 100$\times$100$\times$20 $\mu$m$^3$.  The samples are imaged with a cooled EMCCD camera and a wide-band fluorescence microscope.  We propose altering a microscope configuration to include sensitivity to electrons from the beta decay .  
+
+
+\section{Description of the Apparatus}
+\subsection{Microscope Body}
+The body of the microscope is a Ti-U Eclipse Inverted Research Microscope from Nikon Instruments.  The inverted microscope indicates that the light source and condenser are above the sample pointing down, and the objectives and turret are below the sample pointing up.  (See Figure xx for the light path)
+
+\subsubsection{Fluorescence System}
+The fluorescent light source, called the Intensillight, is a mercury (Hg) lamp which emits white light.  This light is transmitted to the microscope body via a delicate fiber optics cable.  Because the cable is easily damaged, a separate feedthrough was constructed for it in the dark box.  This feedthrough was designed to minimize any stress on the cable, so it is very close to the cable input to the Epi-fl illuminator.  
+
+The lamp shutter can be controlled through the NIS Elements software or manually through a remote control.  The neutral density (ND) filters can also be inserted using the software or control.  These filters can cut the intensity of the light.  There is also a manual shutter located on the filter turret.
+
+\subsubsection{Filter Cubes}
+The fluorescent light travels from the Epi-fl illuminator to the filter turret where it encounters a filter cube.  The filter cube is designed to filter the incoming white light to the excitation frequency required and direct it upward toward the sample using a dichromatic beamsplitter.  The light emitted from the sample returns downward to the filter cube, but the emission filter (also called barrier filter) allows the emission frequency to pass through to the camera while blocking any reflected excitation light.  
+
+The filters we purchased are very high-quality, high-transmission Semrock filters, which, as can be seen in Figure \ref{fig:filter}, transmit at $>$ 97\%.  If this filter cube is in place for $^{14}$C data collection, the transmission of the excitation light as well as the transmission of the dichroic mirror (about 96\%).  
+
+%%%%%%%%%%%%%%%%%%%%
+\begin{figure}
+\centering
+\includegraphics
+%[width=3.5in]{setup-mod}
+[width=5in]{semrock-fitc-3540C-NTE}
+\caption[Filter Emission]{(Color online.)  This plot shows the transmission of the excitation and emission light in the Semrock FITC filter.  )}
+\label{fig:filter}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%
+
+
+
+\subsubsection{Lenses}
+The objective lenses are Nikon's CFI Plan Fluor series.  These have an extra-high transmission rate ($>$85\%) and excellent flatness of field.  They are specifically designed for fluorescence observation and imaging.  We have magnifications of 4X, 10X, 20X, and 40X.  Each objective has  a different numerical aperture (NA), which is an indication of how much light is collected by the lens.  These are listed in Table \ref{tab:lens}.  From the numerical aperture, the resolving powers of these objectives can be calculated using $R = \frac{0.61\lambda}{NA}$ where $\lambda$ is the wavelength of light.  Here, the resolving power is calculated for $\lambda$=550 nm, the emission from CsI(Tl) (see Section \ref{sec:CsI}).  
+
+The field of view (FOV) can be calculated by considering the 512$\times$512 effective area of the CCD.  Each pixel is 16 $\mu$m in width.  From there, it is a simple scaling argument to get the FOV for each objective:  $FOV = \frac{512\times16 \mu m}{X}$ where $X$ is the magnification factor.  This gives the width of the FOV in $\mu$m.  Finally, the FOV translates to a number of images required to cover the entire sample chip, which is 1.28 cm $\times$ 1.28 cm (see Section \ref{sec:phyla}).  This is a vital consideration since we will have to count for a specific length of time at each location, so the number of images required should be as low as possible.  
+
+\begin{table}[t]\caption[]{Some useful values calculated for our four objectives.}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+Objective & Numerical Aperture & R ($\mu$m) & Field of View (mm)  & Number of Images\\
+\hline
+ 4X & 0.13 & 2.58  &  2.05  & 36\\\hline
+ 10X & 0.30 & 1.12  &  0.819 &  256 \\\hline
+ 20X & 0.50  & 0.67  &   0.410 & 961\\\hline
+ 40X & 0.75  & 0.45  & 0.205 & 3969\\\hline
+ \end{tabular}
+ \label{tab:lens}
+\end{table}
+\subsubsection{EMCCD Camera}
+The camera used with this setup is an electron-multiplying charge-coupled device (EMCCD) by Photometrics.  The model is the Evolve$^-$.  The difference between the EMCCD and a traditional CCD lies in the use of an extended serial register.  Within this register, the signal electrons are accelerated from pixel to pixel via the application of a higher-than-normal CCD clock voltage.  Secondary electrons are then generated in the silicon by impact ionization, resulting in a magnification of the original signal.  The number of secondary electrons generated can be controlled by increasing or decreasing the clock voltage.  The camera can be operated in either traditional CCD mode (with no gain applied) or EM mode.  The camera is also equipped with three different readout speeds, 10 MHz, 5 MHz, and 1.25 MHz (the latter is only available in traditional CCD mode).   
+
+
+
+\subsection{Copper Collimators}
+one has diameter of 1 mm the other 250 microns.
+\subsection{Scintillator}\label{sec:CsI}
+CsI(Tl) is a very commonly used scintillation detector.  It has a high light output of about 40 photons/keV.  In $^{14}$C beta decay, the endpoint energy of the electron energy spectrum is 156.475 keV, and the mean energy of the emitted electrons is 49.47 keV.  Thus, a light yield of about 2000 photons can be expected for a typical electron.  We approximate that roughly 50\% of these exit the screen, though this is an underestimate.
+
+The density of normal CsI is 4.51 g/cm$^3$, but due to the well-separated columnar structure, the density of columnar CsI(Tl) is reduced to 80\% of the full density.  Using the available online tools from the National Institute of Standards and Technology (NIST), the rate of electrons in CsI can be tabulated.  For a 50.00 keV electron, the range in g/cm$^2$ is 8.633$\times10^{-3}$, and for a 150.0 keV electron, the range is 5.206$\times10^{-2}$ g/cm$^2$.  Thus, a 50.00 keV electron will travel 23.9 $\mu$m, and a 150.0 keV electron will travel 144 $\mu$m.  
+
+A thinner scintillator layer results in better spatial resolution.  If a thickness was chosen to stop roughly 80\% of the electrons emitted, the range corresponding to an 80.00 keV electron would be used, which corresponds to 52 $\mu$m. 
+
+The transmission spectrum for CsI(Tl) is broad and includes many common excitation and emission frequencies, so that the fluorescence should not be drastically affected.  The emission spectrum is peaked around 550 nm, so the choice of fluorescent dye must take this into consideration.  
+
+\subsection{PhyloChip}\label{sec:phylo}
+The PhyloChip microarray window is 1.28 cm$\times$1.28 cm. Each pixel is 20$\times$20 microns.
+\subsection{Samples}
+Have some samples of 14C and 14C doped biomaterial.
+
+
+
+\section{Recommended Procedure For Data Taking}
+\subsection{Power-up procedure}
+Describe the order in which things should be powered up and/or started.
+\subsection{Recommended EMCCD settings}
+Describe things like EM gain, BERT settings, etc. here
+\subsection{Focusing Procedure}
+\subsection{Data Taking Settings}
+
+\section{Data Analysis}
+The analysis code is written in Python, and utilizes a number of external libraries to enable reasonably fast analysis of data. These libraries include NumPy, SciPy, PANDAS as well as PIL. 
+These may all be obtained within the Anaconda Python package. 
+\subsection{Locations on WIT}
+The copy of Anaconda, which includes the python distribution and libraries used in this analysis, can be setup by sourcing this file:
+XXXXXXXX
+Note that this will also setup a copy of ROOT which can interact with the newer version of python. 
+
+We now use a separate program on WIT to convert from nd2 files to tiff files. The location is here:
+proj/Software/ImageProcessing/bftools/bfconvert
+
+
+\subsection{Analysis Chain}
+The data flow, from data taking to final histograms is:
+\begin{itemize}
+	\item Nikon Elements Data Acquisition $\rightarrow$ a single \verb+.nd2+ file per run
+	%\item  1 \verb+.nd2+ file per run $\rightarrow$ Nikon Elements Export to TIFF $\rightarrow$ N \verb+.tiff+ files, 1 per exposure 
+	\item A single \verb+.nd2+ file per run $\rightarrow$ \verb+bfconvert+ $\rightarrow$ N \verb+.tiff+ files, 1 per exposure
+	\item  Background \verb+.tiff+ files $\rightarrow$ \verb+background_average.py+ $\rightarrow$ a single \verb+.npz+ (NumPy Zip archive) file, which contains 2 \verb+ndarray+s representing the mean and variance for each pixel in the EMCCD camera
+	\item Background  \verb+.npz+ file + data \verb+.tiff+ files  $\rightarrow$ \verb+image_analysis.py+ $\rightarrow$ N crunched data  (energy, position, etc..) files in ASCII (\verb+.dat+) format as well as HDF5 (\verb+.h5+) format
+	\item  N crunched data HDF5 (\verb+.h5+) files $\rightarrow$  \verb+hdf5_sum.py+ $\rightarrow$ a single summed, crunched data HDF5 file 
+	\item A summed, crunched data HDF5 (\verb+.h5+) file  $\rightarrow$ \verb+slimer_ana.py+ (cuts defined in python script) $\rightarrow$ crunched data with cuts in HDF5 (\verb+.h5+) format as well as histograms in ROOT (\verb+.root+) format
+	\end{itemize}
+The main part of the data reduction takes place within \verb+image_analysis.py+, where clustering and other analysis is performed. This is computationally expensive, however this stage can be done in parallel on wit, with the output concatenated afterward. 
+
+
+
+\section{Useful Radioactive Sources} 
+While the goal of this study is to detect $^{14}C$ from a PhyloChip, there are a number of 
+
+
+\section{Simulation}
+
+\section{Optical Model}
+
+
+
+\section{Results}
+\subsection{14C spectra and efficiency}
+show some plots, and estimate the DETECTION efficiency. Also estimate the energy threshold.
+
+SHOW ENERGY SPECTRA AND COUNT RATE AS A FUNCTION OF MAGNIFICATION. AND EM GAIN, PREAMPLIFIER GAIN.
+TEMPERATURE (USE COOLDOWN CURVE FOR THIS, CHECK BIOFORMAT META DATA THING TO SEE IF WE CAN EXTRACT CAMERA TEMP) 
+
+WANT TO SHOW 14C SENSITIVITY AS A FUNCTION OF EXPOSURE TIME, BACKGROUND RATE AND SOURCE STRENGTH.
+HOW BEST TO DO THIS?
+ 
+ TRY TO TAKE 
+ 
+ 
+\subsection{241Am alphas} 
+Interesting to for surface alpha assays. 
+WANT TO SHOW ALPHA SENSITIVITY AS A FUNCTION OF EXPOSURE TIME, BACKGROUND RATE AND SOURCE STRENGTH.
+ 
+ \subsection{90Sr}
+ useful for energy linearity....show energy spectrum .....try to tease out feature for energy calibration.
+ 546 keV endpoint for 90Sr
+ 2.2 MeV ebdpiunt for 90Y.
+ \subsection{137Cs}
+ useful for energy linearity ---show energy spectrum ....
+ 1.175 MeV endpoint
+ \subsection{57Co}
+ 
+ \subsection{214Am gammas}
+ 
+ \subsection{207Bi}
+ Electron conversion
+ 
+ \subsection{Fancy variable x-ray source}
+ 
+ \subsection{TPB studies}
+ 
+ 
+  
+ 
+
+\section{Observed Problems, Recommended Solutions}
+\subsection{Light Leaks}
+\subsection{Communication Problems}
+Detail the Elements to Micrscope comm problems which would modify the filter settings here
+
+\subsection{Focusing Problems}
+Erik found that the focus at the 20x setting changes when the source is placed/removed. Not touching the scintillator slide seems to help, but this may be a weight issue.
+He has confirmed that there is NOT a time-dependent drift in focus. NEED TO CLAMP THE SCINTILLATOR BETTER.
+
+\subsection{Varying Background Level}
+Erik has found a difference in the variance on the background level (the raw pixel counts) between two background runs taken during different days. The shift in variance is from 7 to 10 counts/pixel.
+
+He has also seen a variance in the mean pixel count on an image by image basis. This agrees with the behavior seen in the pixel count histogram in the Nikon elements DAQ software
+
+\subsection{Optimum Magnification}
+We have consistently been able to produce good observations at 20x magnification, with few background events satisfying our analysis criteria. However, to check if this magnification was optimum, we also ran at 10x magnification, with all other DAQ settings the same. For these data, a number of things were observed:
+\begin{itemize}
+	\item The energy spectrum, in units of pixel counts, shifted to lower values relative to the 20x magnification
+\end{itemize}
+BUT WE NEED TO ENSURE WE UNDERSTAND THE CHANGES REQUIRED TO SWITCH TO A DIFFERENT MAGNIFICATION!
+
+ Different lenses have different numerical apertures. 
+ 
+ 
+ 
+ 
+
+%\subsection{}
+
+
+
+\end{document}  
