@@ -32,6 +32,8 @@ pairsFor2D=[
 ["DBScan_Counts","DBScan_PeakHeight"],
 ["DBScan_Counts","DBScan_NumPixels"],
 ["DBScan_NumPixels","DBScan_PeakHeight"],
+["DBScan_AvgPixelCount","DBScan_NumPixels"],
+["DBScan_AvgPixelCount","DBScan_Counts"]
 ]
 #open file
 imageDataTable=pandas.read_hdf(inputFile,'ImageData')

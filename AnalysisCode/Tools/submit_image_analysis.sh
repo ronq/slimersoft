@@ -6,7 +6,8 @@
 
 export job_name=""
 #export raw_data_dir=/proj/Slimer/Slimer_mk2/8_01_2013/am241_8_01_2013_200msec/
-export raw_data_dir=/proj/Slimer/Slimer_mk2/8_01_2013/no_source_8_01_2013_200msec/
+#export raw_data_dir=/proj/Slimer/Slimer_mk2/8_01_2013/no_source_8_01_2013_200msec/
+export raw_data_dir=/proj/Slimer/Slimer_mk2/8_01_2013/c14_8_01_2013_200msec/
 export scratch=/local_scratch/ronquest/temp/
 export final_dir=/proj/Slimer/Slimer_mk2/8_01_2013_mikes_ana/results/
 export background_path=/proj/Slimer/Slimer_mk2/8_01_2013_mikes_ana/results/no_source_8_01_2013_200msec_average_array.npz

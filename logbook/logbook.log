@@ -647,7 +647,131 @@ http://www.farsight-toolkit.org/wiki/FARSIGHT_Tutorials/Bio-Formats
 Aug 10th 2013 ---------------------------------------------
 Syncing git repos.
 to update things FROM another repo (from say wit):
-    git pull ronquest@wit.lanl.gov:/home/ronquest/Work/SLIMER master
+    git pull ronquest@wit.lanl.gov:/home/ronquest/Work/SLIMER <name of branch>
+to push the updates back to the remote server (useful for when a pull FROM the remote server is not possible) do:
+    git push ronquest@wit.lanl.gov:/home/ronquest/Work/SLIMER <name of branch>
+note that one cannot push to a branch which is already checked out ON THE SERVER.
+The way around this is to work on different branches between the serve and client.
+
+So, form this point forward, I will leave the master branch alone, and develop in the branch mike_working.
+Anyone who wants to collaborate should create their own repo, and THEN their own branch. And then push that branch to the server.
+Note that they may need to create the branch on the server FIRST. 
+
+
+Getting USB drive resets from the SLIMER drive when connected to wit. Need to find a place where this does NOT happen.
+
+Looks like I finished analysis on no_source_8_01_2013_200msec.
+What time spreads are present in the files? It looks like it takes about two hours to process everything. 
+Running hdf5 sum......
+Looks like I've got 10632 images......
+....and 223 pass my cuts, with clustering set to MinPts=500/eps=5.0 (pixel density of ~ 6.41). 2% leakage. 
+130 of these events have an average pixel count of les than 30 counts. 
+Most pixels have < 1000 counts, and there is a spike at 500 counts!. On average, there are 27 pixels in a cluster.
+On average the maximum peak height is 160 counts.
+
+Aug 12th 2013 ----------------------------------------------
+The bioformats tools bfconvert and showinfo have a memory limit wired into the scripts as an argument to java. 
+I've copied them, and changed the memory limit to 5GB.
+This appears to have worked. 
+
+I've tarred up Mary's old files in Slimer_mk1. This will buy us some more space.
+
+I'm transferring the nd2 files into Slimer_mk2/nd2_storage/
+
+I'm running bfconvert_large on the c14 data from Aug 9th.
+I'm doing the same to the background runs from the 8th and 9th.
+In order to process the 10 hour background run, I'll need bump up the memory on bfconvert, again.
+Try 15GB. That does not work either. 
+I may need memory equal in size to the nd2 file!    Look at bfconvert again to see if I have options for partial conversion....
+It looks like I do NOT. The entire nd2 file is loaded into memory it seems before any slices are processed. 
+Since the newer worker nodes have 19GB of RAM and 37GB of swap....I could take things up to 56GB. But 20GB seems safer. 
+That implies we could take data for a bit over two hours. 
+Wait. the "%s" flag DOES work, and produces a large, but not as large tiff file if the -bigtiff tag is used.
+Does %A work? YES. 
+try again with %t. It works! 
+The key is the -bigtiff tag! 
+Next question: why are there only 12907 frames?????
+run with the %A tag again, and see if that produces more frames.
+With a ten hour run, there should be 36,000 frames. There are not. There are only 4385 frames: a bit more than an hour???!!!!
+
+Tomorrow, I need to see if I can find any exports from Elements......does it extract a different number of frames, or extract 
+from a different range of times?
+
+Aug 13th 2013-------------------------------------------------
+It appears that Elements does indeed export many more slices (up past 30,000) than bfconvert does. 
+However, this is not a big deal, as we've figured out how to split things up into one hour runs. 
+
+I strongly believe that I was converting the smaller background file rather than the large one last night, so the large background file
+is still not useable. 
+
+Run analysis again. Set minPts =175.0 eps=2.0 (25 pixels)
+This really pumps up the background rate....
+
+Go in the opposite direction:  Try 300.0, eps=2.0 
+Still not much of an improvement. Try 700.0, eps=2.0
+    ---> out of 2208 images, 35 have clusters
+    --->  954 images, 12 have clusters. 
+Aug 14th 2013------------------------------------------------
+using bzip2 on nd2 files shrinks them to roughly 40% of their original size. Once they are converted, they should be bzipped
+Lzma takes much longer, but does not result in a smaller filesize.
+
+
+
+
+
+
+
+
+
+
+
+
+
+I've looked at the 241Am source data from 8_01. I see very little difference compared to the background data, except the
+rate of detection is much higher (For the 214Am data, there are 2797 images with clusters, out of 10064) 
+So right now, with the current cluster settings, I get clusters of the same characteristics as the background, but at a different rate. 
+This is the same thing that Erik was seeing. Crap.
+
+Fix the hot pixel calculation first.
+
+
+
+I'll need to make sure that the different runs are not different lengths clock-wise. It is possible that CsI scintillation events are causing triggers, but that the pre-clearing stuff 
+is being run and that the exposure is not taken until after the scintillation light is gone.
+
+
+
+
+If there is low level contamination, it may be interesting to compare a run with and without the CsI.
+These files already exist however.....
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+	
+
 
 
 
