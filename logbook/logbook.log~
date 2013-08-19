@@ -710,12 +710,14 @@ This really pumps up the background rate....
 Go in the opposite direction:  Try 300.0, eps=2.0 
 Still not much of an improvement. Try 700.0, eps=2.0
     ---> out of 2208 images, 35 have clusters
-    --->  954 images
+    --->  954 images, 12 have clusters. 
 Aug 14th 2013------------------------------------------------
 using bzip2 on nd2 files shrinks them to roughly 40% of their original size. Once they are converted, they should be bzipped
 Lzma takes much longer, but does not result in a smaller filesize.
 
 
+Aug 18th 2013-------------------------------------------------
+Updated git repos between wit and my laptop.
 
 
 

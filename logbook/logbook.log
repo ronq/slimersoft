@@ -716,7 +716,11 @@ using bzip2 on nd2 files shrinks them to roughly 40% of their original size. Onc
 Lzma takes much longer, but does not result in a smaller filesize.
 
 
+Aug 18th 2013-------------------------------------------------
+Updated git repos between wit and my laptop.
 
+Aug 19th 2013-------------------------------------------------
+Run analysis on the background samples again. 
 
 
 
