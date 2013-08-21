@@ -136,6 +136,17 @@ class analyze_images:
             dbscan.DoIt(self.imageArray[:,:,imageNumber],minPts,eps)
             return dbscan
       #-------------------------------------------------------------------------------
+      def DoShawFit(self,imageNumber):
+            #kmeans=kmeans_analysis.kmeans_analysis()
+            #kmeans.DoIt(self.imageArray[:,:,imageNumber])
+            return 
+      #------------------------------------------------------------------------------
+      def DoShawCluster(self,imageNumber):
+            #kmeans=kmeans_analysis.kmeans_analysis()
+            #kmeans.DoIt(self.imageArray[:,:,imageNumber])
+            return 
+      #------------------------------------------------------------------------------
+      
       def GetPeakInfo(self,imageNumber):
             return    
       #-------------------------------------------------------------------------------
@@ -300,6 +311,8 @@ for imageNumber in range(numImages):
     #print "Non-zero Pixel count and Sum:",hotPixels,imageSum
     kmeans_results=bigA.DoKmeans(imageNumber)
     dbscan_results=bigA.DoDBSCAN(imageNumber)
+    shawfit_results=bigA.DoShawFit(imageNumber)
+    shawcluster_results=bigA.DoShawCluster(imageNumber)
     #kmeans_results.clusterfrac
     #if (hotPixels >= 500) or (imageSum > 60000):
     if (kmeans_results.clusterFrac < 0.4) or (kmeans_results.clusterFrac > 0.6):
