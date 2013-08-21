@@ -23,8 +23,10 @@ import pandas
 #-------------------------
 def GetRun(fileName):
         baseName=fileName.split(".")[0] # removes file extension
-        baseNameComponents=baseName.split("t") # splits baseName up using "t" as the delimiter
-        run=int(baseNameComponents[-1]) # we want the last element, as a integer
+        #baseNameComponents=baseName.split("t") # splits baseName up using "t" as the delimiter
+        baseNameComponents=baseName.split("_") # splits baseName up using "_" as the delimiter
+        runString=baseNameComponents[-1].lstrip("t") # bfconvert inserts "t" in front of run number, so we need to strip it if present
+        run=int(runString) # we want the last element, as a integer
         return run
 #-------------------------    
 

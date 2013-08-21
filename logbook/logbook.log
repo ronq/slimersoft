@@ -721,8 +721,47 @@ Updated git repos between wit and my laptop.
 
 Aug 19th 2013-------------------------------------------------
 Run analysis on the background samples again. 
+It appears as though the sample with the camera shutter closed as a SMALLER exponential tail than the other datasets. This implies
+there is a light leak. I'll want to produce an overlay plot and ratio plot to illustrate this.
+
+The data from 6_11 and 7_01 look quite different. 7_01 has a higher modial value, but a smaller width in the gaussian and a smaller and steeper exponential tail.
+The 6_11 shows a jump from no_camera to no_lens, while the 7_01 data shows a jump from
+no_camera to no_microscope.  
+
+I'll need to try to find this light leak.....but plot the result of opening the camera shutter first. 
+
+Aug 20th 2013 ------------------------------------------------
+Collected a new light leak data set. Also found a leak in the door as well and tried to cover it up.
+But first, I need to make room and reorganize the directories.
+I've moved Eriks code and files to a few directories in Slimer_mk2
+Now compress all tiff files into tarballs to save space.  
+
+New procedure: nd2 files stay on /proj3, while the extracted tiffs go to 
+/bigscratch4/ronquest/SLIMER/converted_data
+
+I've already converted the data collected yesterday and today over to the above location.
+I'm running the background_analysis.pyscript on these data now.
+It appears that the tail for the light leak runs is the same...until I attempeted to close the drop cloth over the box, 
+and until I closed the camera shutter.
+At 542 counts:
+wide open: 31530 events
+hold_shut: 18929 events   --> 40% reduction from wide open
+camera closed: 12732 events --> 60% reduction from wide open.
+Working on the door is a clear prioroty. Seal the crap out of it and see if the tail can be reduced to the level of the 
+camera shutter closed.
 
 
+
+
+
+I'll need to move the 8_09_2013 directory to local_scratch for compression....
+Once that is done, I'll have enough space to generate the tarballs for everything else.
+
+
+
+
+data set          mean      std      median   mode   
+----------------------------------------------------
 
 
 

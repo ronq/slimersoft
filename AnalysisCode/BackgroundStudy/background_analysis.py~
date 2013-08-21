@@ -23,7 +23,9 @@ import pandas
 #-------------------------
 def GetRun(fileName):
         baseName=fileName.split(".")[0] # removes file extension
-        baseNameComponents=baseName.split("t") # splits baseName up using "t" as the delimiter
+        #baseNameComponents=baseName.split("t") # splits baseName up using "t" as the delimiter
+        baseNameComponents=baseName.split("_") # splits baseName up using "_" as the delimiter
+        
         run=int(baseNameComponents[-1]) # we want the last element, as a integer
         return run
 #-------------------------    
@@ -62,7 +64,6 @@ for inputFile in inputFiles:
         # convert to floats !!!!!!!!!!!!!!!
         # extract number of run 
         thisRunNumber=GetRun(inputFile)
-        print inputFile, thisRunNumber
         runNumber.append(thisRunNumber)
         imageMean.append(numpy.mean(inputData_raw))              # compute mean
         imageSTD.append(numpy.std(inputData_raw))                # compute STD
