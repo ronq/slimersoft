@@ -19,13 +19,6 @@ from shaw_fit import *
 import os
 import glob
 
-#Generate root file with standard name
-filename = sys.argv[1]
-run = filename[filename.rfind("/")+1:filename.find(".tif")]
-bkgfile = TFile(sys.argv[2])
-outfile = TFile("rooted_"+run+".root","recreate")
-av_h = bkgfile.Get("average_hist")
-stdev_h = bkgfile.Get("stdev_hist")
 
 #extract data from picture into numpy array
 x_size = 512
@@ -35,13 +28,17 @@ X = range(x_size)
 Y = range(y_size)
 size = x_size*y_size
 Z = range(size)
-img = Image.open(filename)
-pix = img.load()
-tmp=[[pix[i,j] for i in X] for j in Y]
-data = np.array(tmp,dtype=np.float)
+
+
+
+
 averages = np.array([[av_h.GetBinContent(i+1,j+1) for i in X] for j in Y],dtype=np.float)
 stdevs = np.array([[stdev_h.GetBinContent(i+1,j+1) for i in X] for j in Y],dtype=np.float)
-data -= averages
+
+
+# This is where the new code begins
+# data = background subtracted dat
+
 out = ndimage.gaussian_filter(data, 7)
 threshold = get_threshold(out)
 out -= threshold[0]+3*threshold[1]

@@ -741,9 +741,28 @@ New procedure: nd2 files stay on /proj3, while the extracted tiffs go to
 
 I've already converted the data collected yesterday and today over to the above location.
 I'm running the background_analysis.pyscript on these data now.
+It appears that the tail for the light leak runs is the same...until I attempeted to close the drop cloth over the box, 
+and until I closed the camera shutter.
+At 542 counts:
+wide open: 31530 events
+hold_shut: 18929 events   --> 40% reduction from wide open
+camera closed: 12732 events --> 60% reduction from wide open.
+Working on the door is a clear prioroty. Seal the crap out of it and see if the tail can be reduced to the level of the 
+camera shutter closed.
+
 
 I'll need to move the 8_09_2013 directory to local_scratch for compression....
 Once that is done, I'll have enough space to generate the tarballs for everything else.
+
+Aug 22nd 2013 -----------------------------------------------------------------------
+Compression of data should be complete. 
+Next step is to check to see which datasets as also in .nd2 format
+Copy the 8_09_2013 directory back to /proj3. Done. 
+Now begin to delete the tiff files to make room on /proj3. I've got 170GB free, so can stop for now. 
+
+I still need to clean up /local_scratch/super
+and slimer_data.
+
 
 
 

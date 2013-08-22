@@ -1,4 +1,4 @@
-from peakfind2 import *
+from shaw_peakfind2 import *
 import numpy as np
 #import sys
 from scipy import *
