@@ -20,6 +20,8 @@ import kmeans_analysis
 import dbscan_analysis
 import cluster_output
 import pandas
+import shawfit_analysis
+import shawcluster_analysis
 
 class analyze_images:
       "Class for analyzing images"
@@ -137,13 +139,15 @@ class analyze_images:
             return dbscan
       #-------------------------------------------------------------------------------
       def DoShawFit(self,imageNumber):
-            #kmeans=kmeans_analysis.kmeans_analysis()
-            #kmeans.DoIt(self.imageArray[:,:,imageNumber])
+            shawfit=shawfit_analysis.shawfit_analysis()
+            shawfit.DoIt(self.imageArray[:,:,imageNumber])
+            
             return 
       #------------------------------------------------------------------------------
       def DoShawCluster(self,imageNumber):
-            #kmeans=kmeans_analysis.kmeans_analysis()
-            #kmeans.DoIt(self.imageArray[:,:,imageNumber])
+            shawcluster=shawcluster_analysis.shawcluster_analysis()
+            shawcluster.DoIt(self.imageArray[:,:,imageNumber])
+            
             return 
       #------------------------------------------------------------------------------
       

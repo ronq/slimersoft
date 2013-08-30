@@ -764,6 +764,13 @@ Now begin to delete the tiff files to make room on /proj3. I've got 170GB free, 
 I still need to clean up /local_scratch/super
 and slimer_data.
 
+Still working on fusing Erik's code with my own. Just have to work out how and what to output and store.
+May also want to code ability to find multiple clusters for the analysis code: better efficiency and 
+more compatible with observing multiple decays in a Phylochip
+
+Aug 30th 2013 -------------------------------------------------------------------
+I'll need to change things so that I write output after each image processed. The hdf5 file is in table mode, so I should be able to append it.
+
 
 
 

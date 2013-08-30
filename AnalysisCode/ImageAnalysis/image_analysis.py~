@@ -137,11 +137,17 @@ class analyze_images:
             return dbscan
       #-------------------------------------------------------------------------------
       def DoShawFit(self,imageNumber):
-            #kmeans=kmeans_analysis.kmeans_analysis()
-            #kmeans.DoIt(self.imageArray[:,:,imageNumber])
+            shawfit=shawfit_analysis.shawfit_analysis()
+            shawfit.DoIt(self.imageArray[:,:,imageNumber])
+            
             return 
       #------------------------------------------------------------------------------
-      
+      def DoShawCluster(self,imageNumber):
+            shawcluster=shawcluster_analysis.shawcluster_analysis()
+            shawcluster.DoIt(self.imageArray[:,:,imageNumber])
+            
+            return 
+      #------------------------------------------------------------------------------
       
       def GetPeakInfo(self,imageNumber):
             return    
