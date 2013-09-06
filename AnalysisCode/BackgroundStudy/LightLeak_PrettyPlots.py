@@ -9,16 +9,19 @@ import glob
 import sys
 
 
-samples=["/proj/Slimer/SlimerAnalysis/background_study/no_camera2_6_11_2013_90msec_background_analysis.root",
-         "/proj/Slimer/SlimerAnalysis/background_study/no_lens_6_11_2013_90msec002_background_analysis.root"]
-legendText=["Camera Shutter Closed",
-            "Camera Shutter Open"]
+samples=["/proj/Slimer/SlimerAnalysis/background_study/shutter_open_9_3_2013_200msec_background_analysis.root",
+"/proj/Slimer/SlimerAnalysis/background_study/shutter_closed_9_3_2013_200msec_background_analysis.root",
+"/proj/Slimer/SlimerAnalysis/background_study/scope_off_9_3_2013_200msec_background_analysis.root"]
+legendText=["Camera Shutter Open",
+            "Camera Shutter Closed",
+            "Microscope Hub Off"]
 
 
 
 
 #fillStyles=[3001,3002,3002,3002]
-fillStyles=[1001,3017,3018,3002]
+#fillStyles=[1001,3017,3018,3002]
+fillStyles=[1001,3001,3001,3001]
 fillColors=[40,8,4,2]
 
 
@@ -32,9 +35,9 @@ ROOT.gPad.SetLogy( 1 )
 
 histogram_name="pixelCount"
 rebinFactor=1.0
-plotRange=[400.,900.]
-xTitle="Counts (arbitrary)"
-yTitle="# events"
+plotRange=[400.,700.]
+xTitle="Pixel Counts (arbitrary)"
+yTitle="# events/counts"
 
 files=[ROOT.TFile(sample) for sample in samples]
 # get the histograms

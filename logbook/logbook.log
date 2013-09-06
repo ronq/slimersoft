@@ -770,6 +770,63 @@ more compatible with observing multiple decays in a Phylochip
 
 Aug 30th 2013 -------------------------------------------------------------------
 I'll need to change things so that I write output after each image processed. The hdf5 file is in table mode, so I should be able to append it.
+I've coped dbscan_analysis.py to dbscan_analysis.py_old: I'll need this code as I'll be forced to rip out the best cluster code
+Actually, I don't need to remove the code, just not use it. 
+
+Sep. 3rd 2013 -------------------------------------------------------
+I just took more light leak data. Analyze it.
+The files are:
+door_taped_9_3_2013_200msec
+shutter_open_9_3_2013_200msec
+shutter_closed_9_3_2013_200msec
+
+the nd2 files are in nd2_storage, while the converted tiffs are on 
+/bigscratch4/ronquest/SLIMER/converted_data/
+
+The pixel count distribution is NOT appreciably different with the camera shutter open and the door taped. 
+It IS still different with the shutter closed. 
+However, I left the light on. Power that down, and the stage, and take more data.
+
+After sticking my head into the darkbox and taking a good look around, I've found an LED on the hub controller. Power that down shuts the light off.
+I've taken more data, and the files are:
+light_and_stage_on_scope_off_9_3_2013_200msec.nd2
+scope_off_9_3_2013_200msec.nd2
+door_taped_2_9_3_2013_200msec.nd2
+light_and_stage_off_9_3_2013_200msec.nd2
+
+---->RUNNING WITH THE SCOPE OFF RESULTS IN NEARLY THE SAME PIXEL COUNT DISTRIBUTION AS RUNNING WITH THE CAMERA SHUTTER CLOSED<--------------------
+---->WHEN THE SCOPE IS OFF, THE LIGHT AND STAGE POWER HAVE NO EFFECT. <---------------------------------------------------------------------------
+---->NOTE THAT THE CAMERA HAS A FLASHING LED WHEN THE SHUTTER IS CLOSED. SO SHUTTER CLOSED RUNS STILL MAY NOT BE THE BEST <-----------------------
+---->I MAY BE SEEING EVIDENCE OF MORE OUTLIER EVENTS WITH DIFFERENT RUNS. THIS IS DIFFERENT THAT THE EXPONENTIAL TAIL I'VE BEEN FIGHTING. THESE ARE EVENTS WITH MORE THAN 700 COUNTS<--------
+
+light and stage power don't seem to matter when the hub is on as well.
+
+I've made a nice plot of the situation here:
+/home/ronquest/Work/SLIMER/AnalysisCode/BackgroundStudy/lightLeak_overlay_09_03_2013_hub_smoking_gun.pdf
+
+Sep. 6th 2013 ----------------------------------------------------------
+Continuing to overhaul the output code. I've removed the ASCII code since I can always simply convert the HDF5 tables into ASCII format.
+I will try to output the data into seperate HDF5 files in the same store. This enables me to avoid padding. 
+Each analysis method will get its own table, and the file name of the image will be the index.
+Commit the code as is and implement this new approach.
+
+I'll need to modify the hdf5 sum code to handle this as well.  
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
 
 
 

@@ -365,35 +365,19 @@ class dbscan_analysis:
       def GenerateOutput(self):
             """ load relevant results into standard output variables
             """
-            self.clusterOutput.dbscanDict={
-            'DBScan_NumPixels':self.clusterPixels,
-            'DBScan_Counts':self.clusterCounts,
-            'DBScan_ClusterFrac': self.clusterFrac,
-            'DBScan_AvgPixelCount':self.avgPixelCount,
-            'DBScan_PositionX': [element[0] for element in self.clusterPosition],
-            'DBScan_PositionXVariance':   [element[0] for element in self.clusterPositionVariance],
-            'DBScan_PositionY':[element[1] for element in self.clusterPosition],
-            'DBScan_PositionYVariance':[element[1] for element in self.clusterPositionVariance],
-            'DBScan_PeakHeight': self.clusterHottestPixel,
-            'DBScan_NumClusters': float(self.maxClusterID) 
-            }
-            return
-      #---------------------------------------------------------------------------
-      def GenerateDummyOutput(self,size):
-            """ load irrelevant results into standard output variables for padding purposes
-            """
-            self.clusterOutput.dbscanDict={
-            'DBScan_NumPixels':self.clusterPixels,
-            'DBScan_Counts':self.clusterCounts,
-            'DBScan_ClusterFrac': self.clusterFrac,
-            'DBScan_AvgPixelCount':self.avgPixelCount,
-            'DBScan_PositionX': [element[0] for element in self.clusterPosition],
-            'DBScan_PositionXVariance':   [element[0] for element in self.clusterPositionVariance],
-            'DBScan_PositionY':[element[1] for element in self.clusterPosition],
-            'DBScan_PositionYVariance':[element[1] for element in self.clusterPositionVariance],
-            'DBScan_PeakHeight': self.clusterHottestPixel,
-            'DBScan_NumClusters': float(self.maxClusterID) 
-            }
+            # cluster energy
+            # cluster "size" in units of pixels
+            # cluster position
+            # "energy density" of cluster
+            # ratio of cluster counts to overall 
+            self.clusterOutput.outputClusterSize=self.clusterPixels[self.bestClusterID]
+            self.clusterOutput.outputCounts=self.clusterCounts[self.bestClusterID]
+            self.clusterOutput.outputClusterFrac=self.clusterFrac[self.bestClusterID]
+            self.clusterOutput.outputAvgPixelCount=self.avgPixelCount[self.bestClusterID]
+            self.clusterOutput.outputPosition=self.clusterPosition[self.bestClusterID]
+            self.clusterOutput.outputPositionVariance=self.clusterPositionVariance[self.bestClusterID]
+            self.clusterOutput.outputPeakHeight=self.clusterHottestPixel[self.bestClusterID]
+            self.clusterOutput.outputNumberOfClusters=float(self.maxClusterID)
             return
       #---------------------------------------------------------------------------
       def DoIt(self,inputArray,minimumPoints,eps):
@@ -402,8 +386,7 @@ class dbscan_analysis:
             self.DoDBSCAN(minimumPoints,eps) # run the DBSCAN algorithm
             foundClusters=self.AnalyzeResults() # get cluster info
             if foundClusters:
-                # no longer worrying about the best cluster at this stage of analysis
-                #self.bestClusterID=self.ChooseBestCluster() # out of the clusters found, pick the "best"
+                self.bestClusterID=self.ChooseBestCluster() # out of the clusters found, pick the "best"
                 self.GenerateOutput() # load results into the final observables
             return    
       #------------------------------------------------------------------------------         
