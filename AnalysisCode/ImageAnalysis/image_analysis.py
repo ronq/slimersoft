@@ -99,19 +99,19 @@ class analyze_images:
             self.imageArray[:,:,image_number] *= passThreshold # this will modify the array to zero out anything below threshold 
       #-------------------------------------------------------------------------------      
       def ComputeGeneralVariables(self,image_number):
-            self.imageAverage=numpy.mean(self.imageArray[:,:,image_number]) # compute image average
-            self.imageVar=numpy.var(self.imageArray[:,:,image_number])      # compute image variance  
-            self.imageMax=numpy.amax(self.imageArray[:,:,image_number])     # compute hottest pixel
-            self.imageSum=self.imageArray[:,:,image_number].sum()           # compute sum of entire image  
+            self.imageAverage.append(numpy.mean(self.imageArray[:,:,image_number])) # compute image average
+            self.imageVar.append(numpy.var(self.imageArray[:,:,image_number]))      # compute image variance  
+            self.imageMax.append(numpy.amax(self.imageArray[:,:,image_number]))     # compute hottest pixel
+            self.imageSum.append(self.imageArray[:,:,image_number].sum())           # compute sum of entire image  
             # compute the number of pixels 1,2,3,4,5 sigma above background
             # keep in mind that the image has already been subtracted, so only need to compare to the standard deviation
             relativeResidualArray=self.imageArray[:,:,image_number]/numpy.sqrt(self.backgroundVarArray) # converts the image to units of standard deviations
-            self.hotPixels_1Sigma=(relativeResidualArray > 1.0).sum()
-            self.hotPixels_2Sigma=(relativeResidualArray > 2.0).sum()
-            self.hotPixels_3Sigma=(relativeResidualArray > 3.0).sum()
-            self.hotPixels_4Sigma=(relativeResidualArray > 4.0).sum()
-            #self.hotPixels_5Sigma=(relativeResidualArray > 5.0).sum()
-            self.hotPixels_5Sigma=(relativeResidualArray > 20.0).sum()
+            self.hotPixels_1Sigma.append((relativeResidualArray > 1.0).sum())
+            self.hotPixels_2Sigma.append((relativeResidualArray > 2.0).sum())
+            self.hotPixels_3Sigma.append((relativeResidualArray > 3.0).sum())
+            self.hotPixels_4Sigma.append((relativeResidualArray > 4.0).sum())
+            self.hotPixels_5Sigma.append((relativeResidualArray > 5.0).sum())
+            
             return
       
       #-------------------------------------------------------------------------------
@@ -157,84 +157,38 @@ class analyze_images:
       def PrepareResults(self):
             # general image parameters 
             self.output_fullFilePath=[]
-            self.output_imageMax=[]
-            self.output_imageMean=[]
-            self.output_imageVariance=[]
-            self.output_imageSum=[]
-            self.output_hotpixels1Sigma=[]
-            self.output_hotpixels2Sigma=[]
-            self.output_hotpixels3Sigma=[]
-            self.output_hotpixels4Sigma=[]
-            self.output_hotpixels5Sigma=[]
+            self.imageMax=[]
+            self.imageAverage=[]
+            self.imageVar=[]
+            self.imageSum=[]
+            self.hotPixels_1Sigma=[]
+            self.hotPixels_2Sigma=[]
+            self.hotPixels_3Sigma=[]
+            self.hotPixels_4Sigma=[]
+            self.hotPixels_5Sigma=[]
+            self.generalDict={}
             # output of dbscan analysis. This is an array of objects. 
             self.output_dbscan_results=[]
             self.output_kmeans_results=[]
             return
       #-------------------------------------------------------------------------------
-      def StoreResults(self,imageNumber,dbscan_results,kmeans_results):
+      def StoreGeneralResults(self,imageNumber):
             """ Will want to append some arrays here..."""
            
-            #determine the total number of rows that this event will produce
-            #each cluster found using each technique will get its own row  
-            nRows=1 # for the general image information
-            nRows+=dbscan_results.clusterOutput.outputNumberOfClusters[-1]
-            nRows+=kmeans_results.clusterOutput.outputNumberOfClusters[-1]
-            
-            # first form the arrays needed for the general image parameters
-            for i in range(nRows):
-                # general image parameters 
-                self.output_fullFilePath.append(self.inputFileList[imageNumber])
-                self.output_imageMax.append(self.imageMax)
-                self.output_imageMean.append(self.imageAverage)
-                self.output_imageVariance.append(self.imageVar)
-                self.output_imageSum.append(self.imageSum)
-                self.output_hotpixels1Sigma.append(self.hotPixels_1Sigma)
-                self.output_hotpixels2Sigma.append(self.hotPixels_1Sigma)
-                self.output_hotpixels3Sigma.append(self.hotPixels_1Sigma)
-                self.output_hotpixels4Sigma.append(self.hotPixels_1Sigma)
-                self.output_hotpixels5Sigma.append(self.hotPixels_1Sigma)
-            
-                 
-            #now treat the dbscan parameters, pad with one row first, then add the actual results
-            self.output_dbscan_results.append(cluster_output.cluster_output()) 
-            for i in range(dbscan_results.clusterOutput.outputNumberOfClusters[-1]):
-                self.output_dbscan_results.append(dbscan_results)  # this will be a series of results for each cluster
-            
-            #kmeans parameters
-            self.output_kmeans_results.append(kmeans_results)
-            
-            # in order to export the various dictionarys of results into PANDAS format, we must ensure that all arrays have the same dimensions
-            # we must then pad each with nonsense values 
-            # always keep the general parameters though: this will simplfy the analysis code 
-            # we want the output format to be of this form:
-            #                    general parameters    nonsense             nonsense       nonsense               nonsense   
-            #                    general parameters    DBSCAN results       nonsense       nonsense               nonsense  
-            #                    general parameters    nonsense         kmeans results     nonsense               nonsense 
-            #                    general parameters    nonsense             nonsense       shawcluster results    nonsense          
-            #                    general parameters    nonsense             nonsense       nonsense              shawfit results  
-            
-            # determine the number of rows for each method
-            nRowsGeneral=1
-            nRowsDBSCAN=dbscan_results.dbscanDict['DBScan_NumClusters']
-            nRowsKmeans=kmeans_results.kmeansDict['kmeans_NumClusters']
-            nRowsShawCluster=0 #temp
-            nRowsShawFit=0 #temp
-            
-            # General results
-            # expand general results array by nRowsDBSCAN+nRowsKmeans+nRowsShawCluster+nRowsShawFit
-            # DBSCAN results 
-            # pad with leading nonsense by nRowsGeneral
-            # pad with trailing nonsense by nRowsKmeans+nRowsShawCluster+nRowsShawFit
-            # kMeans results
-            
-            # ShawCluster Results 
-            
-            # ShawFit Results 
-            
-            
-            
-            
-            return
+            # form dictionary of general results 
+            generalDict={
+                                 'ImagePath': [self.inputFileList[imageNumber]],
+                                 'ImageMax' : self.imageMax,
+                                 'ImageMean': self.imageAverage,
+                                 'ImageVariance':  self.imageVar         ,
+                                 'ImageSum':      self.imageSum          ,
+                                 'HotPixels1Sigma':       self.hotPixels_1Sigma  ,
+                                 'HotPixels2Sigma':       self.hotPixels_2Sigma  ,
+                                 'HotPixels3Sigma':       self.hotPixels_3Sigma  ,
+                                 'HotPixels4Sigma':       self.hotPixels_4Sigma  ,
+                                 'HotPixels5Sigma':       self.hotPixels_5Sigma  
+            }
+            return generalDict
       #---------------------------------------------------------------------------
       def OpenHDF5File(self,root_name):
             hdf5FileName=root_name +"_hdf5.h5"
@@ -246,41 +200,31 @@ class analyze_images:
             return      
       
       #-------------------------------------------------------------------------------
-      def OutputHDF5Results(self,store):
+      def OutputHDF5Results(self,store,general_results,kmeans_results,dbscan_results,shawfit_results,shawcluster_results):
             """ output into a PANDAS HDF5
             """
-            df=pandas.DataFrame({'ImagePath': self.output_fullFilePath,
-                                 'ImageMax' : self.output_imageMax,
-                                 'ImageMean': self.output_imageMean,
-                                 'ImageVariance':           self.output_imageVariance,
-                                 'ImageSum':                self.output_imageSum,
-                                 'HotPixels1Sigma':         self.output_hotpixels1Sigma,
-                                 'HotPixels2Sigma':         self.output_hotpixels2Sigma,
-                                 'HotPixels3Sigma':         self.output_hotpixels3Sigma,
-                                 'HotPixels4Sigma':         self.output_hotpixels4Sigma,
-                                 'HotPixels5Sigma':         self.output_hotpixels5Sigma,
-                                 'DBScan_NumPixels':        [result.clusterOutput.outputClusterSize for result in self.output_dbscan_results],
-                                 'DBScan_Counts':           [result.clusterOutput.outputCounts for result in self.output_dbscan_results],
-                                 'DBScan_ClusterFrac':      [result.clusterOutput.outputClusterFrac for result in self.output_dbscan_results],
-                                 'DBScan_AvgPixelCount':    [result.clusterOutput.outputAvgPixelCount for result in self.output_dbscan_results],
-                                 'DBScan_PositionX':         [result.clusterOutput.outputPosition[0] for result in self.output_dbscan_results],
-                                 'DBScan_PositionXVariance': [result.clusterOutput.outputPositionVariance[0] for result in self.output_dbscan_results],
-                                 'DBScan_PositionY':         [result.clusterOutput.outputPosition[1] for result in self.output_dbscan_results],
-                                 'DBScan_PositionYVariance': [result.clusterOutput.outputPositionVariance[1] for result in self.output_dbscan_results],
-                                 'DBScan_PeakHeight':       [result.clusterOutput.outputPeakHeight for result in self.output_dbscan_results],
-                                 'DBScan_NumClusters':      [result.clusterOutput.outputNumberOfClusters for result in self.output_dbscan_results],
-                                 'kmeans_NumPixels':        [result.clusterOutput.outputClusterSize for result in self.output_kmeans_results],
-                                 'kmeans_Counts':           [result.clusterOutput.outputCounts for result in self.output_kmeans_results],
-                                 'kmeans_ClusterFrac':      [result.clusterOutput.outputClusterFrac for result in self.output_kmeans_results],
-                                 'kmeans_AvgPixelCount':    [result.clusterOutput.outputAvgPixelCount for result in self.output_kmeans_results],
-                                 'kmeans_PositionX':         [result.clusterOutput.outputPosition[0] for result in self.output_kmeans_results],
-                                 'kmeans_PositionXVariance': [result.clusterOutput.outputPositionVariance[0] for result in self.output_kmeans_results],
-                                 'kmeans_PositionY':         [result.clusterOutput.outputPosition[1] for result in self.output_kmeans_results],
-                                 'kmeans_PositionYVariance': [result.clusterOutput.outputPositionVariance[1] for result in self.output_kmeans_results],
-                                 'kmeans_PeakHeight':       [result.clusterOutput.outputPeakHeight for result in self.output_kmeans_results],
-                                 'kmeans_NumClusters':      [result.clusterOutput.outputNumberOfClusters for result in self.output_kmeans_results]
-                                 })                    
-            store.append('ImageData',df) # this will make a table, which can be appended to
+           
+            
+            
+            
+            # build PANDAS DataFrames and write to store the general results
+            nameIndex=general_results['ImagePath']
+          
+            generalDF=pandas.DataFrame(general_results,index=nameIndex)                     
+            store.append('General_ImageData',generalDF) # this will make a table, which can be appended to
+            
+            # do the same for the DBSCAN results 
+            if dbscan_results.foundClusters:
+                dbscanDF=pandas.DataFrame(dbscan_results.dbscanDict,index=nameIndex)
+                store.append('DBSCAN_ImageData',dbscanDF)
+            # do the same for the kMeans results
+            if kmeans_results.foundClusters:
+                kmeansDF=pandas.DataFrame(kmeans_results.kmeansDict,index=nameIndex)
+                store.append('kMeans_ImageData',kmeansDF)                 
+                                                     
+            
+            
+            
             return
       #---------------------------------------------------------------------------
       def DoIt(self):
@@ -316,7 +260,7 @@ for imageNumber in range(numImages):
     #print "Non-zero Pixel count and Sum:",hotPixels,imageSum
     kmeans_results=bigA.DoKmeans(imageNumber)
     dbscan_results=bigA.DoDBSCAN(imageNumber)
-    shawfit_results=bigA.DoShawFit(imageNumber)
+    #shawfit_results=bigA.DoShawFit(imageNumber)
     shawcluster_results=bigA.DoShawCluster(imageNumber)
     #kmeans_results.clusterfrac
     #if (hotPixels >= 500) or (imageSum > 60000):
@@ -330,8 +274,10 @@ for imageNumber in range(numImages):
         #raw_input("Press a key to continue")
         #bigA.DoKmeans(imageNumber)
         pass
-    bigA.StoreResults(imageNumber,dbscan_results,kmeans_results)    
-    bigA.OutputHDF5Results(hdf5File)  
+    general_results=bigA.StoreGeneralResults(imageNumber) 
+    shawfit_results=[]
+    bigA.OutputHDF5Results(hdf5File,general_results,kmeans_results,dbscan_results,shawfit_results,shawcluster_results)  
+    
 bigA.CloseHDF5File(hdf5File)
 #print "Writing out Averaged Arrays"
 #bigA.WriteAverageArrays(averageArrayFileName)            

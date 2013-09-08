@@ -365,7 +365,8 @@ class dbscan_analysis:
       def GenerateOutput(self):
             """ load relevant results into standard output variables
             """
-            self.clusterOutput.dbscanDict={
+            numClustersArray=[self.maxClusterID for element in self.clusterCounts] 
+            self.dbscanDict={
             'DBScan_NumPixels':self.clusterPixels,
             'DBScan_Counts':self.clusterCounts,
             'DBScan_ClusterFrac': self.clusterFrac,
@@ -375,33 +376,17 @@ class dbscan_analysis:
             'DBScan_PositionY':[element[1] for element in self.clusterPosition],
             'DBScan_PositionYVariance':[element[1] for element in self.clusterPositionVariance],
             'DBScan_PeakHeight': self.clusterHottestPixel,
-            'DBScan_NumClusters': float(self.maxClusterID) 
+            'DBScan_NumClusters': numClustersArray
             }
-            return
-      #---------------------------------------------------------------------------
-      def GenerateDummyOutput(self,size):
-            """ load irrelevant results into standard output variables for padding purposes
-            """
-            self.clusterOutput.dbscanDict={
-            'DBScan_NumPixels':self.clusterPixels,
-            'DBScan_Counts':self.clusterCounts,
-            'DBScan_ClusterFrac': self.clusterFrac,
-            'DBScan_AvgPixelCount':self.avgPixelCount,
-            'DBScan_PositionX': [element[0] for element in self.clusterPosition],
-            'DBScan_PositionXVariance':   [element[0] for element in self.clusterPositionVariance],
-            'DBScan_PositionY':[element[1] for element in self.clusterPosition],
-            'DBScan_PositionYVariance':[element[1] for element in self.clusterPositionVariance],
-            'DBScan_PeakHeight': self.clusterHottestPixel,
-            'DBScan_NumClusters': float(self.maxClusterID) 
-            }
+            
             return
       #---------------------------------------------------------------------------
       def DoIt(self,inputArray,minimumPoints,eps):
-            self.clusterOutput=cluster_output.cluster_output()
+            #self.clusterOutput=cluster_output.cluster_output()
             self.imageArray=inputArray
             self.DoDBSCAN(minimumPoints,eps) # run the DBSCAN algorithm
-            foundClusters=self.AnalyzeResults() # get cluster info
-            if foundClusters:
+            self.foundClusters=self.AnalyzeResults() # get cluster info
+            if self.foundClusters:
                 # no longer worrying about the best cluster at this stage of analysis
                 #self.bestClusterID=self.ChooseBestCluster() # out of the clusters found, pick the "best"
                 self.GenerateOutput() # load results into the final observables

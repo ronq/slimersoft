@@ -17,13 +17,20 @@ import os
 import glob
 #==================================================================================
 class shawcluster_analysis:
-    """ this class performs Erik Shaw's Clustering to a greyscale image array
+      """ this class performs Erik Shaw's Clustering to a greyscale image array
 
-    """
+      """
       #------------------------------------------------------------------------------------------------------------------------------------------
       def __init__(self):
-	  
-	        return
+        # these are the output arrays
+        self.cluster_integral=[]
+        self.cluster_pixels=[]
+        self.cluster_smooth_integral=[]
+        self.cluster_smooth_pixels=[]
+        self.cluster_max=[]
+        self.cluster_smooth_max=[]
+        self.threshold=[]
+        return
       #---------------------------------------------------------------------------
       def DoCluster(self,data):
 
@@ -46,18 +53,15 @@ class shawcluster_analysis:
         out -= threshold[0]+3*threshold[1]
         out[out<0] = 0
 
-
-
-
         clusters = get_clusters(out,0.5*threshold[1])
         for cluster in clusters:
-	        integral = 0
-	        count = 0
-	        smooth_integral = 0
-	        maximum = 0
-	        maximum_smooth = 0
-	        pixels = cluster.size
-	        for coord in cluster:
+            integral = 0
+            count = 0
+            smooth_integral = 0
+            maximum = 0
+            maximum_smooth = 0
+            pixels = cluster.size
+            for coord in cluster:
 		        smooth_integral+=out[coord[0]][coord[1]]
 		        if maximum < data[coord[0]][coord[1]]:
 			        maximum = data[coord[0]][coord[1]]
@@ -66,29 +70,37 @@ class shawcluster_analysis:
 		        if data[coord[0]][coord[1]]>0.5*threshold[1]:
 			        integral+=data[coord[0]][coord[1]]
 			        count+=1
-		return coord, integral, smooth_integral, count, pixels, maximum, maximum_smooth, data.max(), threshold[1] 	   
+            self.cluster_integral.append(integral)
+            self.cluster_pixels.append(count)
+            self.cluster_smooth_integral.append(smooth_integral)
+            self.cluster_smooth_pixels.append(pixels)
+            self.cluster_max.append(maximum)
+            self.cluster_smooth_max.append(maximum_smooth)
+            self.threshold.append(threshold)            
+        return  	  
+		
+	
+		 
 	  #---------------------------------------------------------------------------
       def GenerateOutput(self):
             """ load relevant results into standard output variables
             """
-            
-            
-            # may want to use different output variables for this
-            
-            self.clusterOutput.outputClusterSize=self.clusterPixels[self.bestClusterID]
-            self.clusterOutput.outputCounts=self.clusterCounts[self.bestClusterID]
-            self.clusterOutput.outputClusterFrac=self.clusterFrac[self.bestClusterID]
-            self.clusterOutput.outputAvgPixelCount=self.avgPixelCount[self.bestClusterID]
-            self.clusterOutput.outputPosition=self.clusterPosition[self.bestClusterID]
-            self.clusterOutput.outputPositionVariance=self.clusterPositionVariance[self.bestClusterID]
-            self.clusterOutput.outputPeakHeight=self.clusterHottestPixel[self.bestClusterID]
-            self.clusterOutput.outputNumberOfClusters=float(self.maxClusterID)
+            numPeaks = [len(self.threshold) for entry in self.threshold]     
+            self.shawclusterDict={
+            'ShawCluster_IntegratedRawPixels':self.cluster_integral,
+            'ShawCluster_ClusterRawArea':self.cluster_pixels ,
+            'ShawCluster_IntegratedPixels':self.cluster_smooth_integral,
+            'ShawCluster_ClusterArea':self.cluster_smooth_pixels,
+            'ShawCluster_PeakHeightRaw':self.cluster_max ,
+            'ShawCluster_PeakHeight':self.cluster_smooth_max,
+            'ShawCluster_Threshold':self.threshold,
+            'ShawCluster_NumPeaks':numPeaks
+            }
             return
 	  #---------------------------------------------------------------------------
-      def DoIt(self):
-            self.clusterOutput=cluster_output.cluster_output()
+      def DoIt(self,inputArray):
             self.imageArray=inputArray
-            self.clusterPosition,  = self.DoCluster(self.imageArray)
+            self.DoCluster(self.imageArray)
             self.GenerateOutput() # load results into the final observables
             return    
       #------------------------------------------------------------------------------   

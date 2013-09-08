@@ -812,6 +812,8 @@ Commit the code as is and implement this new approach.
 
 I'll need to modify the hdf5 sum code to handle this as well.  
 
+I think I'm bumping into a problem with Erik's fitting code: in shaw_fit.py,  the method optimize.leastsq(errorfunction, moment)
+I should take a close look at the values of errorfunction: it could be doing something nasty
 
 
 

@@ -22,6 +22,7 @@ class kmeans_analysis:
       def GenerateKmeansData(self):
             """ this will generate an array of 2D points, taking into account the value of the pixels
             """
+            self.foundClusters=True # this algorithm will always find something
             kmeansDataList=[]
             totalCounts=float(self.imageArray.sum())
             runningTotal_ForX=0.0
@@ -64,30 +65,34 @@ class kmeans_analysis:
             # get the number of points (actually counts) in the cluster
             # look at the distortion too
             totalpoints=self.kmeansFeatures.size/2. # each point is 2x1
-            self.clusterpoints=self.code.sum()  # note that this is the integral energy of the cluster 
-            self.clusterFrac=self.clusterpoints/totalpoints
+            self.clusterpoints=[self.code.sum()]  # note that this is the integral energy of the cluster 
+            self.clusterFrac=[element/totalpoints for element in self.clusterpoints]
             return
       
       #---------------------------------------------------------------------------
       def GenerateOutput(self):
             """ load relevant results into standard output variables
             """
-            self.clusterOutput.kmeansDict={
-            'kmeans_NumPixels':[-999.0],
+            # want all outputs to have the same dimensional length, so form some dummy parameters
+            dummyArray=[-999.0 for element in self.clusterpoints] 
+            numClustersArray=[len(self.clusterpoints) for element in self.clusterpoints] 
+            self.kmeansDict={
+            'kmeans_NumPixels':dummyArray,
             'kmeans_Counts':self.clusterpoints,
             'kmeans_ClusterFrac': self.clusterFrac,
-            'kmeans_AvgPixelCount':[-999.0],
-            'kmeans_PositionX': [-999.0],
-            'kmeans_PositionXVariance': [-999.0], 
-            'kmeans_PositionY':[-999.0],
-            'kmeans_PositionYVariance':[-999.0],
-            'kmeans_PeakHeight': [-999.0],
-            'kmeans_NumClusters': 1.
+            'kmeans_AvgPixelCount':dummyArray,
+            'kmeans_PositionX': dummyArray,
+            'kmeans_PositionXVariance': dummyArray, 
+            'kmeans_PositionY':dummyArray,
+            'kmeans_PositionYVariance':dummyArray,
+            'kmeans_PeakHeight': dummyArray,
+            'kmeans_NumClusters': numClustersArray
             }
+            print self.kmeansDict
             return
       #---------------------------------------------------------------------------
       def DoIt(self,inputArray):
-            self.clusterOutput=cluster_output.cluster_output()
+            #self.clusterOutput=cluster_output.cluster_output()
             self.imageArray=inputArray
             #print "generating KMeans Data"
             self.GenerateKmeansData() # prepare the data first

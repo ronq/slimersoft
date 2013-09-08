@@ -20,17 +20,22 @@ import os
 import glob
 #==================================================================================
 class shawfit_analysis:
-    """ this class performs Erik Shaw's Bivariate Gaussian fit to a greyscale image array
+      """ this class performs Erik Shaw's Bivariate Gaussian fit to a greyscale image array
 
-    """
+      """
       #------------------------------------------------------------------------------------------------------------------------------------------
       def __init__(self):
-	  
+	        # these are the output arrays
+	        self.integrate_fit=[]
+	        self.integrate_pixels=[]
+	        self.peakh_fit=[]
+	        self.peakh_pixels=[]
+	        self.peaka_fit=[]
+	        self.peaka_pixels=[]
+	        self.raw_pixel_integral=[]
+	        self.raw_pixel_area=[] 
+	        self.threshold=[]
 	        return
-	  #----------------------------------------------------------------------------
-      def DoDBSCAN(self,minimumPoints,eps):
-            self.db=dbscan_implementation(self.imageArray,minimumPoints,eps)
-            return
       #---------------------------------------------------------------------------
       def DoFit(self,data):
 
@@ -58,51 +63,52 @@ class shawfit_analysis:
         percent = special.erf(sqrt(2))
         params = fitgaussian(out,0.5*threshold[1])
         for p in params:
-	        fit = gaussian(*p)
-	        results = np.array([[fit(j,i) for i in X] for j in Y],dtype=np.float)
-	        coords = np.argwhere((results-p[0])/p[1]>two_sigma_val/(p[5]*p[6]))
-	        integral = 0
-	        smooth_integral = 0
-	        num_pix = 0
-	        num_smooth_pix = len(coords)
-	        for coord in coords:
+            fit = gaussian(*p)
+            results = np.array([[fit(j,i) for i in X] for j in Y],dtype=np.float)
+            coords = np.argwhere((results-p[0])/p[1]>two_sigma_val/(p[5]*p[6]))
+            integral = 0
+            smooth_integral = 0
+            num_pix = 0
+            num_smooth_pix = len(coords)
+            for coord in coords:
 		        smooth_integral += out[coord[0]][coord[1]]
 		        if data[coord[0]][coord[1]]>0.5*threshold[1]:
 		    	    integral += data[coord[0]][coord[1]]
 		    	    num_pix += 1
-        return coords, integral, smooth_integral, <count>, <pixels>, <maximum>, <maximum_smooth>, <data.max()>, <threshold[1]>
-        p=(0,height,0,x,y,width_x,width_y)
-        h1.Fill(abs(2*pi*p[1]*p[5]*p[6]*percent*percent))
-	    h2.Fill(smooth_integral)
-	    h3.Fill(p[1])
-	    h4.Fill(out[int(p[3])][int(p[4])])
-	    h5.Fill(abs(pi*p[5]*p[6]))
-	    h6.Fill(num_smooth_pix)
-	    h7.Fill(integral)
-	    h8.Fill(num_pix)
-
-        #---------------------------------------------------------------------------
+            
+            self.integrate_fit.append(abs(2*pi*p[1]*p[5]*p[6]*percent*percent))
+            self.integrate_pixels.append(smooth_integral)
+            self.peakh_fit.append(p[1])
+            self.peakh_pixels.append(out[int(p[3])][int(p[4])])
+            self.peaka_fit.append(abs(pi*p[5]*p[6]))
+            self.peaka_pixels.append(num_smooth_pix)
+            self.raw_pixel_integral.append(integral)
+            self.raw_pixel_area.append(num_pix) 
+            self.threshold.append(threshold)
+            # end new output code 
+        return 
       #---------------------------------------------------------------------------
-        def GenerateOutput(self):
+      #---------------------------------------------------------------------------
+      def GenerateOutput(self):
             """ load relevant results into standard output variables
             """
-            # cluster energy
-            # cluster "size" in units of pixels
-            # cluster position
-            # "energy density" of cluster
-            # ratio of cluster counts to overall 
-            self.clusterOutput.outputClusterSize=self.clusterPixels[self.bestClusterID]
-            self.clusterOutput.outputCounts=self.clusterCounts[self.bestClusterID]
-            self.clusterOutput.outputClusterFrac=self.clusterFrac[self.bestClusterID]
-            self.clusterOutput.outputAvgPixelCount=self.avgPixelCount[self.bestClusterID]
-            self.clusterOutput.outputPosition=self.clusterPosition[self.bestClusterID]
-            self.clusterOutput.outputPositionVariance=self.clusterPositionVariance[self.bestClusterID]
-            self.clusterOutput.outputPeakHeight=self.clusterHottestPixel[self.bestClusterID]
-            self.clusterOutput.outputNumberOfClusters=float(self.maxClusterID)
+            numPeaks = [len(self.threshold) for entry in self.threshold]     
+            self.shawfitDict={
+            'ShawFit_IntegratedFit':self.integrate_fit,
+            'ShawFit_IntegratedPixels':self.integrate_pixels,
+            'ShawFit_PeakHeightFit':self.peakh_fit,
+            'ShawFit_PeakHeightPixels':self.peakh_pixels,
+            'ShawFit_PeakAreaFit':self.peaka_fit,
+            'ShawFit_PeakAreaPixels':self.peaka_pixels,
+            'ShawFit_IntegratedRawPixels':self.raw_pixel_integral,
+            'ShawFit_PeakAreaRawPixels':self.raw_pixel_area,
+            'ShawFit_Threshold':self.threshold,
+            'ShawFit_NumPeaks':numPeaks
+            }
             return
       #---------------------------------------------------------------------------
-        def DoIt(self):
-            self.clusterOutput=cluster_output.cluster_output()
+      def DoIt(self):
+            #self.clusterOutput=cluster_output.cluster_output()
             self.imageArray=inputArray
             self.DoFit(self.imageArray)
             self.GenerateOutput() # load results into the final observables
