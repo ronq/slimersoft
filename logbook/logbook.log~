@@ -815,6 +815,54 @@ I'll need to modify the hdf5 sum code to handle this as well.
 I think I'm bumping into a problem with Erik's fitting code: in shaw_fit.py,  the method optimize.leastsq(errorfunction, moment)
 I should take a close look at the values of errorfunction: it could be doing something nasty
 
+Sep 8th 2013 ------------------------------------------------------------
+Modifications to image_analysis.py are complete. I'm still having issues with Erik's fitting code, so I've disabled it for now. His cluster code DOES work though.
+However, the output code does NOT. It works fine as long as each variable is a single value, but multiple element arrays are crashing the HDF5 code. I don't think
+this is specific to shawcluster: the problem goes away if an index is not used. I may need an index per element. I do.
+I need to check to see if using the same index in multiple rows would cause a problem. I don't think it will
+
+Sep 9th 2013 -----------------------------------------------------------
+I've taken data with various cables unplugged from the hub.
+The data files are:
+cables_in_9_9_2013_200msec.nd2
+cables_out_9_9_2013_200msec.nd2
+hub_off_9_9_2013_200msec.nd2
+shutter_closed_9_9_2013_200msec.nd2
+stage_in_9_9_2013_200msec001.nd2
+stage_out_9_9_2013_200msec.nd2
+
+I've converted and run analysis on the above. Two groups are formed:
+high tail:
+    cables_in_9_9_2013_200msec.nd2
+    stage_in_9_9_2013_200msec001.nd2
+    
+    
+low tail:
+    cables_out_9_9_2013_200msec.nd2
+    hub_off_9_9_2013_200msec.nd2
+    shutter_closed_9_9_2013_200msec.nd2
+    stage_out_9_9_2013_200msec.nd2
+
+So the problem occurs when the stage is powered up!
+It has "encoders" which are likely optical encoders. 
+Two approaches: a usb or ethernet switch that can be used to power the hub on and off
+Or use a filter cube that filters light of this wavelength.
+
+It wasn't the stage that the cable powered, it was the filter wheel! The stage has no encoder. 
+The filter turret is a TI-FLC-E.
+
+I should run with both filter cubes to see if they can cut ALL the ambient light.
+Run with:
+no filter
+one filter
+the other filter
+with the turret unplugged. 
+
+Note that running with a filter will cut the CsI light..... 
+Sept 10th 2013--------------------------------
+Don't use the image name as the index for the other dataframes. This may create problems later.
+Go ahead and DO use the index for General_ImageData 
+
 
 
 

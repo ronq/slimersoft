@@ -142,13 +142,13 @@ class analyze_images:
             shawfit=shawfit_analysis.shawfit_analysis()
             shawfit.DoIt(self.imageArray[:,:,imageNumber])
             
-            return 
+            return shawfit
       #------------------------------------------------------------------------------
       def DoShawCluster(self,imageNumber):
             shawcluster=shawcluster_analysis.shawcluster_analysis()
             shawcluster.DoIt(self.imageArray[:,:,imageNumber])
             
-            return 
+            return shawcluster
       #------------------------------------------------------------------------------
       
       def GetPeakInfo(self,imageNumber):
@@ -167,9 +167,7 @@ class analyze_images:
             self.hotPixels_4Sigma=[]
             self.hotPixels_5Sigma=[]
             self.generalDict={}
-            # output of dbscan analysis. This is an array of objects. 
-            self.output_dbscan_results=[]
-            self.output_kmeans_results=[]
+             
             return
       #-------------------------------------------------------------------------------
       def StoreGeneralResults(self,imageNumber):
@@ -198,31 +196,30 @@ class analyze_images:
       def CloseHDF5File(self,fileObject):
             fileObject.close()  
             return      
-      
       #-------------------------------------------------------------------------------
       def OutputHDF5Results(self,store,general_results,kmeans_results,dbscan_results,shawfit_results,shawcluster_results):
             """ output into a PANDAS HDF5
             """
-           
-            
-            
-            
+        
             # build PANDAS DataFrames and write to store the general results
             nameIndex=general_results['ImagePath']
-            print " Debug HDF5 Output:"
-            print nameIndex, dbscan_results
-            generalDF=pandas.DataFrame(general_results,index=nameIndex)                     
+            generalDF=pandas.DataFrame(general_results,index=nameIndex)  # include imagePath as the index, for fast lookups                       
             store.append('General_ImageData',generalDF) # this will make a table, which can be appended to
             
             # do the same for the DBSCAN results 
             if dbscan_results.foundClusters:
-                dbscanDF=pandas.DataFrame(dbscan_results.dbscanDict,index=nameIndex)
+                dbscanDF=pandas.DataFrame(dbscan_results.dbscanDict)
+                dbscanDF['ImagePath']= nameIndex*len(dbscanDF)  # add the imagePath to enable connection with other DataFrames 
                 store.append('DBSCAN_ImageData',dbscanDF)
             # do the same for the kMeans results
             if kmeans_results.foundClusters:
-                kmeansDF=pandas.DataFrame(kmeans_results.kmeansDict,index=nameIndex)
+                kmeansDF=pandas.DataFrame(kmeans_results.kmeansDict)
+                kmeansDF['ImagePath']=nameIndex*len(kmeansDF)
                 store.append('kMeans_ImageData',kmeansDF)                 
-                                                     
+            if shawcluster_results.foundClusters:
+                shawclusterDF=pandas.DataFrame(shawcluster_results.shawclusterDict)
+                shawclusterDF['ImagePath']=nameIndex*len(shawclusterDF)
+                store.append('ShawCluster_ImageData',shawclusterDF)                                      
             
             
             

@@ -30,6 +30,8 @@ class shawcluster_analysis:
         self.cluster_max=[]
         self.cluster_smooth_max=[]
         self.threshold=[]
+        self.threshold_mean=[]
+        self.foundClusters=False
         return
       #---------------------------------------------------------------------------
       def DoCluster(self,data):
@@ -76,7 +78,8 @@ class shawcluster_analysis:
             self.cluster_smooth_pixels.append(pixels)
             self.cluster_max.append(maximum)
             self.cluster_smooth_max.append(maximum_smooth)
-            self.threshold.append(threshold)            
+            self.threshold.append(threshold[1])   
+            self.threshold_mean.append(threshold[0])         
         return  	  
 		
 	
@@ -85,15 +88,17 @@ class shawcluster_analysis:
       def GenerateOutput(self):
             """ load relevant results into standard output variables
             """
-            numPeaks = [len(self.threshold) for entry in self.threshold]     
+            numPeaks = [len(self.threshold) for entry in self.threshold]  
+            self.foundClusters=len(self.threshold)>0   
             self.shawclusterDict={
-            'ShawCluster_IntegratedRawPixels':self.cluster_integral,
-            'ShawCluster_ClusterRawArea':self.cluster_pixels ,
-            'ShawCluster_IntegratedPixels':self.cluster_smooth_integral,
-            'ShawCluster_ClusterArea':self.cluster_smooth_pixels,
-            'ShawCluster_PeakHeightRaw':self.cluster_max ,
-            'ShawCluster_PeakHeight':self.cluster_smooth_max,
-            'ShawCluster_Threshold':self.threshold,
+            #'ShawCluster_IntegratedRawPixels':self.cluster_integral,
+            #'ShawCluster_ClusterRawArea':self.cluster_pixels ,
+            #'ShawCluster_IntegratedPixels':self.cluster_smooth_integral,
+            #'ShawCluster_ClusterArea':self.cluster_smooth_pixels,
+            #'ShawCluster_PeakHeightRaw':self.cluster_max ,
+            #'ShawCluster_PeakHeight':self.cluster_smooth_max,
+            #'ShawCluster_Threshold':self.threshold,
+            #'ShawCluster_ThresholdMean':self.threshold_mean,
             'ShawCluster_NumPeaks':numPeaks
             }
             return

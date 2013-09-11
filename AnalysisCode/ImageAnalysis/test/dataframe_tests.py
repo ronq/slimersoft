@@ -29,12 +29,13 @@ print b
 a.update(b)
 print a
 
-a['ImageSum'].extend([700,800,900])
-
+#a['ImageSum'].extend([700,800,900])
+testindex=['test_index','test_index','test_index']
+#testindex=['test_index']
 print a
     
-df=pandas.DataFrame.from_dict(a,)    
-    
+#df=pandas.DataFrame.from_dict(a,index=testindex)    
+df=pandas.DataFrame(a,index=testindex)
 """      
 df=pandas.DataFrame({'ImagePath': self.output_fullFilePath,
                                  'ImageMax' : self.output_imageMax,
@@ -68,8 +69,8 @@ df=pandas.DataFrame({'ImagePath': self.output_fullFilePath,
                                  'kmeans_NumClusters':      [result.clusterOutput.outputNumberOfClusters for result in self.output_kmeans_results]
                                  })                    
 """
+#print df['test_index']
 print df
-
 #now I need to figure out how to modify the contents, so I can append elements to the array associated with 'key'
 
 
