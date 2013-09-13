@@ -861,7 +861,64 @@ with the turret unplugged.
 Note that running with a filter will cut the CsI light..... 
 Sept 10th 2013--------------------------------
 Don't use the image name as the index for the other dataframes. This may create problems later.
-Go ahead and DO use the index for General_ImageData 
+Do add the image name as an extra column however.
+Go ahead and DO use the index for General_ImageData. 
+
+Sept 11th 2013 -------------------------------
+I've run a test of scanning pandas DataFrames:
+Using frame.loc['<index position>'] is 83 times faster than using:
+frame[frame['<Index Column>'] == <index position>]
+
+So index lookups are MUCH faster
+I might be able to generate a dictionary of index position lists with the image name as a key. 
+Plan on doing this.
+
+The next step will be to modify slimer_ana.py to process the new tables 
+
+Sept 12th 2013 ------------------------------------
+Nikon Rep:
+
+Christopher P Miller
+Bioscience Sales Specialist
+
+Nikon Instruments Inc.
+12 Goodyear
+Suite 110
+Irvine CA 92618
+
+Office: 949-586-9000    Fax: 949-586-4809
+Mobile: 602-363-9689    Fax to Order: 631-944-9371
+cmiller@nikon.net<mailto:cmiller@nikon.net>
+
+
+They don't have notes on our account regarding what filter cube. 
+
+He's drawing a blank regarding the filter turret off. Have to crack it open.
+
+I need to see what 
+
+He'll be at Los Alamos next week. 
+
+======
+Return to coding. Run analysis on a good set of C14.
+Run analysis on:
+
+am241_8_01_2013_200msec  
+c14_8_01_2013_200msec    
+no_source_8_01_2013_200msec  
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

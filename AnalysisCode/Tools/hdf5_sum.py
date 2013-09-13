@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #
-"""  This script combine data included in multiple HDF5 files and output 
+"""  This script combines data included in multiple HDF5 files and output 
      
      usage hdf5_sum.py  <path to input files> <output file name>
      
@@ -16,12 +16,15 @@ outputName=sys.argv[2]
 # form file list for processing
 inputList=glob.glob(inputPath)
 # open output file 
-store=pandas.HDFStore(outputName,mode='w')
+newStore=pandas.HDFStore(outputName,mode='w')
 #open each file and append contents to the new store
 print "Processing ",len(inputList), " files"
 for newfile in inputList:
     imageDataTable=pandas.read_hdf(newfile,'ImageData')
-    store.append('ImageData',imageDataTable)
-store.close()
+    oldStore=pandas.HDFStore(newfile,mode='r')
+    for key in oldStore.keys():   # iterate over all tables in the file
+        newStore.append(key,oldStore[key])     # and append them to be new file
+    oldStore.close()    
+newStore.close()
 
 

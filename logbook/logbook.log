@@ -873,8 +873,50 @@ So index lookups are MUCH faster
 I might be able to generate a dictionary of index position lists with the image name as a key. 
 Plan on doing this.
 
+The next step will be to modify slimer_ana.py to process the new tables 
+
+Sept 12th 2013 ------------------------------------
+Nikon Rep:
+
+Christopher P Miller
+Bioscience Sales Specialist
+
+Nikon Instruments Inc.
+12 Goodyear
+Suite 110
+Irvine CA 92618
+
+Office: 949-586-9000    Fax: 949-586-4809
+Mobile: 602-363-9689    Fax to Order: 631-944-9371
+cmiller@nikon.net<mailto:cmiller@nikon.net>
 
 
+They don't have notes on our account regarding what filter cube. 
+
+He's drawing a blank regarding the filter turret off. Have to crack it open.
+
+I need to see what 
+
+He'll be at Los Alamos next week. 
+
+======
+Return to coding. Run analysis on a good set of C14.
+Run analysis on:
+
+am241_8_01_2013_200msec  
+c14_8_01_2013_200msec    
+no_source_8_01_2013_200msec  
+
+Now I need to update hdf5_sum.py....
+
+
+
+It looks like some image_analysis.py jobs are using LOTS of memory. 
+Let me try to determine which these are...
+am214---01525.tif is one.
+no_source --09794.tif is another
+
+these jobs also run for a LONG time.
 
 
 
