@@ -35,31 +35,45 @@ pairsFor2D=[
 ["DBScan_AvgPixelCount","DBScan_NumPixels"],
 ["DBScan_AvgPixelCount","DBScan_Counts"]
 ]
-#open file
+#open file and associated tables
 imageDataTable=pandas.read_hdf(inputFile,'ImageData')
-print imageDataTable['DBScan_Counts']
-print imageDataTable['DBScan_NumClusters']
-# apply cuts 
-new_imageDataTable=(hdf5_cut_lib.hdf5_cut_lib(imageDataTable,cutTable)).result
+inputStore=pandas.HDFStore(newfile,mode='r')
 
-#print new_imageDataTable
-
-# output the crunched DataFrame to a new hdf5 file
+# prepare output HDF5file
 hdf5FileName=outputRootName +"_hdf5.h5"
-store=pandas.HDFStore(hdf5FileName,'w')
-store.append('ImageData',new_imageDataTable) # this will make a table, which can be appended to
-store.close()
+outputStore=pandas.HDFStore(hdf5FileName,'w')
 
-# now book and fill histograms 
+# prepare ROOT output 
 outputROOTFileName=outputRootName + ".root"
 newfile=ROOT.TFile(outputROOTFileName,'RECREATE') # open output right away to enable easy histogram output. 
 
-plot_pandas_lib.plot_pandas(new_imageDataTable,pairsFor2D)  # note that there's no need to pass the newfile object: PyRoot already has access to the file for writing
+
+for key in inputStore.keys():   # cycle through each key in the file. each key points to a DataFrame
+        inputTable=inputStore.get(key))          # retrieve the DataFrame
+        newTable = hdf5_cut_lib.hdf5_cut_lib(inputTable,cutTable)).result)  # apply cuts, if any, to this DataFrame   
+        outputStore.append(key,newTable)                                    # append the crunched DataFrame to the output file     
+        plot_pandas_lib.plot_pandas(new_imageDataTable,pairsFor2D)  # note that there's no need to pass the newfile object: PyRoot already has access to the file for writing
+
+# the above works when the DataFrames are kept seperate. If we wish to correleate then things become more complicated.
+# first enable links betweem the DataFrames by setting up dictionaries to enable fast lookups.
+# psuedo code for this
+# for index in General DataFrame # the index is the filepath
+# for each other DataFrame:  
+#   search for a match to teh filePath
+#        if match found add the matching index to an array
+#   add dictionary entry: key is filePath and value are matching indexes
+# 
+# then can cycle through the General DataFrame and fetch relevent information
+# likely want to apply more cuts 
+# likely want the ability plot variables between dataFrames, this will premet correlations to be studied 
+#
+# need to decide if this should be a seperate file, or be run in this one. 
+
 
 newfile.Write()  # write all histograms to disk, redundant?
 newfile.Close()
-
-
+inputStore.close()
+outputStore.close()
 
 
 

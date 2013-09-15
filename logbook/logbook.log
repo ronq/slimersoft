@@ -906,16 +906,20 @@ Run analysis on:
 am241_8_01_2013_200msec  
 c14_8_01_2013_200msec    
 no_source_8_01_2013_200msec  
-
+09791
 Now I need to update hdf5_sum.py....
+DONE. 
 
+It looks like some jobs fail: I need to add in the ability to fail files in hdf5_sum.py,
+I can try to catch an exception, or there might be a better way of doing it
 
 
 It looks like some image_analysis.py jobs are using LOTS of memory. 
 Let me try to determine which these are...
 am214---01525.tif is one.
 no_source --09794.tif is another
-
+            09788.tif is another  
+            09791.tif is another     
 these jobs also run for a LONG time.
 
 

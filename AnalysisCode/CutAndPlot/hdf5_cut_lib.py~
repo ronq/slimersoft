@@ -34,11 +34,15 @@ class hdf5_cut_lib:
 	    """
 	    logicArrayList=[]        
 	    for i in range(len(variableName)):
-	        logicResult=(df[variableName[i]] > lower_limit[i]) & (df[variableName[i]] < upper_limit[i])
-	        if cutAction[i] == "deselect":
-	            logicResult = not logicResult 
-	        logicArrayList.append(logicResult)
-	        print i, logicResult, lower_limit[i],upper_limit[i],cutAction[i]
+	        if df.contains(variableName[i]):   # of course we only operate on this DataFrame if it actually contains the variable 
+	            logicResult=(df[variableName[i]] > lower_limit[i]) & (df[variableName[i]] < upper_limit[i])
+	            if cutAction[i] == "deselect":
+	                logicResult = not logicResult 
+	            logicArrayList.append(logicResult)
+	            print i, logicResult, lower_limit[i],upper_limit[i],cutAction[i]
+	        else:
+	            logicResult=True*len(df)
+	            logicArrayList.append(logicResult)    
 	    # now convert to a numpy array so we can use an efficient array manipulation
 	    logicArray=numpy.array(logicArrayList)
 	    # once this is done, I'll want to OR all the arrays together to form the final cut mask
