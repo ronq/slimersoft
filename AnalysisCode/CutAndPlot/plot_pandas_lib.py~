@@ -17,10 +17,11 @@ class plot_pandas:
 	            self.BookAndFillHistogram(variableName,seriesData.values)
 	    # now loop over the entries in pairs2D for 2D plotting 
 	    for pair in pairs2D:
-	        data1=df[pair[0]].values # get data for first variable in pair
-	        data2=df[pair[1]].values # get data for the second variable in pair
-	        # call the 2D histogram plotting routine
-	        self.BookAndFill2DHistogram(pair[0],pair[1],data1,data2)
+	        if (df.__contains__(pair[0])) and (df.__contains__(pair[1])):  # only attempt to plot if the DataFrame actually contains BOTH variables in question
+	            data1=df[pair[0]].values # get data for first variable in pair
+	            data2=df[pair[1]].values # get data for the second variable in pair
+	            # call the 2D histogram plotting routine
+	            self.BookAndFill2DHistogram(pair[0],pair[1],data1,data2)
 	    return   
     #---------------------------------------------------------------------------
     def GetLimits(self,data):

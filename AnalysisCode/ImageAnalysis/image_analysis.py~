@@ -220,7 +220,6 @@ class analyze_images:
                 shawclusterDF=pandas.DataFrame(shawcluster_results.shawclusterDict)
                 shawclusterDF['ImagePath']=nameIndex*len(shawclusterDF)
                 store.append('ShawCluster_ImageData',shawclusterDF)                                      
-     
             return
       #---------------------------------------------------------------------------
       def DoIt(self):

@@ -36,8 +36,8 @@ pairsFor2D=[
 ["DBScan_AvgPixelCount","DBScan_Counts"]
 ]
 #open file and associated tables
-imageDataTable=pandas.read_hdf(inputFile,'ImageData')
-inputStore=pandas.HDFStore(newfile,mode='r')
+#imageDataTable=pandas.read_hdf(inputFile,'ImageData')
+inputStore=pandas.HDFStore(inputFile,mode='r')
 
 # prepare output HDF5file
 hdf5FileName=outputRootName +"_hdf5.h5"
@@ -47,12 +47,15 @@ outputStore=pandas.HDFStore(hdf5FileName,'w')
 outputROOTFileName=outputRootName + ".root"
 newfile=ROOT.TFile(outputROOTFileName,'RECREATE') # open output right away to enable easy histogram output. 
 
+# generate the cuts from the input cut table 
+imageCuts=hdf5_cut_lib.hdf5_cut_lib(cutTable)
 
 for key in inputStore.keys():   # cycle through each key in the file. each key points to a DataFrame
-        inputTable=inputStore.get(key))          # retrieve the DataFrame
-        newTable = hdf5_cut_lib.hdf5_cut_lib(inputTable,cutTable)).result)  # apply cuts, if any, to this DataFrame   
-        outputStore.append(key,newTable)                                    # append the crunched DataFrame to the output file     
-        plot_pandas_lib.plot_pandas(new_imageDataTable,pairsFor2D)  # note that there's no need to pass the newfile object: PyRoot already has access to the file for writing
+        inputTable=inputStore.get(key)          # retrieve the DataFrame
+        newTable = imageCuts.ApplyCuts(inputTable)# apply cuts, if any, to this DataFrame   
+        if newTable:
+            outputStore.append(key,newTable)                                    # append the crunched DataFrame to the output file     
+            plot_pandas_lib.plot_pandas(newTable,pairsFor2D)  # note that there's no need to pass the newfile object: PyRoot already has access to the file for writing
 
 # the above works when the DataFrames are kept seperate. If we wish to correleate then things become more complicated.
 # first enable links betweem the DataFrames by setting up dictionaries to enable fast lookups.
