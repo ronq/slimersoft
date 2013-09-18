@@ -7,12 +7,6 @@ class hdf5_cut_lib:
     #------------------------------------------------------------------------------------------------------------------------------------------
     def __init__(self,cutTable):
 	    self.lowerLimits, self.variableNames, self.upperLimits, self.cutActions = self.ParseCutTable(cutTable)
-	    # want to apply cuts to DataFrames:
-	    #    some DataFrames may have no cuts 
-	    #    some DataFrames may have some of the cuts
-	    #    some DataFrames may have all of the cuts  
-	    #self.result=self.computeCuts(df,lowerLimit, variableName, upperLimit, cutAction)
-	    #self.result=df[logicIndex]
 	    return   
 	#---------------------------------------------------------------------
     def ParseCutTable(self,cutTable):
@@ -38,18 +32,18 @@ class hdf5_cut_lib:
         """ 
         allCutResults=[]
         for lowerLimit,variableName,upperLimit,cutAction in zip(self.lowerLimits, self.variableNames, self.upperLimits, self.cutActions):
-            if inputTable.__contains__(variableName):
-                allCutResults.append(self.ComputeCut(inputTable,lowerLimit,variableName,upperLimit,cutAction))
-        if allCutResults:  # if at least one cut variable was present in the DataFrame
-            return inputTable[self.LogicalAnd(allCutResults)]  # pass the DataFrame with all cuts applied
+            if inputTable.__contains__(variableName):                                                           # check if this cut applies to this DataFrame
+                allCutResults.append(self.ComputeCut(inputTable,lowerLimit,variableName,upperLimit,cutAction))  # apply the cut
+        if allCutResults:                                                                                       # if at least one cut variable was present in the DataFrame
+            return inputTable[self.LogicalAnd(allCutResults)]                                                   # pass the DataFrame with all cuts applied
         else:
-            return inputTable # pass the original, uncut             
+            return inputTable                                                                                   # pass the original, uncut             
     #----------------------------------------------------------------------- 
     def ComputeCut(self,df,lower_limit, variableName, upper_limit, cutAction):
 	    """ Apply a cut to an DataFrame, and return a logical DataFrame
 	    """
 	    logicResult=(df[variableName] > lower_limit) & (df[variableName] < upper_limit)
-	    if cutAction[i] == "deselect":
+	    if cutAction == "deselect":
 	        logicResult = not logicResult
 	    return logicResult
     #-----------------------------------------------------------------------

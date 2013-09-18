@@ -50,13 +50,13 @@ newfile=ROOT.TFile(outputROOTFileName,'RECREATE') # open output right away to en
 # generate the cuts from the input cut table 
 imageCuts=hdf5_cut_lib.hdf5_cut_lib(cutTable)
 
-for key in inputStore.keys():   # cycle through each key in the file. each key points to a DataFrame
-        inputTable=inputStore.get(key)          # retrieve the DataFrame
-        newTable = imageCuts.ApplyCuts(inputTable)# apply cuts, if any, to this DataFrame   
-        if newTable:
-            outputStore.append(key,newTable)                                    # append the crunched DataFrame to the output file     
-            plot_pandas_lib.plot_pandas(newTable,pairsFor2D)  # note that there's no need to pass the newfile object: PyRoot already has access to the file for writing
-
+for key in inputStore.keys():                                   # cycle through each key in the file. Each key points to a DataFrame, so we're iterating through DataFrames
+        inputTable=inputStore.get(key)                          # retrieve the DataFrame
+        newTable = imageCuts.ApplyCuts(inputTable)              # apply cuts, if any, to this DataFrame   
+        if newTable.shape[0] > 0:                               # only output if there are events in this DataFrame
+            outputStore.append(key,newTable)                    # append the crunched DataFrame to the output file     
+            plot_pandas_lib.plot_pandas(newTable,pairsFor2D)    # note that there's no need to pass the newfile object: PyRoot already has access to the file for writing
+        
 # the above works when the DataFrames are kept seperate. If we wish to correleate then things become more complicated.
 # first enable links betweem the DataFrames by setting up dictionaries to enable fast lookups.
 # psuedo code for this
