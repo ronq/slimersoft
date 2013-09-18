@@ -91,14 +91,14 @@ class shawcluster_analysis:
             numPeaks = [len(self.threshold) for entry in self.threshold]  
             self.foundClusters=len(self.threshold)>0   
             self.shawclusterDict={
-            #'ShawCluster_IntegratedRawPixels':self.cluster_integral,
-            #'ShawCluster_ClusterRawArea':self.cluster_pixels ,
-            #'ShawCluster_IntegratedPixels':self.cluster_smooth_integral,
-            #'ShawCluster_ClusterArea':self.cluster_smooth_pixels,
-            #'ShawCluster_PeakHeightRaw':self.cluster_max ,
-            #'ShawCluster_PeakHeight':self.cluster_smooth_max,
-            #'ShawCluster_Threshold':self.threshold,
-            #'ShawCluster_ThresholdMean':self.threshold_mean,
+            'ShawCluster_IntegratedRawPixels':self.cluster_integral,
+            'ShawCluster_ClusterRawArea':self.cluster_pixels ,
+            'ShawCluster_IntegratedPixels':self.cluster_smooth_integral,
+            'ShawCluster_ClusterArea':self.cluster_smooth_pixels,
+            'ShawCluster_PeakHeightRaw':self.cluster_max ,
+            'ShawCluster_PeakHeight':self.cluster_smooth_max,
+            'ShawCluster_Threshold':self.threshold,
+            'ShawCluster_ThresholdMean':self.threshold_mean,
             'ShawCluster_NumPeaks':numPeaks
             }
             return

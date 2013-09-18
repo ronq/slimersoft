@@ -919,6 +919,21 @@ The hDF5 cut code is complicated when you wish to NOT apply a cut to a DataFrame
 I'm likely going to have to refactor the code so I don't operate on DataFrames that will not be cut.
 Or figure out a way to use the logical operations to my benefit
 
+Sep 18th 2013 -------------------------------------------
+The new cut code now works on the new output format. 
+
+A couple of bugs are showing up:
+1) DBSCAN only finds two clusters, and ALWAYS finds two clusters.
+2) Shawcluster variables are not being included: only the number of peaks found and the image path are being saved.
+3) The index in the _ana hdf5 output files is screwed up. I'll need to regenerate the index before closing the file I think.
+4) no_source data seems to have multiple histograms of the same name.
+When looking at the crunched files (after summing), 1) is no longer true while 2) and  3) are still true
+
+1) was due to the cuts I applied: the edges of the cut windows are not inclusive.
+2) was due to leaving out most of the variables. This has been corrected.
+
+
+
 
 
 It looks like some image_analysis.py jobs are using LOTS of memory. 
