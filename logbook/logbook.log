@@ -764,6 +764,232 @@ Now begin to delete the tiff files to make room on /proj3. I've got 170GB free, 
 I still need to clean up /local_scratch/super
 and slimer_data.
 
+Still working on fusing Erik's code with my own. Just have to work out how and what to output and store.
+May also want to code ability to find multiple clusters for the analysis code: better efficiency and 
+more compatible with observing multiple decays in a Phylochip
+
+Aug 30th 2013 -------------------------------------------------------------------
+I'll need to change things so that I write output after each image processed. The hdf5 file is in table mode, so I should be able to append it.
+I've coped dbscan_analysis.py to dbscan_analysis.py_old: I'll need this code as I'll be forced to rip out the best cluster code
+Actually, I don't need to remove the code, just not use it. 
+
+Sep. 3rd 2013 -------------------------------------------------------
+I just took more light leak data. Analyze it.
+The files are:
+door_taped_9_3_2013_200msec
+shutter_open_9_3_2013_200msec
+shutter_closed_9_3_2013_200msec
+
+the nd2 files are in nd2_storage, while the converted tiffs are on 
+/bigscratch4/ronquest/SLIMER/converted_data/
+
+The pixel count distribution is NOT appreciably different with the camera shutter open and the door taped. 
+It IS still different with the shutter closed. 
+However, I left the light on. Power that down, and the stage, and take more data.
+
+After sticking my head into the darkbox and taking a good look around, I've found an LED on the hub controller. Power that down shuts the light off.
+I've taken more data, and the files are:
+light_and_stage_on_scope_off_9_3_2013_200msec.nd2
+scope_off_9_3_2013_200msec.nd2
+door_taped_2_9_3_2013_200msec.nd2
+light_and_stage_off_9_3_2013_200msec.nd2
+
+---->RUNNING WITH THE SCOPE OFF RESULTS IN NEARLY THE SAME PIXEL COUNT DISTRIBUTION AS RUNNING WITH THE CAMERA SHUTTER CLOSED<--------------------
+---->WHEN THE SCOPE IS OFF, THE LIGHT AND STAGE POWER HAVE NO EFFECT. <---------------------------------------------------------------------------
+---->NOTE THAT THE CAMERA HAS A FLASHING LED WHEN THE SHUTTER IS CLOSED. SO SHUTTER CLOSED RUNS STILL MAY NOT BE THE BEST <-----------------------
+---->I MAY BE SEEING EVIDENCE OF MORE OUTLIER EVENTS WITH DIFFERENT RUNS. THIS IS DIFFERENT THAT THE EXPONENTIAL TAIL I'VE BEEN FIGHTING. THESE ARE EVENTS WITH MORE THAN 700 COUNTS<--------
+
+light and stage power don't seem to matter when the hub is on as well.
+
+I've made a nice plot of the situation here:
+/home/ronquest/Work/SLIMER/AnalysisCode/BackgroundStudy/lightLeak_overlay_09_03_2013_hub_smoking_gun.pdf
+
+Sep. 6th 2013 ----------------------------------------------------------
+Continuing to overhaul the output code. I've removed the ASCII code since I can always simply convert the HDF5 tables into ASCII format.
+I will try to output the data into seperate HDF5 files in the same store. This enables me to avoid padding. 
+Each analysis method will get its own table, and the file name of the image will be the index.
+Commit the code as is and implement this new approach.
+
+I'll need to modify the hdf5 sum code to handle this as well.  
+
+I think I'm bumping into a problem with Erik's fitting code: in shaw_fit.py,  the method optimize.leastsq(errorfunction, moment)
+I should take a close look at the values of errorfunction: it could be doing something nasty
+
+Sep 8th 2013 ------------------------------------------------------------
+Modifications to image_analysis.py are complete. I'm still having issues with Erik's fitting code, so I've disabled it for now. His cluster code DOES work though.
+However, the output code does NOT. It works fine as long as each variable is a single value, but multiple element arrays are crashing the HDF5 code. I don't think
+this is specific to shawcluster: the problem goes away if an index is not used. I may need an index per element. I do.
+I need to check to see if using the same index in multiple rows would cause a problem. I don't think it will
+
+Sep 9th 2013 -----------------------------------------------------------
+I've taken data with various cables unplugged from the hub.
+The data files are:
+cables_in_9_9_2013_200msec.nd2
+cables_out_9_9_2013_200msec.nd2
+hub_off_9_9_2013_200msec.nd2
+shutter_closed_9_9_2013_200msec.nd2
+stage_in_9_9_2013_200msec001.nd2
+stage_out_9_9_2013_200msec.nd2
+
+I've converted and run analysis on the above. Two groups are formed:
+high tail:
+    cables_in_9_9_2013_200msec.nd2
+    stage_in_9_9_2013_200msec001.nd2
+    
+    
+low tail:
+    cables_out_9_9_2013_200msec.nd2
+    hub_off_9_9_2013_200msec.nd2
+    shutter_closed_9_9_2013_200msec.nd2
+    stage_out_9_9_2013_200msec.nd2
+
+So the problem occurs when the stage is powered up!
+It has "encoders" which are likely optical encoders. 
+Two approaches: a usb or ethernet switch that can be used to power the hub on and off
+Or use a filter cube that filters light of this wavelength.
+
+It wasn't the stage that the cable powered, it was the filter wheel! The stage has no encoder. 
+The filter turret is a TI-FLC-E.
+
+I should run with both filter cubes to see if they can cut ALL the ambient light.
+Run with:
+no filter
+one filter
+the other filter
+with the turret unplugged. 
+
+Note that running with a filter will cut the CsI light..... 
+Sept 10th 2013--------------------------------
+Don't use the image name as the index for the other dataframes. This may create problems later.
+Do add the image name as an extra column however.
+Go ahead and DO use the index for General_ImageData. 
+
+Sept 11th 2013 -------------------------------
+I've run a test of scanning pandas DataFrames:
+Using frame.loc['<index position>'] is 83 times faster than using:
+frame[frame['<Index Column>'] == <index position>]
+
+So index lookups are MUCH faster
+I might be able to generate a dictionary of index position lists with the image name as a key. 
+Plan on doing this.
+
+The next step will be to modify slimer_ana.py to process the new tables 
+
+Sept 12th 2013 ------------------------------------
+Nikon Rep:
+
+Christopher P Miller
+Bioscience Sales Specialist
+
+Nikon Instruments Inc.
+12 Goodyear
+Suite 110
+Irvine CA 92618
+
+Office: 949-586-9000    Fax: 949-586-4809
+Mobile: 602-363-9689    Fax to Order: 631-944-9371
+cmiller@nikon.net<mailto:cmiller@nikon.net>
+
+
+They don't have notes on our account regarding what filter cube. 
+
+He's drawing a blank regarding the filter turret off. Have to crack it open.
+
+I need to see what 
+
+He'll be at Los Alamos next week. 
+
+======
+Return to coding. Run analysis on a good set of C14.
+Run analysis on:
+
+am241_8_01_2013_200msec  
+c14_8_01_2013_200msec    
+no_source_8_01_2013_200msec  
+09791
+Now I need to update hdf5_sum.py....
+DONE. 
+
+It looks like some jobs fail: I need to add in the ability to fail files in hdf5_sum.py,
+I can try to catch an exception, or there might be a better way of doing it
+DONE.
+Sep 15th 2013 --------------------------------------------
+I'm running into an issue with slimer_ana.py
+The hDF5 cut code is complicated when you wish to NOT apply a cut to a DataFrame.
+I'm likely going to have to refactor the code so I don't operate on DataFrames that will not be cut.
+Or figure out a way to use the logical operations to my benefit
+
+Sep 18th 2013 -------------------------------------------
+The new cut code now works on the new output format. 
+
+A couple of bugs are showing up:
+1) DBSCAN only finds two clusters, and ALWAYS finds two clusters.
+2) Shawcluster variables are not being included: only the number of peaks found and the image path are being saved.
+3) The index in the _ana hdf5 output files is screwed up. I'll need to regenerate the index before closing the file I think.
+4) no_source data seems to have multiple histograms of the same name.
+When looking at the crunched files (after summing), 1) is no longer true while 2) and  3) are still true
+
+1) was due to the cuts I applied: the edges of the cut windows are not inclusive.
+2) was due to leaving out most of the variables. This has been corrected.
+
+Sep 25th 2013 ----------------------------------------------
+I've collected some more data with the FITC filter in and out. This will tell us if a IR filter
+in a filter cube is sufficient to block all the IR light from the filter turret. 
+
+Convert these data files:
+
+/proj3/Slimer/Slimer_mk2/nd2_storage/turret_off_FITC_out_9_25_2013_200msec.nd2
+/proj3/Slimer/Slimer_mk2/nd2_storage/turret_on_FITC_in_9_25_2013_200msec.nd2
+/proj3/Slimer/Slimer_mk2/nd2_storage/turret_on_FITC_out_9_25_2013_200msec.nd2
+
+Done.
+
+Now running analysis on them. 
+The associated ROOT files are now in:
+/proj/Slimer/SlimerAnalysis/background_study
+
+It is clear that the FITC filter is blocking the majority of the light. Not everything, but nearly everything. 
+
+
+Sep 30th 2013 ------------------------------------------------
+The index problem in the HDF5 files is being introduced during the HDF5_sum stage.
+The solution is to use the .reset_index(drop=True,inplace=True) method of DataFrames. 
+hdf5_sum.py is modified.
+
+
+
+
+
+It looks like some image_analysis.py jobs are using LOTS of memory. 
+Let me try to determine which these are...
+am214---01525.tif is one.
+no_source --09794.tif is another ---> problem is with kmeans
+            09788.tif is another ---> kmeans eats up alot of memory, but terminates, but seems to kill dbscan  
+            09791.tif is another     
+these jobs also run for a LONG time.
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
 
 
 

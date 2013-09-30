@@ -5,13 +5,11 @@ class hdf5_cut_lib:
     """ This is a class for applying complex cuts to HDF5 files 
     """
     #------------------------------------------------------------------------------------------------------------------------------------------
-    def __init__(self,df,cutTable):
-	    lowerLimit, variableName, upperLimit, cutAction = self.parseCutTable(cutTable)
-	    logicIndex=self.computeCuts(df,lowerLimit, variableName, upperLimit, cutAction)
-	    self.result=df[logicIndex]
+    def __init__(self,cutTable):
+	    self.lowerLimits, self.variableNames, self.upperLimits, self.cutActions = self.ParseCutTable(cutTable)
 	    return   
 	#---------------------------------------------------------------------
-    def parseCutTable(self,cutTable):
+    def ParseCutTable(self,cutTable):
 	    """ parse a cut table which should be in the format:
 	            lower_limit of variable   variable name  upper_limit of variable  cutAction (select or deselect)
 	    """
@@ -29,22 +27,34 @@ class hdf5_cut_lib:
 	            cut_action.append(line_variables[3])
 	    return lower_limit, variable_name, upper_limit, cut_action
 	#-----------------------------------------------------------------------
-    def computeCuts(self,df,lower_limit, variableName, upper_limit, cutAction):
+    def ApplyCuts(self,inputTable):
+        """ Apply cuts to an inputTable, and return the crunched table
+        """ 
+        allCutResults=[]
+        for lowerLimit,variableName,upperLimit,cutAction in zip(self.lowerLimits, self.variableNames, self.upperLimits, self.cutActions):
+            if inputTable.__contains__(variableName):                                                           # check if this cut applies to this DataFrame
+                allCutResults.append(self.ComputeCut(inputTable,lowerLimit,variableName,upperLimit,cutAction))  # apply the cut
+        if allCutResults:                                                                                       # if at least one cut variable was present in the DataFrame
+            return inputTable[self.LogicalAnd(allCutResults)]                                                   # pass the DataFrame with all cuts applied
+        else:
+            return inputTable                                                                                   # pass the original, uncut             
+    #----------------------------------------------------------------------- 
+    def ComputeCut(self,df,lower_limit, variableName, upper_limit, cutAction):
+	    """ Apply a cut to an DataFrame, and return a logical DataFrame
 	    """
-	    """
-	    logicArrayList=[]        
-	    for i in range(len(variableName)):
-	        logicResult=(df[variableName[i]] > lower_limit[i]) & (df[variableName[i]] < upper_limit[i])
-	        if cutAction[i] == "deselect":
-	            logicResult = not logicResult 
-	        logicArrayList.append(logicResult)
-	        print i, logicResult, lower_limit[i],upper_limit[i],cutAction[i]
-	    # now convert to a numpy array so we can use an efficient array manipulation
-	    logicArray=numpy.array(logicArrayList)
-	    # once this is done, I'll want to OR all the arrays together to form the final cut mask
-	    cutMask=numpy.any(logicArray,axis=0)
-	    return cutMask 
-	#----------------------------------------------------------------------
+	    logicResult=(df[variableName] > lower_limit) & (df[variableName] < upper_limit)
+	    if cutAction == "deselect":
+	        logicResult = not logicResult
+	    return logicResult
+    #-----------------------------------------------------------------------
+    def LogicalAnd(self,dataFrameArray):
+        """ Compute the logical AND of an array of logical DataFrames
+        """
+        runningLogicFrame=dataFrameArray.pop()
+        for element in dataFrameArray:
+            runningLogicFrame*=element 
+        return runningLogicFrame
+    #-----------------------------------------------------------------------
 	
 	
 	
