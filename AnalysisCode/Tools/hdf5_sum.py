@@ -20,6 +20,7 @@ newStore=pandas.HDFStore(outputName,mode='w')
 #open each file and append contents to the new store
 print "Processing ",len(inputList), " files"
 numOpened=0
+# first append all data into the new store
 for newfile in inputList:
     try: 
         oldStore=pandas.HDFStore(newfile,mode='r')
@@ -28,7 +29,12 @@ for newfile in inputList:
             newStore.append(key,oldStore[key])     # and append them to be new file
         oldStore.close()  
     except tables.exceptions.HDF5ExtError:
-        print "HDF5Ext Error in file", newfile      
+        print "HDF5Ext Error in file", newfile   
+        
+# now reset the indices for the DataFrames, as the appending process will scramble them
+for key in newStore.keys():
+     (newStore[key]).reset_index(drop=True,inplace=True)  # modify the existing object, and do NOT add the old indices as a new column
+
 newStore.close()
 print "Successfully Processed", numOpened, "files"
 

@@ -25,7 +25,7 @@ outputRootName=sys.argv[2]
 # define cut table 
 cutTable="""
 0.0     DBScan_Counts               9.e20       select
-1.0     DBScan_NumClusters          4.0         select
+0.5     DBScan_NumClusters          4.0         select
 """
 #define variables for which we want 2D histograms 
 pairsFor2D=[

@@ -932,6 +932,30 @@ When looking at the crunched files (after summing), 1) is no longer true while 2
 1) was due to the cuts I applied: the edges of the cut windows are not inclusive.
 2) was due to leaving out most of the variables. This has been corrected.
 
+Sep 25th 2013 ----------------------------------------------
+I've collected some more data with the FITC filter in and out. This will tell us if a IR filter
+in a filter cube is sufficient to block all the IR light from the filter turret. 
+
+Convert these data files:
+
+/proj3/Slimer/Slimer_mk2/nd2_storage/turret_off_FITC_out_9_25_2013_200msec.nd2
+/proj3/Slimer/Slimer_mk2/nd2_storage/turret_on_FITC_in_9_25_2013_200msec.nd2
+/proj3/Slimer/Slimer_mk2/nd2_storage/turret_on_FITC_out_9_25_2013_200msec.nd2
+
+Done.
+
+Now running analysis on them. 
+The associated ROOT files are now in:
+/proj/Slimer/SlimerAnalysis/background_study
+
+It is clear that the FITC filter is blocking the majority of the light. Not everything, but nearly everything. 
+
+
+Sep 30th 2013 ------------------------------------------------
+The index problem in the HDF5 files is being introduced during the HDF5_sum stage.
+The solution is to use the .reset_index(drop=True,inplace=True) method of DataFrames. 
+hdf5_sum.py is modified.
+
 
 
 
