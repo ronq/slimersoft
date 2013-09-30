@@ -132,7 +132,7 @@ class analyze_images:
             dbscan=dbscan_analysis.dbscan_analysis()
             #minPts=500.
             #eps = 5.0 # must be a float!!!!!
-            minPts=700.
+            minPts=500.
             eps=2.0
             
             dbscan.DoIt(self.imageArray[:,:,imageNumber],minPts,eps)
@@ -253,12 +253,12 @@ for imageNumber in range(numImages):
     # for debugging
     hotPixels=numpy.sum(bigA.imageArray[:,:,imageNumber] > 0)
     #print "Non-zero Pixel count and Sum:",hotPixels,imageSum
-    print "Running kmeans"
+    #print "Running kmeans"
     kmeans_results=bigA.DoKmeans(imageNumber)
-    print "Running dbscan"
+    #print "Running dbscan"
     dbscan_results=bigA.DoDBSCAN(imageNumber)
     #shawfit_results=bigA.DoShawFit(imageNumber)
-    print "Running shawcluster"
+    #print "Running shawcluster"
     shawcluster_results=bigA.DoShawCluster(imageNumber)
     #kmeans_results.clusterfrac
     #if (hotPixels >= 500) or (imageSum > 60000):
@@ -272,7 +272,7 @@ for imageNumber in range(numImages):
         #raw_input("Press a key to continue")
         #bigA.DoKmeans(imageNumber)
         pass
-    print "Preparing to output"    
+    #print "Preparing to output"    
     general_results=bigA.StoreGeneralResults(imageNumber) 
     shawfit_results=[]
     bigA.OutputHDF5Results(hdf5File,general_results,kmeans_results,dbscan_results,shawfit_results,shawcluster_results)  

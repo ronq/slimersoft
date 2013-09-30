@@ -27,7 +27,7 @@ nice cp ${input_file} .
 
 
 echo 'Processing ' ${input_label} 
-
+limit -m 3146000
 nice ${executable_path} ${input_label} ${background_path} ${output_label}
 
 
