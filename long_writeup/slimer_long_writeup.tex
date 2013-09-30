@@ -513,7 +513,15 @@ Ignoring other factors which may also play a role, it appears that low magnifica
 \section{Observed Problems}
 Over the past two months, we may have discovered a number of complications in the running of the SLIMER apparatus. These complications should be confirmed and mitigated in the future.
 
-\subsection{Light Leaks}
+\subsection{Light ``Leaks''}
+Early on, it was observed that the pixel count histogram is modified when the camera shutter is closed, even with no source present, all lights off, and the dark box well sealed. After a systematic 
+search was conducted for sources of light and electronic noise, it was determined that there are two sources of light built into the microscope which are not controllable: two LEDs are built into the Nikon TI-HUBA power distribution unit, the other source of light are housed within the filter turret, and consist of IR light sources used for position readout. 
+
+\subsubsection{TI-HUBA LEDs}
+The side of the TI-HUBA which mounts onto the base of the microscope is open: this affords a view of the circuit board which controls its logic (it also includes a USB controller) but also permits any board-mounted LEDs to generate light within the dark box. There are two LEDs that were found on the board: one is a green LED which is illuminated when there is power to the TI-HUBA.  
+
+
+
 A shift in the mode of the pixel count histogram was observed when the camera shutter is opened. This indicates a light leak of some type. 
 
 \subsection{Communication Problems}
