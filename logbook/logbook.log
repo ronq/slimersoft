@@ -956,7 +956,8 @@ The index problem in the HDF5 files is being introduced during the HDF5_sum stag
 The solution is to use the .reset_index(drop=True,inplace=True) method of DataFrames. 
 hdf5_sum.py is modified.
 
-
+Oct 3rd 2013 -------------------------------------------------
+The script which runs image analysis seems to move things it shouldn't when using wildcards for the input files.
 
 
 

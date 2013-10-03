@@ -953,7 +953,8 @@ It is clear that the FITC filter is blocking the majority of the light. Not ever
 
 Sep 30th 2013 ------------------------------------------------
 The index problem in the HDF5 files is being introduced during the HDF5_sum stage.
-
+The solution is to use the .reset_index(drop=True,inplace=True) method of DataFrames. 
+hdf5_sum.py is modified.
 
 
 
