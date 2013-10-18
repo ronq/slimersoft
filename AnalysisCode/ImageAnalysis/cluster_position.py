@@ -1,18 +1,19 @@
+import numpy
 class cluster_position:
     """ This is a class for determining the position and shape of clusters. It is assumed that the data input is an array with weights. 
     """
     #-------------------------------------------------------------------------------------
     def __init__(self,inputData):
         self.inputData=inputData
-        self.normData=ComputeNormalizedData(inputData)
-        self.mean, self.covariance = ComputeClusterPosition(self.normData)
+        self.normData=self.ComputeNormalizedData(inputData)
+        self.mean, self.covariance = self.ComputeClusterPosition(self.normData)
         self.variance=[self.covariance[0,0],self.covariance[1,1]]
         return
     #------------------------------------------------------------------------------------
     def ComputeNormalizedData(self,inputData):
         """ this will normalize an array of weights
         """
-        inputDataSum=numpy.sum
+        inputDataSum=inputData.sum()
         if inputDataSum: # check against division by zero 
             normData=inputData/inputDataSum
         else:

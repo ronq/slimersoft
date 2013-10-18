@@ -270,7 +270,7 @@ class dbscan_analysis:
                     self.clusterCounts.append((self.clusterMask[:,:,clusterID]*self.imageArray).sum()) # number of counts in a cluster
                     self.clusterFrac.append(self.clusterCounts[-1]/backgroundCounts)                       # number of counts in a cluster compared to identified background
                     self.avgPixelCount.append(self.clusterCounts[-1]/self.clusterPixels[-1])           # average pixel count in a cluster
-                    pos,var = self.ComputeClusterPosition(clusterID)                                   # compute the weighted position and variance of the pixels in the cluster
+                    pos,var = self.FindClusterPosition(clusterID)                                   # compute the weighted position and variance of the pixels in the cluster
                     self.clusterPosition.append(pos)
                     self.clusterPositionVariance.append(var)
                     self.clusterHottestPixel.append((self.clusterMask[:,:,clusterID]*self.imageArray).max())  # extract the position of the hottest pixel 
