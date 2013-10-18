@@ -9,6 +9,7 @@ import sklearn.cluster
 import math
 import cluster_output
 
+import cluster_position
 
 class dbscan_implementation:
     """  this is a fairly generic implemenation of the DBSCAN algorithm, except it is tailored for use on sqaure images
@@ -275,6 +276,20 @@ class dbscan_analysis:
                     self.clusterHottestPixel.append((self.clusterMask[:,:,clusterID]*self.imageArray).max())  # extract the position of the hottest pixel 
                 totalpoints=self.noiseMask.sum() + self.clusterMask.sum()                              # this is the total number of pixels above threshold in this image 
             return foundClusters 
+      
+      #---------------------------------------------------------------------------
+      def FindClusterPosition(self,clusterID):
+          """ this will find the weighted average of the cluster position
+          """
+          # compute the imageArray of just the cluster 
+          clusterArray=self.imageArray*self.clusterMask[:,:,clusterID]
+          # now use the cluster_position class to do the computation
+          positionInfo=cluster_position.cluster_position(clusterArray)
+          # and get the info
+          mean = positionInfo.mean
+          variance = positionInfo.variance          
+          # done, return
+          return (mean,variance)
       #---------------------------------------------------------------------------
       def ComputeClusterPosition(self,clusterID): 
             """ this will compute the weighted average of the cluster position
