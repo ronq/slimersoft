@@ -15,7 +15,7 @@ class cluster_position:
         """
         inputDataSum=inputData.sum()
         if inputDataSum: # check against division by zero 
-            normData=inputData/inputDataSum
+            normData=inputData/inputDataSum 
         else:
             normData=inputData*0.
         return normData    

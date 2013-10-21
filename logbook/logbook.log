@@ -994,6 +994,31 @@ Looks like I need to code in the ability to compute the mean and standard deviat
 Erik's code does not do this.    
 I should code a generic cluster position finder and use it throughout the code.     
 
+Oct 21st 2013---------------------
+I've got the shawcluster code using my cluster finding code now. 
+Now run it and make sure everything is working the way it should. 
+
+It looks like I'm getting a negative variance on the cluster position in the X direction for some shawclusters. 
+This could be due to the fact that all the "zero-count" pixels in Erik's code are actually slightly negative due to his thresholding
+technique. This will wreck havoc with my code, although it doesn't impact Erik's energy estimates since he applies a thresholding requirement
+in order to add to a cluster. 
+
+In shaw_cluster, zero out negative pixels in the non-smoothed data array, just like Erik did with the smoothed array.
+Yes, that did it. No more negative position variances
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

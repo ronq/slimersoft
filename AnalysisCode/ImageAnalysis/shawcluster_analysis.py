@@ -56,7 +56,7 @@ class shawcluster_analysis:
         data -= threshold[0]+3*threshold[1]
         out -= threshold[0]+3*threshold[1]
         out[out<0] = 0
-
+        data[data<0] = 0 # also zero out these pixels, to avoid problems with cluster position finding 
         clusters = get_clusters(out,0.5*threshold[1])
         for cluster in clusters:
             integral = 0
