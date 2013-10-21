@@ -958,6 +958,62 @@ hdf5_sum.py is modified.
 
 Oct 3rd 2013 -------------------------------------------------
 The script which runs image analysis seems to move things it shouldn't when using wildcards for the input files.
+I've fixed this, and committed the new version.
+
+Now I want to try to map out DBSCAN settings. 
+Set#1
+   minPts=500.
+   eps=2.0
+Doesn't see much.      
+   minPts=500.
+   eps=5.0
+sees 45/107, including some with fewer than 500 counts ---> bug. 
+
+Oct 17th 2013------------------------
+We have the Thorlabs filter in hand now....but I can't remove the existing filter.
+Need either a new filter cube, or a new 
+Emitter Retaining Ring 
+and
+Emitter Housing / Emitter Mount Clip
+
+Check thorlabs, semrock, Chris Miller and chroma.
+
+Ask Semrock if they glue things in. Done. Also asked about seperate parts.
+Emailed Chris.
+Emailed Edmund Optics. --> don't sell the parts.
+Emailed Thorlabs. --> don't sell the parts.
+Emailed Chroma. ---> they may have a few parts available.
+
+Oct 18th 2013-----------------------
+Continue to iterate on code. 
+DBSCAN is finding some clusters with LESS than the required number of counts. This is a bug.
+
+Find this bug, and code in positions for Erik's cluster code.
+
+Looks like I need to code in the ability to compute the mean and standard deviation of the cluster position --- 
+Erik's code does not do this.    
+I should code a generic cluster position finder and use it throughout the code.     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

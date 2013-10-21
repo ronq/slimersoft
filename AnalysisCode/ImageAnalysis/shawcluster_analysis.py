@@ -15,6 +15,7 @@ from scipy import special
 from shaw_clusterAna2 import *
 import os
 import glob
+import cluster_position
 #==================================================================================
 class shawcluster_analysis:
       """ this class performs Erik Shaw's Clustering to a greyscale image array
@@ -31,11 +32,12 @@ class shawcluster_analysis:
         self.cluster_smooth_max=[]
         self.threshold=[]
         self.threshold_mean=[]
+        self.clusterPosition=[]
+        self.clusterPositionVariance=[]
         self.foundClusters=False
         return
       #---------------------------------------------------------------------------
       def DoCluster(self,data):
-
         #extract data from picture into numpy array
         x_size = 512
         y_size = 512
@@ -80,10 +82,21 @@ class shawcluster_analysis:
             self.cluster_smooth_max.append(maximum_smooth)
             self.threshold.append(threshold[1])   
             self.threshold_mean.append(threshold[0])         
-        return  	  
-		
-	
-		 
+        # also determine the position of the clusters (new code -MCR)
+        for cluster in clusters:
+              # first setup a clusterArray by zeroing out the data array
+              clusterArray=data*0.
+              # loop over all points in the cluster
+              for coord in cluster:  
+                    clusterArray[coord[0]][coord[1]]=data[coord[0]][coord[1]]   # pull value from data array
+              # now use clusterArray to compute position and other info
+              positionInfo=cluster_position.cluster_position(clusterArray)
+              # and get the info                                                                                                                                                                             
+              mean = positionInfo.mean
+              variance = positionInfo.variance
+              self.clusterPosition.append(mean)
+              self.clusterPositionVariance.append(variance)
+        return  	  	 
 	  #---------------------------------------------------------------------------
       def GenerateOutput(self):
             """ load relevant results into standard output variables
@@ -99,7 +112,11 @@ class shawcluster_analysis:
             'ShawCluster_PeakHeight':self.cluster_smooth_max,
             'ShawCluster_Threshold':self.threshold,
             'ShawCluster_ThresholdMean':self.threshold_mean,
-            'ShawCluster_NumPeaks':numPeaks
+            'ShawCluster_NumPeaks':numPeaks,
+            'ShawCluster_PositionX': [element[0] for element in self.clusterPosition],
+            'ShawCluster_PositionXVariance':   [element[0] for element in self.clusterPositionVariance],            
+            'ShawCluster_PositionY':[element[1] for element in self.clusterPosition],
+            'ShawCluster_PositionYVariance':   [element[1] for element in self.clusterPositionVariance]
             }
             return
 	  #---------------------------------------------------------------------------
