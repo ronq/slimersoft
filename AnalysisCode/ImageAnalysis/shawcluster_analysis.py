@@ -34,6 +34,8 @@ class shawcluster_analysis:
         self.threshold_mean=[]
         self.clusterPosition=[]
         self.clusterPositionVariance=[]
+        self.clusterFrac=[]
+        self.avgPixelCount=[]
         self.foundClusters=False
         return
       #---------------------------------------------------------------------------
@@ -82,6 +84,9 @@ class shawcluster_analysis:
             self.cluster_smooth_max.append(maximum_smooth)
             self.threshold.append(threshold[1])   
             self.threshold_mean.append(threshold[0])         
+            # add in a few more variables
+            self.clusterFrac.append(integral/data.sum())
+            self.avgPixelCount.append(integral/count)
         # also determine the position of the clusters (new code -MCR)
         for cluster in clusters:
               # first setup a clusterArray by zeroing out the data array
@@ -116,7 +121,9 @@ class shawcluster_analysis:
             'ShawCluster_PositionX': [element[0] for element in self.clusterPosition],
             'ShawCluster_PositionXVariance':   [element[0] for element in self.clusterPositionVariance],            
             'ShawCluster_PositionY':[element[1] for element in self.clusterPosition],
-            'ShawCluster_PositionYVariance':   [element[1] for element in self.clusterPositionVariance]
+            'ShawCluster_PositionYVariance':   [element[1] for element in self.clusterPositionVariance],
+            'ShawCluster_ClusterFrac': self.clusterFrac,
+            'ShawCluster_AvgPixelCount':self.avgPixelCount  
             }
             return
 	  #---------------------------------------------------------------------------

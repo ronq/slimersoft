@@ -1004,7 +1004,39 @@ technique. This will wreck havoc with my code, although it doesn't impact Erik's
 in order to add to a cluster. 
 
 In shaw_cluster, zero out negative pixels in the non-smoothed data array, just like Erik did with the smoothed array.
-Yes, that did it. No more negative position variances
+Yes, that did it. No more negative position variances!!!!!!!!!!!!!!!!
+
+Can I add code to slimer_ana to use the new information? No need. 
+Any other information missing in the shawcluster_analysis code?
+Just the fraction of counts in a cluster and the average pixel value in the cluster. 
+Add these now. Done.
+
+Now circle back to tweaking the input parameters for dbscan. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
