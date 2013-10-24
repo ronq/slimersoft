@@ -11,6 +11,7 @@ import cluster_output
 
 import cluster_position
 
+
 class dbscan_implementation:
     """  this is a fairly generic implemenation of the DBSCAN algorithm, except it is tailored for use on sqaure images
     
@@ -157,7 +158,7 @@ regionQuery(P, eps)
         """ 
         #create a new imageArray
         self.tempPixels*=0.
-        neighborPixels = self.tempPixels
+        neighborPixels = (self.tempPixels).copy()
         
         clusterSum=0.
         # setup bounds of a smaller, square array that contains every pixel in the neighborhood  
