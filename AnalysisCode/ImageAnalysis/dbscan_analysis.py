@@ -201,6 +201,25 @@ regionQuery(P, eps)
         radius=numpy.sqrt(radiusSquare) 
         return radius
 #-----------------------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------------------------------
+    def dbscanChecker(self,clusterID):
+            """ used to confirm proper function of the dbscan code
+            """
+            inCluster=(self.pixelID==clusterID)
+            sumCluster=0.
+            sumPixels=0
+            arrayIterator=numpy.nditer(self.imageArray,flags=['multi_index'])
+            while not arrayIterator.finished:
+               position=arrayIterator.multi_index
+               counts=arrayIterator[0]
+               if inCluster[position]:
+                       sumPixels+=1
+                       sumCluster+=counts                
+               arrayIterator.iternext()
+            print "dbscanChecker:",clusterID,sumPixels,inCluster.sum(),sumCluster,self.MinPts                           
+            return
+#---------------------------------------------------------------------------------------------------------------------------------------------
+
 #==============================================================================================================================================
 class dbscan_analysis:
       """ this class executes a DBscan clustering analysis to a greyscale image array
