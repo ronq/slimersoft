@@ -58,6 +58,8 @@ regionQuery(P, eps)
         # now initialize the pixelID array. This is the final product of the dbscan algorithm.
         #                                   It marks each point in an image with a particular ID, either zero (-2) noise (-1) or a cluster (positive integer)  
         self.pixelID=numpy.zeros((512,512)) 
+        # intialize the overlap array: this indicates if pixels may be shared between clusters, which should only be the case with edge points 
+        self.pixelOverlaps=numpy.zeros((512,512)) 
         # initialize working arrays 
         self.pixelVisited=numpy.zeros((512,512))   # this will mark the pixels as visited 
         self.tempPixels=numpy.zeros((self.imageSize,self.imageSize)) # for internal use only----provides a quick way of generating a zero matrix
@@ -121,34 +123,39 @@ regionQuery(P, eps)
                         slicedPosition=arrayIterator.multi_index # this will return the indices of the SLICED array!
                         positionPrime=(lo_x+slicedPosition[0],lo_y+slicedPosition[1]) 
                         countsPrime=arrayIterator[0]
-                        if not (self.pixelVisited[positionPrime]):
-                            self.pixelVisited[positionPrime]=True
-                            if countsPrime:  # only do this for non-zero pixels <<My own logic>>
+                        if not (self.pixelVisited[positionPrime]):  # new pixel, which may not be within range of the core pixel
+                            if countsPrime:  # only do this for non-zero pixels <<My own logic>>, which are within range of the core pixel
+                                self.pixelVisited[positionPrime]=True   #okay to mark as visited, as it is within range of the core pixel 
                                 neighborPixelsPrime,neighborPixelsSum = self.regionQuery(positionPrime)
-                                #print neighborPixelsSum
                                 if neighborPixelsSum >= self.MinPts:
-                                    # i think I need to call expandCluster again here, starting from positionPrime
-                                    # or perhaps I simply can't slice the neighbor matrix
+                                    # this point is a core point, mark it as a part of this cluster, and try to expand it
                                     self.expandCluster(positionPrime,neighborPixelsPrime,C)
-                                    #neighborPixels+=neighborPixelsPrime  # need to make sure I'm not double counting pixels here
-                                #if not (self.pixelID[positionPrime]): 
-                                #    self.pixelID[positionPrime]=C  
+                                else: 
+                                    # this point is a edge point, mark it as a part of this cluster
+                                    # note that the pixelID has not yet been set, as this point has not yet been visited 
+                                    self.pixelID[positionPrime]=C
+                            else: 
+                                if self.imageArray[positionPrime] > 0: 
+                                    pass # point is outside of range of core pixel, do nothing
+                                else:
+                                    # point is actually zero, mark as visited and as zero pixel
+                                    self.pixelVisited[positionPrime]=True
+                                    self.pixelID[positionPrime] = -2 
+                        else:     # old pixel, which may not be within range of the core pixel 
+                            if countsPrime: 
+                                # this point is within range, and could be considered as a part of the cluster
+                                if self.pixelID[positionPrime] > 0: # already a member of a cluster
+                                  if self.pixelID[positionPrime] != float(C): # now a member of this cluster  
+                                    self.pixelOverlaps[positionPrime]=C # need some more thought
+                                    print "dbscan_analysis.expandCluster: Re-marking already ID'd pixel at ",positionPrime," which is a part of cluster", self.pixelID[positionPrime], " as a part of cluster ",C           
+                                else:                               # should be a noise pixel
+                                    self.pixelID[positionPrime]=C # mark this pixel as a part of the cluster 
+                                
                             else:
-                                if not (self.pixelID[positionPrime]): 
-                                    self.pixelID[positionPrime]=-2 # zero pixel 
-                        if self.pixelID[positionPrime] <= 0:   # not a part of a cluster
-                            if self.pixelID[positionPrime] > -2:   # not a zero pixel
-                               #if self.pixelID[positionPrime] == 0:
-                                    #print "Marking Already visited non-noise pixel as being part of a cluster" # if this never shows up, I can change the above logic to "pixelID==-1, then..."
-                               self.pixelID[positionPrime]=C    # pixel is marked as part of this cluster
-                        """
-                        else: # pixel has already been visited 
-                            if self.pixelID[positionPrime] == -1:  # if the point is zero, it has already been marked as a zero point and pixelID=-2
-                                                                   # if the point is already a member of a cluster, pixelID > 0
-                                                                   # if point has already been visited, pixelID != 0                                          
-                                                                   # so the point must have been marked as noise, and should be changed
-                                    self.pixelID[positionPrime]=C  # mark this point as belonging to the cluster
-                        """
+                                if self.imageArray[positionPrime] > 0:
+                                    pass # point is outside of range of core pixel, do nothing
+                                else:
+                                    pass # point is actually zero, it should have been marked as such and nothing else needs to be done. 
                         arrayIterator.iternext()
         #print "Leaving expandCluster ", C , neighborPixels.sum()                     
         return

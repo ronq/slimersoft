@@ -1011,7 +1011,422 @@ Any other information missing in the shawcluster_analysis code?
 Just the fraction of counts in a cluster and the average pixel value in the cluster. 
 Add these now. Done.
 
+Now go looking for the bug in my DBSCAN code which causes clusters to be found below threshold.
+
+c14_8_01_2013_200msect02116.tif
+is able to produce small cluster values
+
+I've looked at dbscan_analysis.AnalyzeResults, and the cluster sums seems fine....no negative numbers, etc. 
+Look at the dbscan info itself, but leave the debugging code in AnalyzeResults.
+
+I think the pixelID code is working, so it isn't like pixels are being removed from clusters......
+that implies the sum is wrong in the beginning (DBSCAN code) or later (in the cluster analysis code)
+
+Looking at the DBSCAN code, I see that when array slicing is used in an iterator, the indexes reported are reletive to the SLICED array,
+so the indices do NOT match from the original array and the sliced array. 
+But I took that into account when writing the code.
+
+The problem IS in the dbscan code itself. 
+It occurs in ExpandCluster, neighborPixelSum is above the threshold. So something is wrong in that method.
+But.......I do see one issue. regionQuery does NOT check the pixel ID, everything is included. 
+
+It could be that the real criteria for a point to be in a cluster is the density of the area, which doesn't mean that the whole cluster will be a certain values
+This isn't the case: edge points SHOULD be included in with a cluster.
+
+I think the problem is that expandCluster enforces an eps requirement, but it operates on a reduced array already --- this should work in principle
+and was put in to speed things up, however I may have introduced a bug.
+
+Or, the pratice of NOT calling expandCluster for zero point may be the problem? No, all points should be included in the cluster.
+
+Part of the problem is that Points can be used to bump the density up, but that are parts of other clusters. But most of the problem seems to lie elsewhere
+
+Oct 22nd 2013---------------------------------------------------------------------------
+It looks like the counts from regionQuery inside and outside of expandCluster may be different. 
+No. Something else is going on.
+Oct 23 2013 ----------------------------------------------------------------------------
+I'm printing out the counts of the pixels added to a cluster.
+For 
+c14_8_01_2013_200msect02116.tif
+cluster 4 has
+4 507.184663096 at the first pixel, 
+But
+dbscanChecker: 4 27 27 490.96964571 500.0
+after the cluster is built. 
+use gawk to sum the pixels in this cluster:
+grep "Adding to cluster  4 " test7.log | gawk '{sum+=$5} END {print sum}'
+
+This returns just 469.73 counts, instead of 490?
+dbscanChecker is picking up 27 pixels, which is the same number found by my debugging code. 
+EPS = 8.0 
+
+it looks like this cluster may be near to a boundary....closer than 8 pixels away.
+However the boundary enforcement code looks okay and is present in regionQuery AND expandCluster.
+
+I think this is the regionQuery info for the first call for cluster 4:
+Calling regionQuery from expandCluster, for cluster 4
+Adding  (8, 62)  to cluster with counts 11.8722864392 X
+Adding  (8, 67)  to cluster with counts 9.15947749272 X
+Adding  (9, 63)  to cluster with counts 21.1039375999 X
+Adding  (9, 68)  to cluster with counts 13.8141152147 X
+Adding  (10, 62)  to cluster with counts 11.9958650503 X
+Adding  (10, 65)  to cluster with counts 24.9828963443 X
+Adding  (10, 67)  to cluster with counts 13.1679353444 X
+Adding  (11, 62)  to cluster with counts 11.2236631895 X
+Adding  (11, 69)  to cluster with counts 27.1292171788 X
+Adding  (12, 65)  to cluster with counts 9.90179494408 X
+Adding  (12, 68)  to cluster with counts 12.8421201015 X
+Adding  (13, 57)  to cluster with counts 9.43238417442 X
+Adding  (14, 70)  to cluster with counts 13.8561225449 X
+Adding  (15, 57)  to cluster with counts 10.9704914952 X
+Adding  (15, 64)  to cluster with counts 13.2679259468 X
+Adding  (15, 66)  to cluster with counts 11.1076026689 X
+Adding  (16, 59)  to cluster with counts 9.7989850578 X
+Adding  (16, 67)  to cluster with counts 41.8683394418 X
+Adding  (16, 68)  to cluster with counts 49.0898411803 X
+Adding  (16, 70)  to cluster with counts 16.9750023494 X
+Adding  (17, 60)  to cluster with counts 10.9050841086
+Adding  (19, 58)  to cluster with counts 12.9476552956
+Adding  (19, 70)  to cluster with counts 75.8539610939 X
+Adding  (20, 58)  to cluster with counts 10.8692792031
+Adding  (20, 63)  to cluster with counts 14.8272718729
+Adding  (21, 62)  to cluster with counts 16.7848886383
+Adding  (21, 64)  to cluster with counts 9.69297998308
+Adding  (21, 68)  to cluster with counts 11.7435391411 X
+regionQuery inside expandCluster: (15, 64) 507.184663096
+
+
+
+These are the counts reported for pixels in this batch.
+13.2679259468 X
+0.0
+0.0
+11.8722864392 X
+9.15947749272 X
+21.1039375999 X
+13.8141152147 X
+11.9958650503 X
+24.9828963443 X
+13.1679353444 X
+11.2236631895 X 
+27.1292171788 X
+9.90179494408 X
+12.8421201015 X
+9.43238417442 X
+13.8561225449 X
+10.9704914952 X
+11.1076026689 X
+9.7989850578 X
+41.8683394418 X
+49.0898411803 X
+16.9750023494 X
+75.8539610939 X
+11.9022648247
+11.7435391411 X
+9.85978761395
+16.8108260502
+
+
+So it looks like the first regionQuery has some pixels which do NOT find their way into the cluster.
+It also looks like some other pixels are added to the cluster later, but that is expected. 
+
+Grep for the pixel counts throughout the log file 
+It looks like the missing pixels are NEVER added to anything. 
+Oct 24th 2013------------------------------------------------------
+It looks like they eventually are marked as -2: zero pixels! BUG!
+It does look like that pixel is found to have zero counts at some point. However, later it has counts again.
+This looks like a bug in the looping, and NOT a modification of the image array itself.
+It looks like the addressing is okay. neighborPixels, which is being iterator over, is also zero at this point in the code. It must be wrong! 
+
+I've confirmed this ---- the problem is with neighborPixels. The array must not be correctly set.
+BUT it looks fine when expandCluster is first entered? This implies that neighborPixels is being modified or corrupted.
+
+It looks like additional calls to expandCluster DO change neighborPixels. Or regionQuery does.
+It is regionQuery ---- at this point in the code expandCluster is not called again. 
+
+regionQuery uses neighborPixels as a variable name. However, there is no "self" so this should not corrupt things. 
+but change the name anyway. This didn't help.
+
+I've reverted the code in dbscan_analysis.py, with the debugging code saved in dbscan_analysis.py
+
+Now use pdb to debug. 
+adding a pdb.set_trace() like this:
+
+if countsPrime:  # only do this for non-zero pixels <<My own logic>>                                                                                                              
+                                pdb.set_trace()
+                                neighborPixelsPrime,neighborPixelsSum = self.regionQuery(positionPrime)
+                                #print neighborPixelsSum                                                    
+
+I've confirmed that neighborPixels.sum() changes value when doing a 'next' through regionQuery.
+
+id(neighborPixels) and id(neighborPixelsPrime) have the same value 
+In Cpython, this is the address of the object in memory.
+Always, this should be different for two different objects with overlapping lifetimes.
+So something is getting linked.
+
+self.tempPixels in regionQuery has the same ID as neighborcounts
+
+I see the problem now! regionQuery has this line:
+    neighborPixels = self.tempPixels,
+    which is NOT copy by value. this means that neighborPixels is the SAME object as self.tempPixels I think. 
+It is. 
+I've added this line to regionQuery:
+neighborPixels = (self.tempPixels).copy()
+
+which fixes (part) of the problem. I'm still seeing clusters with counts < 500, but that could be due to overlaps and edge pixels.
+Commit and continue debugging.
+
+Cluster 44 is now a small cluster. 
+
+dbscanChecker: 44 63 63 1058.8838455 500.0
+
+grep "Adding to cluster  44 " test1.log | gawk '{sum+=$5} END {print sum}'
+855.71
+
+grep "Adding to cluster  44 " test1.log | wc -l
+59
+
+Cluster  44  contains  14.0  pixels and  196.929141998 counts
+
+So everything seems inconsistent. Leave this for now. I may want to call dbscanChecker for cluster 44 for each incremented cluster to make sure it is NOT changing.
+It doesn't ?
+
+Oct 28th 2013 -------------------------------------------------
+The result from dbscanChecker does NOT change throughout the run.
+dbscanChecker reports 63 pixels added to cluster 44. 
+
+while this reports
+grep "Adding to cluster  44 " test1.log | grep -v "0.0" wc -l
+48
+
+and AnalyzeResults reports just
+14.0
+The DBSCAN Cluster Debug code agrees. 
+
+
+Wait.  Analyze Results reports the cluster info for pixelID = ClusterID+1!!!!!!!!!!!
+And:
+Cluster  45  contains  60.0  pixels and  957.063527864 counts
+
+AnalyzeResults reports that cluster 44 is low, so I want to look at pixelID=45 
+
+Again:
+
+Cluster  44  contains  14.0  pixels and  196.929141998 counts
+
+grep "Adding to cluster  45 " test1.log | gawk '{sum+=$5} END {print sum}'   ----> 135.409
+grep "Adding to cluster  45 " test3.log | wc -l                              ----> 10 
+
+Missing 4 pixels ? I don't see how these get added in. 
+
+Look at DBSCAN Cluster Debug:
+DBSCAN Cluster Debug: 44 (157, 79) 10.4966638474 10.4966638474
+DBSCAN Cluster Debug: 44 (158, 71) 10.5647965417 21.0614603891
+DBSCAN Cluster Debug: 44 (158, 72) 10.855464712 31.916925101
+DBSCAN Cluster Debug: 44 (158, 73) 14.5522977164 46.4692228174
+DBSCAN Cluster Debug: 44 (158, 76) 10.775303073 57.2445258904
+DBSCAN Cluster Debug: 44 (158, 79) 10.6196786016 67.8642044921
+DBSCAN Cluster Debug: 44 (159, 74) 11.7407198572 79.6049243492
+DBSCAN Cluster Debug: 44 (159, 76) 11.4874541866 91.0923785359
+DBSCAN Cluster Debug: 44 (159, 77) 14.8405225073 105.932901043
+DBSCAN Cluster Debug: 44 (159, 80) 10.6770980171 116.60999906
+DBSCAN Cluster Debug: 44 (159, 83) 12.5791748896 129.18917395
+DBSCAN Cluster Debug: 44 (160, 77) 43.6238135514 172.812987501
+DBSCAN Cluster Debug: 44 (163, 79) 11.6772859694 184.490273471
+DBSCAN Cluster Debug: 44 (163, 85) 12.4388685274 196.929141998
+
+
+
+Adding  (150, 71)  to cluster with counts 17.4524950663  with ID -2.0
+Adding  (151, 74)  to cluster with counts 9.77934404661  with ID -2.0
+Adding  (152, 67)  to cluster with counts 12.7072643549  with ID -2.0
+Adding  (152, 73)  to cluster with counts 11.5928014284  with ID -2.0
+Adding  (152, 75)  to cluster with counts 12.6345268302  with ID -2.0
+Adding  (153, 67)  to cluster with counts 9.89484071046  with ID -2.0
+Adding  (153, 75)  to cluster with counts 49.6755004229  with ID -2.0
+Adding  (153, 76)  to cluster with counts 10.7058547129  with ID -2.0
+Adding  (154, 68)  to cluster with counts 10.5288036839  with ID -2.0
+Adding  (154, 71)  to cluster with counts 16.7578235128  with ID -2.0
+Adding  (155, 66)  to cluster with counts 10.0038530213  with ID -2.0
+Adding  (155, 67)  to cluster with counts 13.6548256743  with ID -2.0
+Adding  (156, 65)  to cluster with counts 10.6737148764  with ID -2.0
+Adding  (158, 71)  to cluster with counts 10.5647965417  with ID 45.0
+Adding  (158, 72)  to cluster with counts 10.855464712  with ID 0.0
+Adding  (158, 73)  to cluster with counts 14.5522977164  with ID 0.0
+Adding  (158, 76)  to cluster with counts 10.775303073  with ID 0.0
+Adding  (158, 79)  to cluster with counts 10.6196786016  with ID 0.0
+Adding  (159, 65)  to cluster with counts 13.8378911756  with ID 0.0
+Adding  (159, 69)  to cluster with counts 26.7640259374  with ID 0.0
+Adding  (159, 71)  to cluster with counts 10.6958932431  with ID 0.0
+Adding  (159, 74)  to cluster with counts 11.7407198572  with ID 0.0
+Adding  (159, 76)  to cluster with counts 11.4874541866  with ID 0.0
+Adding  (159, 77)  to cluster with counts 14.8405225073  with ID 0.0
+Adding  (160, 68)  to cluster with counts 10.9532938634  with ID 0.0
+Adding  (160, 70)  to cluster with counts 18.7978573442  with ID 0.0
+Adding  (160, 77)  to cluster with counts 43.6238135514  with ID 0.0
+Adding  (163, 69)  to cluster with counts 15.9469974626  with ID 0.0
+Adding  (164, 68)  to cluster with counts 8.74006202424  with ID 0.0
+Adding  (164, 71)  to cluster with counts 71.5684616108  with ID 0.0
+Adding  (164, 72)  to cluster with counts 11.572972465  with ID 0.0
+regionQuery inside expandCluster: (158, 71) 523.999154215
+
+
+It looks like there are pixels marked with pixelID = -2, but they are NOT zero! BUG.
+The code is in expandCluster, it sets pixels to zero by only checking neighborPixels ---> but these get zeroed out if they are out of range.
+I'm also setting these pixels as Visited, which is wrong.  
+
+Pull the PixelVisited modification inside the if counts loop, this way ONLY pixels within range are marked as visited.
+check the value of imageArray for zero pixels in neighborPixels. If it is also zero there, set pixelID=-2.
+Also, mark the pixel as visited, but that assume that zero pixels can't be the seed for clusters, so be careful
+
+Making the change results in some very small clusters now, with few pixels. Could be edge cases perhaps. 
+
+Look at the info.
+
+Cluster  6  contains  2.0  pixels and  29.1291232027 counts
+ 
+
+grep "Adding to cluster  7 " test1.log | gawk '{sum+=$5} END {print sum}'     ---> 842.212
+
+grep "Adding to cluster  7 " test1.log | wc -l   ---> 64
+
+DBSCAN Cluster Debug reveals:
+
+DBSCAN Cluster Debug: 6 (40, 342) 14.1503618081 14.1503618081
+DBSCAN Cluster Debug: 6 (48, 336) 14.9787613946 29.1291232027
+
+Calling regionQuery from expandCluster, for cluster 7
+Adding  (32, 342)  to cluster with counts 70.125740062  with ID 6.0
+Adding  (33, 342)  to cluster with counts 17.2285499483  with ID 6.0
+Adding  (34, 339)  to cluster with counts 10.3838924913  with ID 6.0
+Adding  (34, 344)  to cluster with counts 29.1318485105  with ID 6.0
+Adding  (34, 345)  to cluster with counts 13.1707546283  with ID 6.0
+Adding  (35, 347)  to cluster with counts 10.2175547411  with ID 6.0
+Adding  (36, 338)  to cluster with counts 11.2101306268  with ID 6.0
+Adding  (36, 348)  to cluster with counts 9.20834508035  with ID 6.0
+Adding  (37, 344)  to cluster with counts 9.03589888169  with ID 6.0
+Adding  (38, 340)  to cluster with counts 11.1404943144  with ID 6.0
+Adding  (38, 341)  to cluster with counts 10.1677473922  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 7.0
+Adding  (40, 343)  to cluster with counts 12.1432196222  with ID 6.0
+Adding  (40, 350)  to cluster with counts 10.2719669204  with ID 6.0
+Adding  (41, 339)  to cluster with counts 13.9932337186  with ID 6.0
+Adding  (41, 341)  to cluster with counts 9.18767033174  with ID 6.0
+Adding  (41, 345)  to cluster with counts 9.12010149422  with ID 6.0
+Adding  (41, 347)  to cluster with counts 12.0073301381  with ID 6.0
+Adding  (42, 339)  to cluster with counts 10.9807348933  with ID 6.0
+Adding  (42, 343)  to cluster with counts 15.6471196316  with ID 6.0
+Adding  (42, 345)  to cluster with counts 31.7322620055  with ID 6.0
+Adding  (42, 347)  to cluster with counts 90.2435861291  with ID 6.0
+Adding  (43, 345)  to cluster with counts 11.8445634809  with ID 6.0
+Adding  (44, 337)  to cluster with counts 36.0331735739  with ID 6.0
+Adding  (44, 347)  to cluster with counts 14.8557466404  with ID 6.0
+Adding  (45, 340)  to cluster with counts 11.94220468  with ID 6.0
+Adding  (46, 342)  to cluster with counts 12.8498261442  with ID 6.0
+Adding  (46, 347)  to cluster with counts 14.9661685932  with ID 6.0
+regionQuery inside expandCluster: (40, 342) 532.990226482
+Skipping point: (32, 334) 0.0 -2.0
+
+Odd. It looks like expandCluster is not functioning properly---it should have picked up 40, 342 and assigned it to cluster 6.
+
+Doing this:
+grep  "(40, 342)" test4.log
+reveals:
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 0.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 0.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 0.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 0.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 0.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 0.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 0.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 0.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 0.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 0.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 0.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 0.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 0.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 6.0
+Adding  (40, 342)  to cluster with counts 14.1503618081  with ID 7.0
+
+This logging is from regionQuery, and is from :
+    print "Adding ",positionPrime, " to cluster with counts",countsPrime, " with ID", self.pixelID[positionPrime]
+So pixelID is being modified now. 
+Either pixelVisited is NOT being set for this point, so that the pixelID was set previously, and is being overwritten in dbscan (in the very beginning of expandCluster actually) 
+or....there's a larger bug present. 
+
+in dbscan itself, the point getting set can only be used to seed expandCluster (and thus pixelID be set) if it has been marked as visited.  
+So the problem should be in expandCluster.
+But it doesn't appear to be. 
+
+I think the addressing may be off: I don't know when this point is marked as belonging to pixelID =6.0s
+I'll need to watch this particular value closely.
+
+It looks like the pixel is set when it is out of range of regionQuery. Because of this, the pixelID=0 and pixelVisited=0.0. 
+I see the problem: points out of range of regionQuery are zero, but will NOT be marked as a zero pixel. This broke the logic. 
+
+Revert code and try to fix the problem.
+
+I've refactored the code in expandCluster. It looks like things work now!!!!!
+Check the results, and look closer at the new overlap code.
+
+Oct 29th 2013--------------
+After a small tweak to the overlap code, things are looking good. 
+Commit.
+Now I'll need to run the code again and find good DBSCAN parameters.
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----
 Now circle back to tweaking the input parameters for dbscan. 
+I may want to code up a small script to print out the number of clusters found by Erik's code, and my DBSCAN code.
 
 
 
