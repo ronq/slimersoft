@@ -9,6 +9,8 @@ import sklearn.cluster
 import math
 import cluster_output
 
+import cluster_position
+
 
 class dbscan_implementation:
     """  this is a fairly generic implemenation of the DBSCAN algorithm, except it is tailored for use on sqaure images
@@ -56,6 +58,8 @@ regionQuery(P, eps)
         # now initialize the pixelID array. This is the final product of the dbscan algorithm.
         #                                   It marks each point in an image with a particular ID, either zero (-2) noise (-1) or a cluster (positive integer)  
         self.pixelID=numpy.zeros((512,512)) 
+        # intialize the overlap array: this indicates if pixels may be shared between clusters, which should only be the case with edge points 
+        self.pixelOverlaps=numpy.zeros((512,512)) 
         # initialize working arrays 
         self.pixelVisited=numpy.zeros((512,512))   # this will mark the pixels as visited 
         self.tempPixels=numpy.zeros((self.imageSize,self.imageSize)) # for internal use only----provides a quick way of generating a zero matrix
@@ -119,34 +123,39 @@ regionQuery(P, eps)
                         slicedPosition=arrayIterator.multi_index # this will return the indices of the SLICED array!
                         positionPrime=(lo_x+slicedPosition[0],lo_y+slicedPosition[1]) 
                         countsPrime=arrayIterator[0]
-                        if not (self.pixelVisited[positionPrime]):
-                            self.pixelVisited[positionPrime]=True
-                            if countsPrime:  # only do this for non-zero pixels <<My own logic>>
+                        if not (self.pixelVisited[positionPrime]):  # new pixel, which may not be within range of the core pixel
+                            if countsPrime:  # only do this for non-zero pixels <<My own logic>>, which are within range of the core pixel
+                                self.pixelVisited[positionPrime]=True   #okay to mark as visited, as it is within range of the core pixel 
                                 neighborPixelsPrime,neighborPixelsSum = self.regionQuery(positionPrime)
-                                #print neighborPixelsSum
                                 if neighborPixelsSum >= self.MinPts:
-                                    # i think I need to call expandCluster again here, starting from positionPrime
-                                    # or perhaps I simply can't slice the neighbor matrix
+                                    # this point is a core point, mark it as a part of this cluster, and try to expand it
                                     self.expandCluster(positionPrime,neighborPixelsPrime,C)
-                                    #neighborPixels+=neighborPixelsPrime  # need to make sure I'm not double counting pixels here
-                                #if not (self.pixelID[positionPrime]): 
-                                #    self.pixelID[positionPrime]=C  
+                                else: 
+                                    # this point is a edge point, mark it as a part of this cluster
+                                    # note that the pixelID has not yet been set, as this point has not yet been visited 
+                                    self.pixelID[positionPrime]=C
+                            else: 
+                                if self.imageArray[positionPrime] > 0: 
+                                    pass # point is outside of range of core pixel, do nothing
+                                else:
+                                    # point is actually zero, mark as visited and as zero pixel
+                                    self.pixelVisited[positionPrime]=True
+                                    self.pixelID[positionPrime] = -2 
+                        else:     # old pixel, which may not be within range of the core pixel 
+                            if countsPrime: 
+                                # this point is within range, and could be considered as a part of the cluster
+                                if self.pixelID[positionPrime] > 0: # already a member of a cluster
+                                  if self.pixelID[positionPrime] != float(C): # now a member of this cluster  
+                                    self.pixelOverlaps[positionPrime]=C # need some more thought
+                                    print "dbscan_analysis.expandCluster: Re-marking already ID'd pixel at ",positionPrime," which is a part of cluster", self.pixelID[positionPrime], " as a part of cluster ",C           
+                                else:                               # should be a noise pixel
+                                    self.pixelID[positionPrime]=C # mark this pixel as a part of the cluster 
+                                
                             else:
-                                if not (self.pixelID[positionPrime]): 
-                                    self.pixelID[positionPrime]=-2 # zero pixel 
-                        if self.pixelID[positionPrime] <= 0:   # not a part of a cluster
-                            if self.pixelID[positionPrime] > -2:   # not a zero pixel
-                               #if self.pixelID[positionPrime] == 0:
-                                    #print "Marking Already visited non-noise pixel as being part of a cluster" # if this never shows up, I can change the above logic to "pixelID==-1, then..."
-                               self.pixelID[positionPrime]=C    # pixel is marked as part of this cluster
-                        """
-                        else: # pixel has already been visited 
-                            if self.pixelID[positionPrime] == -1:  # if the point is zero, it has already been marked as a zero point and pixelID=-2
-                                                                   # if the point is already a member of a cluster, pixelID > 0
-                                                                   # if point has already been visited, pixelID != 0                                          
-                                                                   # so the point must have been marked as noise, and should be changed
-                                    self.pixelID[positionPrime]=C  # mark this point as belonging to the cluster
-                        """
+                                if self.imageArray[positionPrime] > 0:
+                                    pass # point is outside of range of core pixel, do nothing
+                                else:
+                                    pass # point is actually zero, it should have been marked as such and nothing else needs to be done. 
                         arrayIterator.iternext()
         #print "Leaving expandCluster ", C , neighborPixels.sum()                     
         return
@@ -156,7 +165,7 @@ regionQuery(P, eps)
         """ 
         #create a new imageArray
         self.tempPixels*=0.
-        neighborPixels = self.tempPixels
+        neighborPixels = (self.tempPixels).copy()
         
         clusterSum=0.
         # setup bounds of a smaller, square array that contains every pixel in the neighborhood  
@@ -199,6 +208,25 @@ regionQuery(P, eps)
         radius=numpy.sqrt(radiusSquare) 
         return radius
 #-----------------------------------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------------------------------
+    def dbscanChecker(self,clusterID):
+            """ used to confirm proper function of the dbscan code
+            """
+            inCluster=(self.pixelID==clusterID)
+            sumCluster=0.
+            sumPixels=0
+            arrayIterator=numpy.nditer(self.imageArray,flags=['multi_index'])
+            while not arrayIterator.finished:
+               position=arrayIterator.multi_index
+               counts=arrayIterator[0]
+               if inCluster[position]:
+                       sumPixels+=1
+                       sumCluster+=counts                
+               arrayIterator.iternext()
+            print "dbscanChecker:",clusterID,sumPixels,inCluster.sum(),sumCluster,self.MinPts                           
+            return
+#---------------------------------------------------------------------------------------------------------------------------------------------
+
 #==============================================================================================================================================
 class dbscan_analysis:
       """ this class executes a DBscan clustering analysis to a greyscale image array
@@ -269,69 +297,26 @@ class dbscan_analysis:
                     self.clusterCounts.append((self.clusterMask[:,:,clusterID]*self.imageArray).sum()) # number of counts in a cluster
                     self.clusterFrac.append(self.clusterCounts[-1]/backgroundCounts)                       # number of counts in a cluster compared to identified background
                     self.avgPixelCount.append(self.clusterCounts[-1]/self.clusterPixels[-1])           # average pixel count in a cluster
-                    pos,var = self.ComputeClusterPosition(clusterID)                                   # compute the weighted position and variance of the pixels in the cluster
+                    pos,var = self.FindClusterPosition(clusterID)                                   # compute the weighted position and variance of the pixels in the cluster
                     self.clusterPosition.append(pos)
                     self.clusterPositionVariance.append(var)
                     self.clusterHottestPixel.append((self.clusterMask[:,:,clusterID]*self.imageArray).max())  # extract the position of the hottest pixel 
                 totalpoints=self.noiseMask.sum() + self.clusterMask.sum()                              # this is the total number of pixels above threshold in this image 
             return foundClusters 
+      
       #---------------------------------------------------------------------------
-      def ComputeClusterPosition(self,clusterID): 
-            """ this will compute the weighted average of the cluster position
-            
-                note that the means can be computed by just multiplying the clusterArray with row or column vectors like [0,1,2....] and then taking the sum 
-                
-               
-            
-            
-            """
-            mean=[0.,0.]
-            covariance=numpy.zeros((2,2))
-            countsSquared=0.0
-            # compute the imageArray of just the cluster, and normalize it
-            clusterArray=(self.imageArray*self.clusterMask[:,:,clusterID])/self.clusterCounts[clusterID]
-            
-            # compute the mean. Do this quickly by using projections -------------------------------------
-            # project in two dimensions 
-            projectX=numpy.sum(clusterArray,axis=1) # note the ordering of the axis here!
-            projectY=numpy.sum(clusterArray,axis=0)
-            
-            # compute the means from the projections
-            # get mean x
-            arrayIterator=numpy.nditer(projectX,flags=['multi_index'])
-            while not arrayIterator.finished:
-                    position=arrayIterator.multi_index # this will return the indices of the SLICED array!
-                    counts=arrayIterator[0]
-                    if counts:
-                        mean[0]+=float(position[0])*counts
-                    arrayIterator.iternext() 
-            # get mean y
-            arrayIterator=numpy.nditer(projectY,flags=['multi_index']) 
-            while not arrayIterator.finished:
-                    position=arrayIterator.multi_index # this will return the indices of the SLICED array!
-                    counts=arrayIterator[0]
-                    if counts:
-                        mean[1]+=float(position[0])*counts  # note the indexing of the position array: this is correct
-                    arrayIterator.iternext()        
-                    
-                    
-            # now compute the covariance matrix-------------------------------------------------------------
-            arrayIterator=numpy.nditer(clusterArray,flags=['multi_index'])
-            while not arrayIterator.finished:
-                    position=arrayIterator.multi_index # this will return the indices of the SLICED array!
-                    counts=arrayIterator[0]
-                    if counts:
-                        countsSquared+=counts*counts
-                        covariance[0,0]+=counts* (float(position[0])-mean[0])*(float(position[0]-mean[0]))
-                        covariance[0,1]+=counts* (float(position[0])-mean[0])*(float(position[1]-mean[1]))
-                        covariance[1,1]+=counts* (float(position[1])-mean[1])*(float(position[1]-mean[1]))
-                    arrayIterator.iternext() 
-            covariance[1,0] =  covariance[0,1]      
-            covarianceFactor=1./(1.-countsSquared) # because we've already normalized
-            covariance=covariance*covarianceFactor      
-            variance=[covariance[0,0],covariance[1,1]]
-            
-            return (mean,variance)
+      def FindClusterPosition(self,clusterID):
+          """ this will find the weighted average of the cluster position
+          """
+          # compute the imageArray of just the cluster 
+          clusterArray=self.imageArray*self.clusterMask[:,:,clusterID]
+          # now use the cluster_position class to do the computation
+          positionInfo=cluster_position.cluster_position(clusterArray)
+          # and get the info
+          mean = positionInfo.mean
+          variance = positionInfo.variance          
+          # done, return
+          return (mean,variance)
       #---------------------------------------------------------------------------
       def ChooseBestCluster(self):
             """ choose the best cluster to return 
