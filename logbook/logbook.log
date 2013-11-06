@@ -1388,6 +1388,10 @@ After a small tweak to the overlap code, things are looking good.
 Commit.
 Now I'll need to run the code again and find good DBSCAN parameters.
  
+Nov 1 2013 -----------------------------
+scan to find "good" DBSCAN parameters. 
+
+counts         eps           # clusters in C14        # clusters in background 
 
 
 
@@ -1416,17 +1420,6 @@ Now I'll need to run the code again and find good DBSCAN parameters.
 
 
 
-
-
-
-
-
-
-
-
-----
-Now circle back to tweaking the input parameters for dbscan. 
-I may want to code up a small script to print out the number of clusters found by Erik's code, and my DBSCAN code.
 
 
 

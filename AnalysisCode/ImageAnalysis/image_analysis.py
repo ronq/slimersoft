@@ -133,7 +133,7 @@ class analyze_images:
             #minPts=500.
             #eps = 5.0 # must be a float!!!!!
             minPts=500.
-            eps=2.0
+            eps=8.0
             
             dbscan.DoIt(self.imageArray[:,:,imageNumber],minPts,eps)
             return dbscan
