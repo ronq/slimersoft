@@ -153,12 +153,12 @@ For consistency, it is essential that the same settings be used for each run. Th
 %\item[Clear Cycles] 2 
 \item[Exposure Time] 200ms, seems to produce good results
 \item[Trigger] Internal Trigger 
-\item[Keep Overlapped?] Selected
+\item[Keep Overlapped?] Selected \footnote{This is the setting that Erik used, however using overlap mode may result in varied exposure times.  Michael typically ran with ``Sensor Mode'' set to ``Frame Transfer'', ``Clear Mode'' set to ``Pre-exposure'' and ``Clear Cycles'' set to ``2``. }
 \item[Clear Mode] Grayed out by ``Keep Overlapped'' selection.
 \item[Sensor Mode] Grayed out by ``Keep Overlapped" selection.
 %\item[Clear Mode] Pre-exposure
 %\item[Sensor Mode]  Frame Transfer 
-\item[Filter Cube] For scintillation only counting, no filter cube should be used. 
+\item[Filter Cube] For scintillation only counting, the Thorlabs FESH0700 filter should be selected in order to cut the IR light produced within the filter turret.
 \item[Dia Illumination] Confirmed as switched off, as it can produce low levels of light when on.
 \end{description} 
 % I deselected "Keep overlapped", and used "pre-exposure" clear modes.  Selecting "Frame Transfer" and "Pre-exposure" clearing will run the camera in non-overlapped mode. 
@@ -171,7 +171,7 @@ For consistency, it is essential that the same settings be used for each run. Th
 When using a calibration source with the scintillator/collimator holder, the following focusing procedure is used:
 \begin{enumerate}
 \item Place the scintillator/collimator holder into the clamp located on the stage. The collimator should be in place. 
-\item Rotate the correct objective into place. 
+\item Rotate the correct objective into place. Keep in mind that beginning with a low power for alignment and repeating with increasingly high power objectives may ease this process.
 \item Begin live acquisition in NI Elements. 
 \item Power up the Dia Illuminator, starting with low illumination and slowly increasing until light is seen in the live image. 
 \item Adjust the fine and course focus knobs on the side of the microscope until dark ``dots'' can be seen, and appear to be in sharp focus. 
@@ -182,6 +182,10 @@ Once the bottom of the CsI slide is in focus, the calibration source may be plac
 \subsection{Data Taking Settings}
 Data is taken in Time Lapse Acquisition Mode. Using a macro, data is collected in hour increments, then the output data file name is incremented. Doing so mitigates the 
 amount of data lost in the event of a camera communication issue, as well as permits the resulting data files to be converted into a standard \verb+.tiff+ format using the Bio Formats library. 
+
+
+% describe macro procedure
+
 
 \subsection{Fluorescence Measurements}
 \emph{Procedure to be added.}
@@ -235,6 +239,10 @@ The analysis codes can be found here:
 and is kept within a \verb+git+ repository. This repository can be checked out by doing this:
 \begin{verbatim}
                git clone /home/ronquest/Work/SLIMER master
+\end{verbatim}
+The \verb+git+ repository can also be found on GitHub at this address:
+\begin{verbatim}
+               https://github.com/ronq/slimersoft
 \end{verbatim}
 
 
@@ -521,7 +529,7 @@ search was conducted for sources of light and electronic noise, it was determine
 The side of the TI-HUBA which mounts onto the base of the microscope is open: this affords a view of the circuit board which controls its logic (it also includes a USB controller) but also permits any board-mounted LEDs to generate light within the dark box. There are two LEDs that were found on the board: one is a green LED which is illuminated when there is power to the TI-HUBA, the other blinks when power is first supplied to the unit. The former was covered with RED-X Corona Dope, which is opaque and red in color. This greatly reduced the light output of the LEDs, which was further blocked by the application of a small piece of black electrical tape.  After the masking, the lights could no longer be seen within the dark box. 
 
 \subsubsection{Filter Turret}
-The inside of the filter turret 	
+The filter turret utilizes an IR light system for position registration. As the EMCCD 
 
 
 

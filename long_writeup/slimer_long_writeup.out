@@ -46,15 +46,17 @@
 \BOOKMARK [2][-]{subsection.8.5}{241Am \040source }{section.8}% 46
 \BOOKMARK [1][-]{section.9}{Study and Comment Regarding Earlier Work on SLIMER}{}% 47
 \BOOKMARK [1][-]{section.10}{Observed Problems}{}% 48
-\BOOKMARK [2][-]{subsection.10.1}{Light Leaks}{section.10}% 49
-\BOOKMARK [2][-]{subsection.10.2}{Communication Problems}{section.10}% 50
-\BOOKMARK [2][-]{subsection.10.3}{Camera Driver Issues}{section.10}% 51
-\BOOKMARK [2][-]{subsection.10.4}{Windows Power Management Settings}{section.10}% 52
-\BOOKMARK [2][-]{subsection.10.5}{Strong temperature dependence}{section.10}% 53
-\BOOKMARK [2][-]{subsection.10.6}{Focusing Problems}{section.10}% 54
-\BOOKMARK [2][-]{subsection.10.7}{Varying Background Level}{section.10}% 55
-\BOOKMARK [2][-]{subsection.10.8}{Varying 14C rate}{section.10}% 56
-\BOOKMARK [2][-]{subsection.10.9}{Optimum Magnification}{section.10}% 57
-\BOOKMARK [2][-]{subsection.10.10}{Decrease in rate due to use of collimator}{section.10}% 58
-\BOOKMARK [2][-]{subsection.10.11}{Background cluster sizes}{section.10}% 59
-\BOOKMARK [1][-]{section.11}{To Do List}{}% 60
+\BOOKMARK [2][-]{subsection.10.1}{Light ``Leaks''}{section.10}% 49
+\BOOKMARK [3][-]{subsubsection.10.1.1}{TI-HUBA LEDs}{subsection.10.1}% 50
+\BOOKMARK [3][-]{subsubsection.10.1.2}{Filter Turret}{subsection.10.1}% 51
+\BOOKMARK [2][-]{subsection.10.2}{Communication Problems}{section.10}% 52
+\BOOKMARK [2][-]{subsection.10.3}{Camera Driver Issues}{section.10}% 53
+\BOOKMARK [2][-]{subsection.10.4}{Windows Power Management Settings}{section.10}% 54
+\BOOKMARK [2][-]{subsection.10.5}{Strong temperature dependence}{section.10}% 55
+\BOOKMARK [2][-]{subsection.10.6}{Focusing Problems}{section.10}% 56
+\BOOKMARK [2][-]{subsection.10.7}{Varying Background Level}{section.10}% 57
+\BOOKMARK [2][-]{subsection.10.8}{Varying 14C rate}{section.10}% 58
+\BOOKMARK [2][-]{subsection.10.9}{Optimum Magnification}{section.10}% 59
+\BOOKMARK [2][-]{subsection.10.10}{Decrease in rate due to use of collimator}{section.10}% 60
+\BOOKMARK [2][-]{subsection.10.11}{Background cluster sizes}{section.10}% 61
+\BOOKMARK [1][-]{section.11}{To Do List}{}% 62
